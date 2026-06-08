@@ -153,22 +153,29 @@ jobs:
               fi
             done
 
-            if ! sudo nginx -t; then
-              NGINX_TEST_OUTPUT="$(sudo nginx -t 2>&1 || true)"
-              if printf '%s\n' "$NGINX_TEST_OUTPUT" | grep -q 'host not found in upstream "client:3000"'; then
-                echo "[deploy] repairing known stale nginx upstream: client:3000 -> 127.0.0.1:3000"
-                sudo cp /etc/nginx/nginx.conf "/etc/nginx/nginx.conf.bak.$(date +%F-%H%M%S)"
-                sudo sed -i 's/server[[:space:]]\+client:3000;/server 127.0.0.1:3000; # repaired by treble-quest deploy: host nginx cannot resolve Docker service names/' /etc/nginx/nginx.conf
-                sudo nginx -t
-              else
-                echo "[deploy] FATAL: nginx config is invalid; public API cannot be checked"
-                printf '%s\n' "$NGINX_TEST_OUTPUT"
-                sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx || true
-                sudo systemctl status nginx --no-pager || true
-                sudo journalctl -u nginx --no-pager -n 50 || true
+            if ! sudo nginx -t 2>/dev/null; then
+              echo "[deploy] repairing stale Docker upstreams in nginx.conf"
+              sudo cp /etc/nginx/nginx.conf "/etc/nginx/nginx.conf.bak.$(date +%F-%H%M%S)"
+              sudo sed -i 's/server[[:space:]]\+client:3000;/server 127.0.0.1:3000;/' /etc/nginx/nginx.conf
+              sudo sed -i 's/server[[:space:]]\+server:3001;/server 127.0.0.1:3001;/' /etc/nginx/nginx.conf
+              if ! sudo nginx -t; then
+                echo "[deploy] FATAL: nginx config still invalid after upstream repair"
+                sudo nginx -t 2>&1 || true
                 exit 1
               fi
             fi
+
+            # Deploy /r/ proxy snippet for share result pages
+            printf '    location /r/ {\n        proxy_pass http://127.0.0.1:8787;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_read_timeout 10s;\n    }\n' | sudo tee /etc/nginx/treble-quest-share.conf > /dev/null
+            if ! sudo grep -q 'treble-quest-share.conf' /etc/nginx/nginx.conf; then
+              echo "[deploy] adding include for /r/ proxy in nginx config"
+              sudo sed -i '/server_name.*treble\.quest/a\    include /etc/nginx/treble-quest-share.conf;' /etc/nginx/nginx.conf
+              if ! sudo nginx -t; then
+                echo "[deploy] WARNING: include injection failed, removing"
+                sudo sed -i '/treble-quest-share.conf/d' /etc/nginx/nginx.conf
+              fi
+            fi
+
             sudo systemctl enable --now nginx
             sudo systemctl reload nginx
 
