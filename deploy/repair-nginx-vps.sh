@@ -41,6 +41,22 @@ need curl
 
 [ -f "$APP_ENV" ] || fail "$APP_ENV does not exist; run deploy first"
 
+patch_container_proxy_pass() {
+  local file="$1"
+
+  $SUDO docker exec "$EDGE_CID" sh -c '
+    file="$1"
+    api_port="$2"
+    api_domain="$3"
+    gateway="$4"
+    tmp="$(mktemp)"
+
+    sed -E "s#proxy_pass[[:space:]]+https?://[^;]*(:${api_port}|${api_domain}|127[.]0[.]0[.]1|localhost)[^;]*;#proxy_pass http://${gateway}:${api_port};#g" "$file" > "$tmp"
+    cat "$tmp" > "$file"
+    rm -f "$tmp"
+  ' sh "$file" "$API_PORT" "$API_DOMAIN" "$GATEWAY"
+}
+
 container_fetch() {
   local url="$1"
   $SUDO docker exec "$EDGE_CID" sh -c '
@@ -193,8 +209,7 @@ while IFS= read -r file; do
 
   backup="$file.treble-backup-$(date +%Y%m%d%H%M%S)"
   $SUDO docker exec "$EDGE_CID" sh -c "cp '$file' '$backup'"
-  $SUDO docker exec "$EDGE_CID" sh -c \
-    "sed -i -E 's#proxy_pass[[:space:]]+https?://[^;]*(:$API_PORT|$API_DOMAIN|127[.]0[.]0[.]1|localhost)[^;]*;#proxy_pass http://$GATEWAY:$API_PORT;#g' '$file'"
+  patch_container_proxy_pass "$file"
 
   if $SUDO docker exec "$EDGE_CID" sh -c "cmp -s '$file' '$backup'"; then
     $SUDO docker exec "$EDGE_CID" sh -c "rm -f '$backup'"
