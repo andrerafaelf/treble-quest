@@ -175,7 +175,7 @@ jobs:
               fi
             fi
 
-            sudo systemctl enable nginx
+            sudo systemctl enable nginx || true
             if sudo nginx -t 2>/dev/null && sudo test -e /run/nginx.pid && sudo kill -0 "$(cat /run/nginx.pid 2>/dev/null)" 2>/dev/null; then
               echo "[deploy] nginx master running — sending reload signal"
               sudo nginx -s reload
