@@ -9,7 +9,7 @@
     <span class="eyebrow">High Score</span>
     <h1 class:treble-score={result.trophies === 3}>{result.score.toLocaleString()}</h1>
     <p class:treble-text={result.trophies === 3}>
-      {result.trophies === 3 ? '🏆 Treble completed.' : result.trophies === 0 ? 'No trophies this time.' : `${result.trophies} trophy${result.trophies === 1 ? '' : 's'} won.`}
+      {result.trophies === 3 ? '🏆 Treble completed.' : result.trophies === 0 ? 'No trophies this time.' : result.trophies === 1 ? '1 trophy won.' : `${result.trophies} trophies won.`}
     </p>
   </div>
   <div class="trophy-strip" aria-label={`${result.trophies} trophies`}>

@@ -1,12 +1,12 @@
 :root {
-  --bg: #080f0d;
-  --surface: #0f1c18;
-  --surface-2: #162420;
-  --line: rgba(255,255,255,.13);
-  --text: #f0f7f4;
-  --muted: #8eaaa3;
-  --accent: #2de0c8;
-  --accent-2: #5b9cff;
+  --bg: #0d1f1a;
+  --surface: #152b24;
+  --surface-2: #1c3830;
+  --line: rgba(255,255,255,.15);
+  --text: #eef7f3;
+  --muted: #90b0a6;
+  --accent: #1dd9bf;
+  --accent-2: #6aa3ff;
   --danger: #ff5c5c;
   --gold: #f5c044;
   --gold-dark: #7a5000;
@@ -22,10 +22,10 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(rgba(45,224,200,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45,224,200,.04) 1px, transparent 1px),
-    linear-gradient(155deg, rgba(91,156,255,.18), transparent 34rem),
-    linear-gradient(25deg, rgba(245,192,68,.12), transparent 38rem),
+    linear-gradient(rgba(29,217,191,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29,217,191,.05) 1px, transparent 1px),
+    linear-gradient(155deg, rgba(106,163,255,.28), transparent 34rem),
+    linear-gradient(25deg, rgba(245,192,68,.2), transparent 38rem),
     var(--bg);
   background-size: 100% 4.5rem, 4.5rem 100%, auto, auto, auto;
 }
@@ -206,7 +206,7 @@ h1, h2, h3, p { margin-top: 0; }
 
 .card {
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.05));
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 24px 70px rgba(0,0,0,.24);
