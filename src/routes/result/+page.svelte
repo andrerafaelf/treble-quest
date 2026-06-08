@@ -8,6 +8,7 @@
   import MatchFeed from '$lib/components/MatchFeed.svelte';
   import MatchPlayback from '$lib/components/MatchPlayback.svelte';
   import PlayerStatsTable from '$lib/components/PlayerStatsTable.svelte';
+  import ResultCard from '$lib/components/ResultCard.svelte';
   import ResultHero from '$lib/components/ResultHero.svelte';
   import SharePanel from '$lib/components/SharePanel.svelte';
   import SquadRail from '$lib/components/SquadRail.svelte';
@@ -73,49 +74,60 @@
       {#if !playbackDone}
         <MatchPlayback matches={result.matches} onDone={finishPlayback} />
       {:else}
-      <ResultHero {result} />
-      <StatHighlights highlights={result.highlights} />
-      <CompetitionBreakdown {result} />
-      <AwardsPanel awards={result.awards} />
-      <PlayerStatsTable stats={result.playerStats} />
-      <MatchFeed matches={result.matches} />
-      <LeagueTable rows={result.leagueTable} />
-      <section class="insight-grid">
-        <article>
-          <span>Best pick</span>
-          <h2>{result.bestPick.type === 'manager' ? result.bestPick.manager.name : result.bestPick.player.name}</h2>
-          <p>{result.bestPick.slot.label}</p>
-        </article>
-        <article>
-          <span>Weak link</span>
-          <h2>{result.weakLink.type === 'manager' ? result.weakLink.manager.name : result.weakLink.player.name}</h2>
-          <p>{result.weakLink.slot.label}</p>
-        </article>
-        <article>
-          <span>Manager impact</span>
-          <h2>{result.ratings.managerBoost}</h2>
-          <p>{result.managerImpact}</p>
-        </article>
-        {#if streak}
-          <article class:streak-fire={streak.current >= 3}>
-            <span>Streak</span>
-            <h2>{streak.current === 0 ? 'Broken' : `${streak.current} ${streak.current === 1 ? 'run' : 'runs'}`}</h2>
-            <p>{streak.current === 0 ? 'No trophies — streak reset' : streak.current >= streak.best ? `Best streak: ${streak.best}` : `Personal best: ${streak.best}`}</p>
+        <ResultHero {result} />
+        <StatHighlights highlights={result.highlights} />
+        <CompetitionBreakdown {result} />
+        <AwardsPanel awards={result.awards} />
+        <PlayerStatsTable stats={result.playerStats} />
+        <MatchFeed matches={result.matches} />
+        <LeagueTable rows={result.leagueTable} />
+        <section class="insight-grid">
+          <article>
+            <span>Best pick</span>
+            <h2>{result.bestPick.type === 'manager' ? result.bestPick.manager.name : result.bestPick.player.name}</h2>
+            <p>{result.bestPick.slot.label}</p>
           </article>
-        {/if}
-      </section>
-      <section class="final-squad-pitch" aria-label="Final squad">
-        <SquadRail picks={run.picks} {slots} />
-      </section>
-      <LeaderboardSubmit {run} />
-      <div class="kofi-nudge">
-        <p>Enjoying Treble Quest? <a href="https://ko-fi.com/treblequest" target="_blank" rel="noreferrer">Support on Ko-fi</a> to keep it online and growing.</p>
-      </div>
-      <SharePanel text={result.shareText} />
-      <div class="toolbar-row">
-        <Button onclick={replay}>Play again</Button>
-        <Button variant="secondary" onclick={newRun}>New mode</Button>
-      </div>
+          <article>
+            <span>Weak link</span>
+            <h2>{result.weakLink.type === 'manager' ? result.weakLink.manager.name : result.weakLink.player.name}</h2>
+            <p>{result.weakLink.slot.label}</p>
+          </article>
+          <article>
+            <span>Manager impact</span>
+            <h2>{result.ratings.managerBoost}</h2>
+            <p>{result.managerImpact}</p>
+          </article>
+          {#if streak}
+            <article class:streak-fire={streak.current >= 3}>
+              <span>Streak</span>
+              <h2>{streak.current === 0 ? 'Broken' : `${streak.current} ${streak.current === 1 ? 'run' : 'runs'}`}</h2>
+              <p>
+                {streak.current === 0
+                  ? 'No trophies — streak reset'
+                  : streak.current >= streak.best
+                    ? `Best streak: ${streak.best}`
+                    : `Personal best: ${streak.best}`}
+              </p>
+            </article>
+          {/if}
+        </section>
+        <section class="final-squad-pitch" aria-label="Final squad">
+          <SquadRail picks={run.picks} {slots} />
+        </section>
+        <LeaderboardSubmit {run} />
+        <div class="kofi-nudge">
+          <p>
+            Enjoying Treble Quest? <a href="https://ko-fi.com/treblequest" target="_blank" rel="noreferrer"
+              >Support on Ko-fi</a
+            > to keep it online and growing.
+          </p>
+        </div>
+        <SharePanel {run} {result} />
+        <ResultCard {result} {run} />
+        <div class="toolbar-row">
+          <Button onclick={replay}>Play again</Button>
+          <Button variant="secondary" onclick={newRun}>New mode</Button>
+        </div>
       {/if}
     </div>
   </section>

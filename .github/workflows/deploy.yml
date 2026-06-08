@@ -90,8 +90,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "artifacts/site.tar.gz,artifacts/server.tar.gz"
-          target: "/tmp/treble-quest-deploy"
+          source: 'artifacts/site.tar.gz,artifacts/server.tar.gz'
+          target: '/tmp/treble-quest-deploy'
           strip_components: 1
 
       - name: Install on VPS
@@ -128,6 +128,7 @@ jobs:
             HOST=127.0.0.1
             DB_PATH=$APP_DIR/server/data/leaderboard.db
             ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}
+            SITE_URL=${{ vars.PUBLIC_SITE_URL }}
             IP_SALT=${{ secrets.IP_SALT }}
             ENVEOF
             sudo chmod 0640 /etc/treble-quest.env
@@ -153,12 +154,23 @@ jobs:
             done
 
             if ! sudo nginx -t; then
-              echo "[deploy] FATAL: nginx config is invalid; public API cannot be checked"
-              sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx || true
-              sudo systemctl status nginx --no-pager || true
-              sudo journalctl -u nginx --no-pager -n 50 || true
-              exit 1
+              NGINX_TEST_OUTPUT="$(sudo nginx -t 2>&1 || true)"
+              if printf '%s\n' "$NGINX_TEST_OUTPUT" | grep -q 'host not found in upstream "client:3000"'; then
+                echo "[deploy] repairing known stale nginx upstream: client:3000 -> 127.0.0.1:3000"
+                sudo cp /etc/nginx/nginx.conf "/etc/nginx/nginx.conf.bak.$(date +%F-%H%M%S)"
+                sudo sed -i 's/server[[:space:]]\+client:3000;/server 127.0.0.1:3000; # repaired by treble-quest deploy: host nginx cannot resolve Docker service names/' /etc/nginx/nginx.conf
+                sudo nginx -t
+              else
+                echo "[deploy] FATAL: nginx config is invalid; public API cannot be checked"
+                printf '%s\n' "$NGINX_TEST_OUTPUT"
+                sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx || true
+                sudo systemctl status nginx --no-pager || true
+                sudo journalctl -u nginx --no-pager -n 50 || true
+                exit 1
+              fi
             fi
+            sudo systemctl enable --now nginx
+            sudo systemctl reload nginx
 
             for i in $(seq 1 6); do
               if curl -fsS --connect-timeout 5 --max-time 10 https://api.treble.quest/health > /dev/null; then

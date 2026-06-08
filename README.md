@@ -119,8 +119,13 @@ sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx
 
 `nginx -t` must pass. An error like `host not found in upstream "client:3000"`
 means a stale nginx config from another app is still loaded from `/etc/nginx`.
-On a shared VPS, fix only the stale config that owns that upstream, then reload
-nginx and re-check the public health endpoint:
+Production deploys repair that one known-bad host-level upstream by replacing
+`server client:3000;` with `server 127.0.0.1:3000;` after backing up
+`/etc/nginx/nginx.conf`. This is intentionally narrow for a shared VPS: the
+deploy does not replace nginx config or remove other apps' server blocks.
+
+For any other nginx error, fix only the stale config that owns the bad upstream,
+then reload nginx and re-check the public health endpoint:
 
 ```bash
 sudo systemctl reload nginx
