@@ -41,6 +41,56 @@ need curl
 
 [ -f "$APP_ENV" ] || fail "$APP_ENV does not exist; run deploy first"
 
+container_fetch() {
+  local url="$1"
+  $SUDO docker exec "$EDGE_CID" sh -c '
+    url="$1"
+
+    if command -v curl >/dev/null 2>&1; then
+      curl -fsS --connect-timeout 2 --max-time 5 "$url"
+      exit $?
+    fi
+
+    if command -v wget >/dev/null 2>&1; then
+      wget -q -O - -T 5 "$url"
+      exit $?
+    fi
+
+    if command -v nc >/dev/null 2>&1; then
+      target="${url#http://}"
+      path="/${target#*/}"
+      if [ "$path" = "/$target" ]; then
+        path="/"
+      fi
+      hostport="${target%%/*}"
+      host="${hostport%%:*}"
+      port="${hostport##*:}"
+      printf "GET %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n" "$path" "$hostport" |
+        nc -w 5 "$host" "$port" |
+        grep -q "200 OK"
+      exit $?
+    fi
+
+    echo "no curl, wget, or nc available inside edge container" >&2
+    exit 127
+  ' sh "$url"
+}
+
+allow_edge_subnet_to_api() {
+  [ -n "${EDGE_SUBNET:-}" ] || return 0
+
+  log "allowing $EDGE_SUBNET to reach $GATEWAY:$API_PORT on the host"
+
+  if command -v ufw >/dev/null 2>&1 && $SUDO ufw status 2>/dev/null | grep -qi '^Status: active'; then
+    $SUDO ufw allow proto tcp from "$EDGE_SUBNET" to "$GATEWAY" port "$API_PORT" >/dev/null
+  fi
+
+  if command -v iptables >/dev/null 2>&1; then
+    $SUDO iptables -C INPUT -p tcp -s "$EDGE_SUBNET" -d "$GATEWAY" --dport "$API_PORT" -j ACCEPT 2>/dev/null ||
+      $SUDO iptables -I INPUT 1 -p tcp -s "$EDGE_SUBNET" -d "$GATEWAY" --dport "$API_PORT" -j ACCEPT
+  fi
+}
+
 EDGE_CID="$(
   $SUDO docker ps --format '{{.ID}} {{.Ports}}' |
     awk '/0\.0\.0\.0:443->|:::443->/ { print $1; exit }'
@@ -57,6 +107,14 @@ if ! $SUDO docker exec "$EDGE_CID" sh -c 'command -v nginx >/dev/null 2>&1'; the
   fail "the container publishing 443 is not an nginx container; configure the shared edge to proxy $API_DOMAIN to the host API"
 fi
 
+EDGE_NETWORK="$(
+  $SUDO docker inspect -f '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' "$EDGE_CID" |
+    awk 'NF { print; exit }'
+)"
+
+[ -n "$EDGE_NETWORK" ] || fail "could not determine Docker network for $EDGE_NAME"
+log "edge Docker network: $EDGE_NETWORK"
+
 GATEWAY="$(
   $SUDO docker inspect -f '{{range .NetworkSettings.Networks}}{{if .Gateway}}{{println .Gateway}}{{end}}{{end}}' "$EDGE_CID" |
     awk 'NF { print; exit }'
@@ -64,6 +122,17 @@ GATEWAY="$(
 
 [ -n "$GATEWAY" ] || fail "could not determine Docker gateway for $EDGE_NAME"
 log "using Docker gateway $GATEWAY for host API access"
+
+EDGE_SUBNET="$(
+  $SUDO docker network inspect -f '{{range .IPAM.Config}}{{if .Subnet}}{{println .Subnet}}{{end}}{{end}}' "$EDGE_NETWORK" |
+    awk 'NF { print; exit }'
+)"
+
+if [ -n "$EDGE_SUBNET" ]; then
+  log "edge Docker subnet: $EDGE_SUBNET"
+else
+  log "could not determine edge Docker subnet; skipping firewall auto-allow"
+fi
 
 TMP_ENV="$(mktemp)"
 cp "$APP_ENV" "$TMP_ENV"
@@ -95,7 +164,11 @@ for i in $(seq 1 12); do
   fi
 done
 
-if ! $SUDO docker exec "$EDGE_CID" sh -c "curl -fsS --connect-timeout 2 --max-time 5 http://$GATEWAY:$API_PORT/health >/dev/null 2>&1 || wget -qO- --timeout=5 http://$GATEWAY:$API_PORT/health >/dev/null 2>&1"; then
+allow_edge_subnet_to_api
+
+if ! EDGE_HEALTH_OUTPUT="$(container_fetch "http://$GATEWAY:$API_PORT/health" 2>&1)"; then
+  log "edge container health probe failed:"
+  echo "$EDGE_HEALTH_OUTPUT"
   fail "$EDGE_NAME cannot reach host API at http://$GATEWAY:$API_PORT/health"
 fi
 log "edge container can reach host API"
