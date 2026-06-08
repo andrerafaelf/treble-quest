@@ -119,8 +119,8 @@ sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx
 
 `nginx -t` must pass. An error like `host not found in upstream "client:3000"`
 means a stale nginx config from another app is still loaded from `/etc/nginx`.
-Remove or disable that server block, then reload nginx and re-check the public
-health endpoint:
+On a shared VPS, fix only the stale config that owns that upstream, then reload
+nginx and re-check the public health endpoint:
 
 ```bash
 sudo systemctl reload nginx

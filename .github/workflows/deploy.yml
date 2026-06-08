@@ -154,6 +154,7 @@ jobs:
 
             if ! sudo nginx -t; then
               echo "[deploy] FATAL: nginx config is invalid; public API cannot be checked"
+              sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx || true
               sudo systemctl status nginx --no-pager || true
               sudo journalctl -u nginx --no-pager -n 50 || true
               exit 1
