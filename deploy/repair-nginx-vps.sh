@@ -45,6 +45,7 @@ patch_container_proxy_pass() {
   local file="$1"
 
   $SUDO docker exec "$EDGE_CID" sh -c '
+    set -e
     file="$1"
     api_port="$2"
     api_domain="$3"
@@ -55,6 +56,71 @@ patch_container_proxy_pass() {
     cat "$tmp" > "$file"
     rm -f "$tmp"
   ' sh "$file" "$API_PORT" "$API_DOMAIN" "$GATEWAY"
+}
+
+patch_host_proxy_pass() {
+  local host_file="$1"
+  local tmp
+  local backup
+
+  tmp="$(mktemp)"
+  if ! $SUDO sed -E "s#proxy_pass[[:space:]]+https?://[^;]*(:${API_PORT}|${API_DOMAIN}|127[.]0[.]0[.]1|localhost)[^;]*;#proxy_pass http://${GATEWAY}:${API_PORT};#g" "$host_file" > "$tmp"; then
+    rm -f "$tmp"
+    fail "could not read and patch host file $host_file"
+  fi
+
+  if $SUDO cmp -s "$tmp" "$host_file"; then
+    rm -f "$tmp"
+    return 1
+  fi
+
+  backup="$host_file.treble-backup-$(date +%Y%m%d%H%M%S)"
+  if ! $SUDO cp "$host_file" "$backup"; then
+    rm -f "$tmp"
+    fail "could not back up host file $host_file"
+  fi
+  if ! $SUDO sh -c 'cat "$1" > "$2"' sh "$tmp" "$host_file"; then
+    rm -f "$tmp"
+    fail "could not write patched host file $host_file"
+  fi
+  rm -f "$tmp"
+
+  log "patched host file $host_file (backup: $backup)"
+  return 0
+}
+
+host_path_for_container_path() {
+  local file="$1"
+  local best_dest=""
+  local best_host=""
+  local source
+  local dest
+  local rw
+  local rel
+
+  while IFS="$(printf '\t')" read -r source dest rw; do
+    [ -n "$source" ] || continue
+
+    if [ "$file" = "$dest" ]; then
+      printf '%s\n' "$source"
+      return 0
+    fi
+
+    case "$file" in
+      "$dest"/*)
+        if [ "${#dest}" -gt "${#best_dest}" ]; then
+          rel="${file#"$dest"/}"
+          best_dest="$dest"
+          best_host="$source/$rel"
+        fi
+        ;;
+    esac
+  done <<EOF
+$MOUNT_TABLE
+EOF
+
+  [ -n "$best_host" ] || return 1
+  printf '%s\n' "$best_host"
 }
 
 container_fetch() {
@@ -191,13 +257,14 @@ log "edge container can reach host API"
 
 CONFIG_FILES="$(
   $SUDO docker exec "$EDGE_CID" sh -c \
-    "grep -RslE '($API_DOMAIN|$DOMAIN|127[.]0[.]0[.]1:$API_PORT|localhost:$API_PORT|:$API_PORT)' /etc/nginx 2>/dev/null || true"
+    "grep -RslE '($API_DOMAIN|$DOMAIN|127[.]0[.]0[.]1:$API_PORT|localhost:$API_PORT|:$API_PORT)' /etc/nginx 2>/dev/null | grep -v '[.]treble-backup-' || true"
 )"
 
 [ -n "$CONFIG_FILES" ] || fail "could not find Treble Quest nginx config inside $EDGE_NAME"
 
 log "nginx config mounts:"
-$SUDO docker inspect -f '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}' "$EDGE_CID" || true
+MOUNT_TABLE="$($SUDO docker inspect -f '{{range .Mounts}}{{printf "%s\t%s\t%v\n" .Source .Destination .RW}}{{end}}' "$EDGE_CID")"
+printf '%s\n' "$MOUNT_TABLE" | awk -F '\t' '{ print $1 " -> " $2 " (rw=" $3 ")" }'
 
 PATCHED=0
 while IFS= read -r file; do
@@ -207,9 +274,20 @@ while IFS= read -r file; do
     continue
   fi
 
+  if host_file="$(host_path_for_container_path "$file")"; then
+    if patch_host_proxy_pass "$host_file"; then
+      PATCHED=1
+    else
+      log "no Treble proxy target needed changing in $host_file"
+    fi
+    continue
+  fi
+
   backup="$file.treble-backup-$(date +%Y%m%d%H%M%S)"
   $SUDO docker exec "$EDGE_CID" sh -c "cp '$file' '$backup'"
-  patch_container_proxy_pass "$file"
+  if ! patch_container_proxy_pass "$file"; then
+    fail "could not patch $file inside $EDGE_NAME and no host bind mount source was found"
+  fi
 
   if $SUDO docker exec "$EDGE_CID" sh -c "cmp -s '$file' '$backup'"; then
     $SUDO docker exec "$EDGE_CID" sh -c "rm -f '$backup'"
@@ -223,7 +301,9 @@ done <<EOF
 $CONFIG_FILES
 EOF
 
-[ "$PATCHED" -eq 1 ] || fail "found nginx config but did not patch any Treble proxy_pass target"
+if [ "$PATCHED" -eq 0 ]; then
+  log "no Treble proxy target changed; continuing to public health check"
+fi
 
 if ! $SUDO docker exec "$EDGE_CID" nginx -t; then
   fail "nginx config failed validation after patch; backups remain next to patched files"
