@@ -1,0 +1,155 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install site deps
+        run: npm install
+
+      - name: Typecheck site
+        run: npm run check
+
+      - name: Build site
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_API_BASE: ${{ vars.PUBLIC_API_BASE }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+        run: npm run build
+
+      - name: Install server deps
+        working-directory: server
+        run: npm install
+
+      - name: Typecheck server
+        working-directory: server
+        run: npx tsc --noEmit
+
+      - name: Package artifacts
+        run: |
+          mkdir -p artifacts
+          tar -czf artifacts/site.tar.gz -C build .
+          tar -czf artifacts/server.tar.gz \
+            --exclude='server/node_modules' \
+            --exclude='server/data' \
+            server
+
+      - uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: deploy-bundle
+          path: artifacts/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: deploy-bundle
+          path: artifacts
+
+      - name: Upload bundle to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "artifacts/site.tar.gz,artifacts/server.tar.gz"
+          target: "/tmp/treble-quest-deploy"
+          strip_components: 1
+
+      - name: Install on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            APP_DIR=/opt/treble-quest
+            SITE_DIR=/var/www/treble-quest
+            BUNDLE_DIR=/tmp/treble-quest-deploy
+
+            sudo mkdir -p "$APP_DIR/server" "$SITE_DIR"
+
+            STAGING="$SITE_DIR.next"
+            sudo rm -rf "$STAGING"
+            sudo mkdir -p "$STAGING"
+            sudo tar -xzf "$BUNDLE_DIR/site.tar.gz" -C "$STAGING"
+            sudo rsync -a --delete "$STAGING/" "$SITE_DIR/"
+            sudo rm -rf "$STAGING"
+
+            sudo tar -xzf "$BUNDLE_DIR/server.tar.gz" -C "$APP_DIR" --strip-components=1
+            sudo chown -R trebleq:trebleq "$APP_DIR"
+
+            sudo -u trebleq bash -c "cd $APP_DIR/server && npm install --omit=dev"
+
+            sudo tee /etc/treble-quest.env > /dev/null <<ENVEOF
+            NODE_ENV=production
+            PORT=8787
+            HOST=127.0.0.1
+            DB_PATH=$APP_DIR/server/data/leaderboard.db
+            ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}
+            IP_SALT=${{ secrets.IP_SALT }}
+            ENVEOF
+            sudo chmod 0640 /etc/treble-quest.env
+            sudo chown root:trebleq /etc/treble-quest.env
+
+            sudo cp "$APP_DIR/server/deploy/treble-quest-api.service" /etc/systemd/system/treble-quest-api.service
+            sudo systemctl daemon-reload
+            sudo systemctl enable treble-quest-api
+            sudo systemctl restart treble-quest-api
+
+            for i in $(seq 1 12); do
+              if curl -fsS http://127.0.0.1:8787/health > /dev/null; then
+                echo "[deploy] API healthy"
+                break
+              fi
+              echo "[deploy] attempt $i: API not ready"
+              sleep 2
+              if [ "$i" -eq 12 ]; then
+                echo "[deploy] FATAL: API failed health check"
+                sudo journalctl -u treble-quest-api --no-pager -n 50
+                exit 1
+              fi
+            done
+
+            sudo nginx -t && sudo systemctl reload nginx
+
+            rm -rf "$BUNDLE_DIR"
+            echo "[deploy] done"

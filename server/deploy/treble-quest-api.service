@@ -1,0 +1,23 @@
+[Unit]
+Description=Treble Quest leaderboard API
+After=network.target
+
+[Service]
+Type=simple
+User=trebleq
+WorkingDirectory=/opt/treble-quest/server
+EnvironmentFile=/etc/treble-quest.env
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/treble-quest/server/data
+
+[Install]
+WantedBy=multi-user.target
