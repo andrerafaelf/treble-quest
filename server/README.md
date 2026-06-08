@@ -6,8 +6,8 @@ before storing it, so a tampered client payload can't reach the board.
 ## Endpoints
 
 - `GET /health` — liveness probe.
-- `GET /api/leaderboard?mode=quick|classic&limit=50` — top entries for a mode.
-- `POST /api/scores` — body `{ name, run }`. Server replays and writes if valid.
+- `GET /leaderboard?mode=quick|classic&limit=50` — top entries for a mode.
+- `POST /scores` — body `{ name, run }`. Server replays and writes if valid.
 
 ## Local dev
 

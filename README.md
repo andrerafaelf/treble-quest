@@ -35,6 +35,7 @@ Copy `.env.example` to `.env` for local testing, or set the same public environm
 
 ```bash
 PUBLIC_SITE_URL=https://treblequest.com/
+PUBLIC_API_BASE=https://api.treble.quest
 PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 PUBLIC_GOOGLE_SITE_VERIFICATION=your-search-console-token
 ```
@@ -104,6 +105,27 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 
 The API runs as a separate origin on `api.treble.quest`, proxied by nginx to
 the Node service bound to `127.0.0.1:8787`. CORS is gated by `ALLOWED_ORIGINS`.
+
+### API troubleshooting
+
+If the leaderboard service is healthy on the VPS but `https://api.treble.quest`
+times out publicly, check nginx before changing the Node service:
+
+```bash
+curl -v http://127.0.0.1:8787/health
+sudo nginx -t
+sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx
+```
+
+`nginx -t` must pass. An error like `host not found in upstream "client:3000"`
+means a stale nginx config from another app is still loaded from `/etc/nginx`.
+Remove or disable that server block, then reload nginx and re-check the public
+health endpoint:
+
+```bash
+sudo systemctl reload nginx
+curl -v https://api.treble.quest/health
+```
 
 ### Production environment gate
 

@@ -140,13 +140,30 @@ jobs:
 
             for i in $(seq 1 12); do
               if curl -fsS http://127.0.0.1:8787/health > /dev/null; then
-                echo "[deploy] API healthy"
+                echo "[deploy] API service healthy"
                 break
               fi
               echo "[deploy] attempt $i: API not ready"
               sleep 2
               if [ "$i" -eq 12 ]; then
                 echo "[deploy] FATAL: API failed health check"
+                sudo journalctl -u treble-quest-api --no-pager -n 50
+                exit 1
+              fi
+            done
+
+            for i in $(seq 1 6); do
+              if curl -fsS --connect-timeout 5 --max-time 10 https://api.treble.quest/health > /dev/null; then
+                echo "[deploy] public API healthy"
+                break
+              fi
+              echo "[deploy] attempt $i: public API not reachable"
+              sleep 3
+              if [ "$i" -eq 6 ]; then
+                echo "[deploy] FATAL: public API failed health check"
+                sudo nginx -t || true
+                sudo systemctl status nginx --no-pager || true
+                sudo journalctl -u nginx --no-pager -n 50 || true
                 sudo journalctl -u treble-quest-api --no-pager -n 50
                 exit 1
               fi

@@ -49,8 +49,8 @@ export function simulateMatch(inputs: MatchInputs, rng: () => number): MatchOutc
 
   const powerGap = (effectivePower - opponentRating) / 12;
 
-  const baseAttackLambda = 1.35 + powerGap * 0.55 + (ratings.attack - 60) * 0.018 - pressureTax * 0.35;
-  const baseDefenceLambda = 1.35 - powerGap * 0.45 - (effectiveDefence - 60) * 0.018 + pressureTax * 0.25;
+  const baseAttackLambda = 1.1 + powerGap * 0.5 + (ratings.attack - 60) * 0.016 - pressureTax * 0.35;
+  const baseDefenceLambda = 1.1 - powerGap * 0.42 - (effectiveDefence - 60) * 0.016 + pressureTax * 0.25;
 
   const attackNoise = (rng() - 0.5) * 0.6 * varianceMultiplier;
   const defenceNoise = (rng() - 0.5) * 0.6 * varianceMultiplier;

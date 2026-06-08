@@ -6,7 +6,8 @@ export function calculateTeamRatings(run: RunState): TeamRatings {
   const manager = run.picks.find((pick) => pick.type === 'manager')?.manager;
   const players = playerPicks.map((pick) => pick.player);
   const safeCount = Math.max(players.length, 1);
-  const average = (key: 'control' | 'defence' | 'clutch' | 'consistency') => players.reduce((sum, player) => sum + player[key], 0) / safeCount;
+  const average = (key: 'control' | 'defence' | 'clutch' | 'consistency') =>
+    players.reduce((sum, player) => sum + player[key], 0) / safeCount;
   const outfieldPlayers = players.filter((player) => !player.positions.includes('GK'));
   const attackCount = Math.max(outfieldPlayers.length, 1);
   const attack = outfieldPlayers.reduce((sum, player) => sum + player.attack, 0) / attackCount;
@@ -20,7 +21,7 @@ export function calculateTeamRatings(run: RunState): TeamRatings {
     consistency: clampRating(average('consistency')),
     chemistry: calculateChemistry(playerPicks),
     managerBoost: calculateManagerBoost(manager),
-    fit: Math.round((fit / Math.max(playerPicks.length, 1)) * 100)
+    fit: Math.round((fit / Math.max(playerPicks.length, 1)) * 100),
   };
 }
 
@@ -48,12 +49,12 @@ export function calculateManagerBoost(manager?: Manager): number {
 
 export function weightedTeamPower(ratings: TeamRatings): number {
   return (
-    ratings.attack * 0.18 +
-    ratings.control * 0.22 +
-    ratings.defence * 0.18 +
-    ratings.clutch * 0.14 +
-    ratings.consistency * 0.18 +
-    ratings.chemistry * 0.07 +
+    ratings.attack * 0.15 +
+    ratings.control * 0.18 +
+    ratings.defence * 0.15 +
+    ratings.clutch * 0.12 +
+    ratings.consistency * 0.15 +
+    ratings.chemistry * 0.22 +
     ratings.managerBoost * 0.03
   );
 }
