@@ -152,7 +152,5 @@ jobs:
               fi
             done
 
-            sudo nginx -t && sudo systemctl reload nginx
-
             rm -rf "$BUNDLE_DIR"
             echo "[deploy] done"
