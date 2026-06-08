@@ -176,13 +176,12 @@ jobs:
             fi
 
             sudo systemctl enable nginx || true
-            if sudo nginx -t 2>/dev/null && sudo test -e /run/nginx.pid && sudo kill -0 "$(cat /run/nginx.pid 2>/dev/null)" 2>/dev/null; then
-              echo "[deploy] nginx master running — sending reload signal"
-              sudo nginx -s reload
+            if sudo nginx -s reload 2>/dev/null; then
+              echo "[deploy] nginx reloaded"
             else
-              echo "[deploy] nginx not running — attempting full start"
-              sudo systemctl restart nginx || sudo systemctl start nginx || {
-                echo "[deploy] WARNING: nginx failed to start, dumping diagnostics"
+              echo "[deploy] nginx reload failed — attempting restart"
+              sudo systemctl restart nginx 2>/dev/null || sudo systemctl start nginx 2>/dev/null || {
+                echo "[deploy] WARNING: nginx failed to start"
                 sudo journalctl -xeu nginx.service --no-pager -n 30 || true
                 sudo ss -tlnp | grep -E ':80|:443' || true
                 echo "[deploy] continuing — API is healthy on localhost"
