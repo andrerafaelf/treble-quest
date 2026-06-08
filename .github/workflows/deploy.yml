@@ -115,7 +115,7 @@ jobs:
             sudo rsync -a --delete "$STAGING/" "$SITE_DIR/"
             sudo rm -rf "$STAGING"
 
-            sudo tar -xzf "$BUNDLE_DIR/server.tar.gz" -C "$APP_DIR" --strip-components=1
+            sudo tar -xzf "$BUNDLE_DIR/server.tar.gz" -C "$APP_DIR/server" --strip-components=1
             sudo chown -R trebleq:trebleq "$APP_DIR"
 
             sudo -u trebleq bash -c "cd $APP_DIR/server && npm install --omit=dev"

@@ -90,22 +90,23 @@ function scoreTreble(
   ratings: TeamRatings,
   mode: 'quick' | 'classic'
 ): number {
-  const leagueScore = (league.points - 38) * 2.4 + (league.won ? 40 : 0) + (league.position === 2 ? 14 : league.position === 3 ? 6 : 0);
+  const leagueScore = (league.points - 38) * 32 + (league.won ? 1200 : 0) + (league.position === 2 ? 380 : league.position === 3 ? 160 : 0);
 
-  const cupRoundValues = [0, 6, 10, 16, 24, 36];
-  const cupScore = faCup.won ? 110 : cupRoundValues[Math.min(faCup.roundsWon, cupRoundValues.length - 1)];
+  const cupRoundValues = [0, 90, 160, 260, 400, 620];
+  const cupScore = faCup.won ? 1800 : cupRoundValues[Math.min(faCup.roundsWon, cupRoundValues.length - 1)];
 
-  const clRoundValues = [0, 22, 38, 58, 86];
-  const clGroupBonus = championsLeague.group === 'Won group' ? 18 : championsLeague.group === 'Qualified second' ? 8 : 0;
-  const clScore = championsLeague.won ? 200 : clRoundValues[Math.min(championsLeague.roundsWon, clRoundValues.length - 1)] + clGroupBonus;
+  const clRoundValues = [0, 360, 640, 1000, 1500];
+  const clGroupBonus = championsLeague.group === 'Won group' ? 320 : championsLeague.group === 'Qualified second' ? 140 : 0;
+  const clScore = championsLeague.won ? 3400 : clRoundValues[Math.min(championsLeague.roundsWon, clRoundValues.length - 1)] + clGroupBonus;
 
-  const qualityScore = ratings.fit * 0.35 + (ratings.chemistry - 50) * 0.6 + weightedTeamPower(ratings) * 0.25;
+  const qualityScore = ratings.fit * 6 + (ratings.chemistry - 50) * 10 + weightedTeamPower(ratings) * 4;
 
-  const trebleBonus = trophies === 3 ? 60 : trophies === 2 ? 18 : trophies === 1 ? 6 : 0;
+  const trebleBonus = trophies === 3 ? 2500 : trophies === 2 ? 450 : trophies === 1 ? 120 : 0;
+  const trebleMultiplier = trophies === 3 ? 1.35 : 1;
 
-  const modeMultiplier = mode === 'classic' ? 1.18 : 1;
+  const modeMultiplier = mode === 'classic' ? 1.22 : 1;
 
-  const raw = (leagueScore + cupScore + clScore + qualityScore + trebleBonus) * modeMultiplier;
+  const raw = (leagueScore + cupScore + clScore + qualityScore + trebleBonus) * modeMultiplier * trebleMultiplier;
   return Math.max(0, Math.round(raw));
 }
 
