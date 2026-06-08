@@ -35,9 +35,9 @@ export function simulateRun(run: RunState): SimulationResult {
 
 function simulateLeague(ratings: TeamRatings, leagueBoost: number, rng: () => number, varianceMultiplier: number): LeagueResult {
   const power = weightedTeamPower(ratings);
-  const noise = (rng() - 0.42) * 18 * varianceMultiplier;
-  const points = Math.round(Math.max(55, Math.min(101, 43 + power * 0.55 + ratings.control * 0.18 + ratings.consistency * 0.16 + ratings.chemistry * 0.08 + leagueBoost * 0.75 + noise)));
-  const position = points >= 89 ? 1 : points >= 82 ? 2 : points >= 75 ? 3 : points >= 68 ? 5 : points >= 61 ? 8 : 11;
+  const noise = (rng() - 0.5) * 24 * varianceMultiplier;
+  const points = Math.round(Math.max(40, Math.min(101, 28 + power * 0.5 + ratings.control * 0.16 + ratings.consistency * 0.14 + ratings.chemistry * 0.06 + leagueBoost * 0.6 + noise)));
+  const position = points >= 94 ? 1 : points >= 86 ? 2 : points >= 78 ? 3 : points >= 70 ? 5 : points >= 60 ? 8 : 13;
   return {
     points,
     position,
@@ -50,9 +50,9 @@ function simulateFaCup(ratings: TeamRatings, cupBoost: number, rng: () => number
   const rounds = ['Third Round', 'Fourth Round', 'Fifth Round', 'Quarter-final', 'Semi-final', 'Final'];
   let roundsWon = 0;
   for (const round of rounds) {
-    const roundPressure = round === 'Final' ? 5 : round === 'Semi-final' ? 3 : 0;
-    const chance = 0.47 + ratings.clutch / 260 + ratings.defence / 420 + ratings.chemistry / 550 + cupBoost / 85 - roundPressure / 100;
-    if (rng() < Math.min(0.91, chance - (varianceMultiplier - 1) * 0.05 + (rng() - 0.5) * 0.16 * varianceMultiplier)) {
+    const roundPressure = round === 'Final' ? 0.14 : round === 'Semi-final' ? 0.09 : round === 'Quarter-final' ? 0.05 : 0;
+    const chance = 0.38 + ratings.clutch / 340 + ratings.defence / 520 + ratings.chemistry / 700 + cupBoost / 110 - roundPressure;
+    if (rng() < Math.min(0.82, chance + (rng() - 0.5) * 0.22 * varianceMultiplier)) {
       roundsWon += 1;
     } else {
       return { competition: 'FA Cup', exitRound: round, roundsWon, won: false };
@@ -63,15 +63,17 @@ function simulateFaCup(ratings: TeamRatings, cupBoost: number, rng: () => number
 
 function simulateChampionsLeague(ratings: TeamRatings, cupBoost: number, rng: () => number, varianceMultiplier: number): ChampionsLeagueResult {
   const groupPower = ratings.control * 0.27 + ratings.attack * 0.2 + ratings.defence * 0.18 + ratings.consistency * 0.18 + ratings.managerBoost * 0.18;
-  const group = groupPower + (rng() - 0.35) * 22 * varianceMultiplier > 74 ? 'Won group' : groupPower > 64 ? 'Qualified second' : 'Dropped in group';
+  const groupRoll = groupPower + (rng() - 0.5) * 28 * varianceMultiplier;
+  const group = groupRoll > 82 ? 'Won group' : groupRoll > 68 ? 'Qualified second' : 'Dropped in group';
   if (group === 'Dropped in group') return { group, exitRound: 'Group stage', roundsWon: 0, won: false };
 
   const rounds = ['Round of 16', 'Quarter-final', 'Semi-final', 'Final'];
   let roundsWon = 0;
+  const seedBonus = group === 'Won group' ? 0.05 : 0;
   for (const round of rounds) {
-    const finalTax = round === 'Final' ? 0.05 : round === 'Semi-final' ? 0.025 : 0;
-    const chance = 0.42 + ratings.clutch / 280 + ratings.attack / 430 + ratings.defence / 470 + cupBoost / 90 - finalTax;
-    if (rng() < Math.min(0.88, chance + (rng() - 0.5) * 0.18 * varianceMultiplier)) {
+    const roundTax = round === 'Final' ? 0.16 : round === 'Semi-final' ? 0.1 : round === 'Quarter-final' ? 0.05 : 0;
+    const chance = 0.34 + ratings.clutch / 360 + ratings.attack / 560 + ratings.defence / 600 + cupBoost / 120 + seedBonus - roundTax;
+    if (rng() < Math.min(0.78, chance + (rng() - 0.5) * 0.24 * varianceMultiplier)) {
       roundsWon += 1;
     } else {
       return { group, exitRound: round, roundsWon, won: false };

@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/public';
 import type { GameMode, RunState } from '$lib/game/types';
 
-const API_BASE = (env.PUBLIC_API_BASE ?? 'https://api.treble.quest').replace(/\/$/, '');
+const API_BASE = (env.PUBLIC_API_BASE ?? 'http://127.0.0.1:8787').replace(/\/$/, '');
 
 const SUBMITTED_KEY = 'treble-quest-submitted';
 
@@ -19,7 +19,7 @@ export type LeaderboardResponse = {
 };
 
 export async function fetchLeaderboard(mode: GameMode, limit = 50): Promise<LeaderboardResponse> {
-  const res = await fetch(`${API_BASE}/api/leaderboard?mode=${mode}&limit=${limit}`);
+  const res = await fetch(`${API_BASE}/leaderboard?mode=${mode}&limit=${limit}`);
   if (!res.ok) throw new Error(`leaderboard ${res.status}`);
   return res.json();
 }
@@ -40,7 +40,7 @@ export async function submitScore(name: string, run: RunState): Promise<{ score:
     }
   };
 
-  const res = await fetch(`${API_BASE}/api/scores`, {
+  const res = await fetch(`${API_BASE}/scores`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body)

@@ -29,7 +29,7 @@ await app.register(rateLimit, {
 
 app.get('/health', async () => ({ ok: true }));
 
-app.get<{ Querystring: { mode?: string; limit?: string } }>('/api/leaderboard', async (req, reply) => {
+app.get<{ Querystring: { mode?: string; limit?: string } }>('/leaderboard', async (req, reply) => {
   const mode = req.query.mode === 'classic' ? 'classic' : 'quick';
   const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
   const rows = topScores.all({ mode, limit }) as ScoreRow[];
@@ -51,7 +51,7 @@ type SubmitBody = {
   run?: SubmittedRun;
 };
 
-app.post<{ Body: SubmitBody }>('/api/scores', {
+app.post<{ Body: SubmitBody }>('/scores', {
   config: { rateLimit: { max: 6, timeWindow: '1 minute' } }
 }, async (req, reply) => {
   const body = req.body ?? {};

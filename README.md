@@ -63,11 +63,20 @@ into the VPS to swap in the new build and restart the systemd unit.
 
 ### One-time VPS setup
 
+Point DNS at the VPS:
+
+```
+A    treble.quest       → <VPS IP>
+A    www.treble.quest   → <VPS IP>
+A    api.treble.quest   → <VPS IP>
+```
+
 On the VPS, run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/andrerafaelff/treble-quest/main/deploy/bootstrap-vps.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/andrerafaelf/treble-quest/main/deploy/bootstrap-vps.sh | sudo bash
 sudo certbot --nginx -d treble.quest -d www.treble.quest
+sudo certbot --nginx -d api.treble.quest
 ```
 
 The deploy user (the one CI SSHes in as) needs passwordless sudo. Add their
@@ -88,13 +97,13 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 
 | Name                              | Example value             |
 | --------------------------------- | ------------------------- |
-| `PUBLIC_SITE_URL`                 | `https://treble.quest`    |
-| `PUBLIC_API_BASE`                 | `https://treble.quest`    |
-| `ALLOWED_ORIGINS`                 | `https://treble.quest`    |
+| `PUBLIC_SITE_URL`                 | `https://treble.quest`     |
+| `PUBLIC_API_BASE`                 | `https://api.treble.quest` |
+| `ALLOWED_ORIGINS`                 | `https://treble.quest`     |
 | `PUBLIC_GOOGLE_SITE_VERIFICATION` | (your Search Console token, optional) |
 
-`PUBLIC_API_BASE` can match `PUBLIC_SITE_URL` because nginx proxies `/api/*`
-to the Node service on `127.0.0.1:8787`.
+The API runs as a separate origin on `api.treble.quest`, proxied by nginx to
+the Node service bound to `127.0.0.1:8787`. CORS is gated by `ALLOWED_ORIGINS`.
 
 ### Production environment gate
 

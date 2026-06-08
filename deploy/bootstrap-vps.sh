@@ -48,16 +48,6 @@ server {
     root /var/www/treble-quest;
     index index.html;
 
-    location /api/ {
-        proxy_pass http://127.0.0.1:8787;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 30s;
-    }
-
     location / {
         try_files $uri $uri.html $uri/ /index.html;
     }
@@ -66,6 +56,22 @@ server {
         expires 30d;
         add_header Cache-Control "public, max-age=2592000, immutable";
         try_files $uri =404;
+    }
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name api.treble.quest;
+
+    location / {
+        proxy_pass http://127.0.0.1:8787;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
     }
 }
 NGINX
@@ -77,12 +83,18 @@ echo ""
 echo "[bootstrap] done."
 echo ""
 echo "Next steps:"
-echo "  1. Issue HTTPS cert:"
-echo "       sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
+echo "  1. Point DNS:"
+echo "       A    $DOMAIN          → <VPS IP>"
+echo "       A    www.$DOMAIN      → <VPS IP>"
+echo "       A    api.$DOMAIN      → <VPS IP>"
 echo ""
-echo "  2. Ensure the deploy user has passwordless sudo. Edit /etc/sudoers.d/deploy:"
+echo "  2. Issue HTTPS certs (after DNS has propagated):"
+echo "       sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
+echo "       sudo certbot --nginx -d api.$DOMAIN"
+echo ""
+echo "  3. Ensure the deploy user has passwordless sudo. Edit /etc/sudoers.d/deploy:"
 echo "       <your-deploy-user> ALL=(ALL) NOPASSWD: ALL"
 echo ""
-echo "  3. Add the VPS_SSH_KEY public key to that user's ~/.ssh/authorized_keys."
+echo "  4. Add the VPS_SSH_KEY public key to that user's ~/.ssh/authorized_keys."
 echo ""
-echo "  4. Push to main on GitHub — CI will deploy automatically."
+echo "  5. Push to main on GitHub — CI will deploy automatically."
