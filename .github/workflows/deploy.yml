@@ -175,8 +175,8 @@ jobs:
               fi
             fi
 
-            sudo systemctl enable --now nginx
-            sudo systemctl reload nginx
+            sudo systemctl enable nginx
+            sudo systemctl restart nginx || sudo systemctl start nginx
 
             for i in $(seq 1 6); do
               if curl -fsS --connect-timeout 5 --max-time 10 https://api.treble.quest/health > /dev/null; then
