@@ -6,12 +6,12 @@
   import favicon16 from '$lib/icons/favicon-16x16.png';
   import favicon32 from '$lib/icons/favicon-32x32.png';
   import faviconIco from '$lib/icons/favicon.ico';
-  import trebleQuestImage from '$lib/icons/treble-quest.png';
 
   let { children } = $props();
 
   const siteUrl = env.PUBLIC_SITE_URL ?? 'https://example.com/';
   const googleSiteVerification = env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+  const ogImage = new URL('og-image.png', siteUrl).toString();
 </script>
 
 <svelte:head>
@@ -30,14 +30,18 @@
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={siteUrl} />
-  <meta property="og:image" content={trebleQuestImage} />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1254" />
+  <meta property="og:image:height" content="1254" />
+  <meta property="og:image:alt" content="Treble Quest logo" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Treble Quest - Draft Seven Picks. Chase Three Trophies." />
   <meta
     name="twitter:description"
     content="Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase."
   />
-  <meta name="twitter:image" content={trebleQuestImage} />
+  <meta name="twitter:image" content={ogImage} />
+  <meta name="twitter:image:alt" content="Treble Quest logo" />
   <link rel="canonical" href={siteUrl} />
   <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon} />
   <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />

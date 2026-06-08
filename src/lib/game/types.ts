@@ -122,6 +122,11 @@ export type LeagueResult = {
   position: number;
   label: string;
   won: boolean;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
 };
 
 export type CupResult = {
@@ -129,6 +134,7 @@ export type CupResult = {
   exitRound: string;
   roundsWon: number;
   won: boolean;
+  opponent?: string;
 };
 
 export type ChampionsLeagueResult = {
@@ -136,6 +142,77 @@ export type ChampionsLeagueResult = {
   exitRound: string;
   roundsWon: number;
   won: boolean;
+  opponent?: string;
+};
+
+export type Competition = 'PL' | 'FAC' | 'CL';
+export type Venue = 'H' | 'A' | 'N';
+export type MatchResultLetter = 'W' | 'D' | 'L';
+
+export type MatchScorer = {
+  playerId: string;
+  name: string;
+  minute: number;
+};
+
+export type Match = {
+  matchday: number;
+  date: string;
+  competition: Competition;
+  round?: string;
+  opponent: string;
+  opponentRating: number;
+  venue: Venue;
+  gf: number;
+  ga: number;
+  result: MatchResultLetter;
+  scorers: MatchScorer[];
+  assisters: { playerId: string; name: string }[];
+  cleanSheet: boolean;
+  aggregate?: { gf: number; ga: number };
+};
+
+export type PlayerSeasonStats = {
+  playerId: string;
+  name: string;
+  positionShort: string;
+  club: string;
+  season: string;
+  overall: number;
+  apps: number;
+  goals: number;
+  assists: number;
+  cleanSheets: number;
+};
+
+export type LeagueTableRow = {
+  club: string;
+  isUser: boolean;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+};
+
+export type SeasonAwards = {
+  goldenBoot: { name: string; club: string; goals: number; fromUser: boolean };
+  goldenGlove: { name: string; club: string; cleanSheets: number; fromUser: boolean };
+  playmaker: { name: string; club: string; assists: number; fromUser: boolean };
+  playerOfSeason: { name: string; club: string; rating: number; fromUser: boolean };
+};
+
+export type StatHighlights = {
+  biggestWin?: { opponent: string; gf: number; ga: number; competition: Competition };
+  longestWinStreak: number;
+  cleanSheets: number;
+  narrativeHeadline: string;
+  narrativeBody: string;
+  expectedFinish: number;
+  actualFinish: number;
 };
 
 export type SimulationResult = {
@@ -151,4 +228,9 @@ export type SimulationResult = {
   weakLink: PlayerPick | ManagerPick;
   managerImpact: string;
   shareText: string;
+  matches: Match[];
+  playerStats: PlayerSeasonStats[];
+  leagueTable: LeagueTableRow[];
+  awards: SeasonAwards;
+  highlights: StatHighlights;
 };

@@ -1,27 +1,51 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import AwardsPanel from '$lib/components/AwardsPanel.svelte';
   import Button from '$lib/components/Button.svelte';
   import CompetitionBreakdown from '$lib/components/CompetitionBreakdown.svelte';
   import LeaderboardSubmit from '$lib/components/LeaderboardSubmit.svelte';
+  import LeagueTable from '$lib/components/LeagueTable.svelte';
+  import MatchFeed from '$lib/components/MatchFeed.svelte';
+  import MatchPlayback from '$lib/components/MatchPlayback.svelte';
+  import PlayerStatsTable from '$lib/components/PlayerStatsTable.svelte';
   import ResultHero from '$lib/components/ResultHero.svelte';
   import SharePanel from '$lib/components/SharePanel.svelte';
   import SquadRail from '$lib/components/SquadRail.svelte';
+  import StatHighlights from '$lib/components/StatHighlights.svelte';
   import { getDraftSlots } from '$lib/game/draft';
-  import { runStore } from '$lib/game/storage';
+  import { recordStreakResult, runStore, type StreakState } from '$lib/game/storage';
 
   $: run = $runStore;
   $: result = run?.result;
   $: slots = run ? getDraftSlots(run.mode, run.formation) : [];
-  $: topScorer = run?.picks
-    .filter((p) => p.type === 'player' && !p.player.positions.includes('GK'))
-    .sort((a, b) => (b.type === 'player' ? b.player.attack : 0) - (a.type === 'player' ? a.player.attack : 0))[0];
+
+  let streak: StreakState | null = null;
+  $: if (result && streak === null) {
+    streak = recordStreakResult(result.trophies);
+  }
+
+  let playbackDone = false;
+  $: resultKey = result?.seed;
+  $: if (resultKey !== undefined && lastSeedSeen !== resultKey) {
+    playbackDone = false;
+    lastSeedSeen = resultKey;
+  }
+  let lastSeedSeen: number | undefined = undefined;
+
+  function finishPlayback() {
+    playbackDone = true;
+  }
 
   function replay() {
+    streak = null;
+    playbackDone = false;
     runStore.replay();
     goto('/play');
   }
 
   function newRun() {
+    streak = null;
+    playbackDone = false;
     runStore.clear();
     goto('/play');
   }
@@ -46,8 +70,16 @@
 {:else}
   <section class="result-page">
     <div class="result-card" class:treble={result.trophies === 3}>
+      {#if !playbackDone}
+        <MatchPlayback matches={result.matches} onDone={finishPlayback} />
+      {:else}
       <ResultHero {result} />
+      <StatHighlights highlights={result.highlights} />
       <CompetitionBreakdown {result} />
+      <AwardsPanel awards={result.awards} />
+      <PlayerStatsTable stats={result.playerStats} />
+      <MatchFeed matches={result.matches} />
+      <LeagueTable rows={result.leagueTable} />
       <section class="insight-grid">
         <article>
           <span>Best pick</span>
@@ -64,11 +96,11 @@
           <h2>{result.ratings.managerBoost}</h2>
           <p>{result.managerImpact}</p>
         </article>
-        {#if topScorer?.type === 'player'}
-          <article>
-            <span>Top scorer</span>
-            <h2>{topScorer.player.name}</h2>
-            <p>Attack {topScorer.player.attack} · {topScorer.player.season}</p>
+        {#if streak}
+          <article class:streak-fire={streak.current >= 3}>
+            <span>Streak</span>
+            <h2>{streak.current === 0 ? 'Broken' : `${streak.current} ${streak.current === 1 ? 'run' : 'runs'}`}</h2>
+            <p>{streak.current === 0 ? 'No trophies — streak reset' : streak.current >= streak.best ? `Best streak: ${streak.best}` : `Personal best: ${streak.best}`}</p>
           </article>
         {/if}
       </section>
@@ -84,6 +116,7 @@
         <Button onclick={replay}>Play again</Button>
         <Button variant="secondary" onclick={newRun}>New mode</Button>
       </div>
+      {/if}
     </div>
   </section>
 {/if}

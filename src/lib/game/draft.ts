@@ -142,13 +142,13 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
     return {
       type: 'manager',
       seed: Math.floor(rng() * 100000),
-      options: chooseUnique(managers, 3, rng)
+      options: chooseUnique(managers, 4, rng)
     };
   }
 
   const usedIds = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.id));
   const fitPlayers = playerSeasons.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
-  const options = chooseDiversePlayers(fitPlayers, 3, rng);
+  const options = chooseDiversePlayers(fitPlayers, 4, rng);
 
   return {
     type: 'player',

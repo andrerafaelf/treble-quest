@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { flag } from '$lib/game/flags';
   import type { PlayerSeason, Position } from '$lib/game/types';
 
   let {
@@ -15,22 +16,6 @@
     onSelect?: (id: string) => void;
   } = $props();
 
-  const isGoalkeeper = $derived(player.positions.includes('GK'));
-  const ratings = $derived(
-    isGoalkeeper
-      ? ([
-          ['Control', player.control],
-          ['Defence', player.defence],
-          ['Clutch', player.clutch]
-        ] as const)
-      : ([
-          ['Attack', player.attack],
-          ['Control', player.control],
-          ['Defence', player.defence],
-          ['Clutch', player.clutch]
-        ] as const)
-  );
-
   const realPositions = $derived(player.positions.filter((position) => !['ANY', 'DEF', 'MID', 'FWD'].includes(position)));
   const fallbackPositions = $derived([
     ...(player.positions.includes('DEF') ? ['CB'] : []),
@@ -39,28 +24,28 @@
   ]);
   const positionText = $derived(realPositions.length ? realPositions.join(' / ') : fallbackPositions.join(' / '));
   const requiresSpecificPosition = $derived(required !== 'ANY');
+  const nationalityFlag = $derived(flag(player.nationality));
 </script>
 
 <button class="option-card player-card" type="button" {disabled} onclick={() => onSelect?.(player.id)}>
-  <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
-  <span class="player-season">{player.season} {player.club}</span>
+  <div class="card-top-row">
+    <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
+    <span class="player-flag" title={player.nationality}>{nationalityFlag}</span>
+  </div>
+  <span class="player-club">{player.club}</span>
+  <span class="player-season-year">{player.season}</span>
   <h2>{player.name}</h2>
   <p>{player.role}</p>
   <div class="meta-row">
-    <span>{player.nationality}</span>
     <span>{positionText}</span>
     {#if requiresSpecificPosition}
-      <span class="fit">{required} locked</span>
+      <span class="fit">{required}</span>
     {/if}
   </div>
   {#if showRatings}
-    <div class="rating-grid" aria-label={`${player.name} ratings`}>
-      {#each ratings as [label, value]}
-        <div class="rating-stat">
-          <span>{label}</span>
-          <strong>{value}</strong>
-        </div>
-      {/each}
+    <div class="overall-badge" aria-label={`${player.name} overall rating`}>
+      <span>Overall</span>
+      <strong>{player.overall}</strong>
     </div>
   {:else}
     <div class="blind-strip">Ratings hidden</div>

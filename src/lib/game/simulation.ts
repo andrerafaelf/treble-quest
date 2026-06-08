@@ -1,85 +1,285 @@
 import { createRng } from '$lib/game/draft';
 import { calculateTeamRatings, pickScore, weightedTeamPower } from '$lib/game/scoring';
 import { createShareText } from '$lib/game/share';
-import type { ChampionsLeagueResult, CupResult, DraftPick, LeagueResult, ManagerPick, RunState, SimulationResult, TeamRatings } from '$lib/game/types';
+import {
+  CL_FINAL_OPPONENTS,
+  CL_QF_OPPONENTS,
+  CL_R16_OPPONENTS,
+  CL_SF_OPPONENTS
+} from '$lib/game/sim/clubRatings';
+import { deriveAwards } from '$lib/game/sim/awards';
+import { deriveHighlights } from '$lib/game/sim/highlights';
+import { buildPlTable, findUserPosition } from '$lib/game/sim/leagueTable';
+import { resultLetter, simulateMatch, type MatchInputs } from '$lib/game/sim/matchEngine';
+import { aggregatePlayerStats, attributeMatchGoals, buildCandidates } from '$lib/game/sim/playerStats';
+import {
+  buildChampionsLeagueGroupFixtures,
+  buildChampionsLeagueKnockoutTie,
+  buildFaCupRound,
+  buildPremierLeagueFixtures,
+  sortFixtures,
+  type ScheduledFixture
+} from '$lib/game/sim/scheduler';
+import type {
+  ChampionsLeagueResult,
+  CupResult,
+  LeagueResult,
+  ManagerPick,
+  Match,
+  PlayerSeasonStats,
+  RunState,
+  SimulationResult,
+  TeamRatings
+} from '$lib/game/types';
 
 export function simulateRun(run: RunState): SimulationResult {
   const seed = run.seed + run.picks.length * 431;
   const rng = createRng(seed);
+  const tableRng = createRng(seed + 1009);
+
   const ratings = calculateTeamRatings(run);
   const manager = run.picks.find((pick): pick is ManagerPick => pick.type === 'manager')?.manager;
-  const varianceMultiplier = run.mode === 'quick' ? 1.12 : 0.92;
-  const league = simulateLeague(ratings, manager?.leagueBoost ?? 0, rng, varianceMultiplier);
-  const faCup = simulateFaCup(ratings, manager?.cupBoost ?? 0, rng, varianceMultiplier);
-  const championsLeague = simulateChampionsLeague(ratings, manager?.cupBoost ?? 0, rng, varianceMultiplier);
-  const trophies = [league.won, faCup.won, championsLeague.won].filter(Boolean).length;
-  const score = scoreTreble(league, faCup, championsLeague, trophies, ratings, run.mode);
+  const managerLeagueBoost = manager?.leagueBoost ?? 0;
+  const managerCupBoost = manager?.cupBoost ?? 0;
+  const varianceMultiplier = run.mode === 'quick' ? 1.05 : 0.88;
+  const candidates = buildCandidates(run);
+
+  const allMatches: Match[] = [];
+
+  const plFixtures = buildPremierLeagueFixtures(rng);
+  for (const fx of plFixtures) {
+    allMatches.push(playFixture(fx, ratings, managerLeagueBoost, managerCupBoost, varianceMultiplier, rng, candidates));
+  }
+
+  const { fixtures: clGroupFixtures, groupOpponents } = buildChampionsLeagueGroupFixtures(rng);
+  const groupMatches: Match[] = [];
+  for (const fx of clGroupFixtures) {
+    const match = playFixture(fx, ratings, managerLeagueBoost, managerCupBoost, varianceMultiplier, rng, candidates);
+    groupMatches.push(match);
+    allMatches.push(match);
+  }
+
+  const groupPoints = groupMatches.reduce(
+    (sum, m) => sum + (m.result === 'W' ? 3 : m.result === 'D' ? 1 : 0),
+    0
+  );
+  const groupGd = groupMatches.reduce((sum, m) => sum + (m.gf - m.ga), 0);
+  const groupQualified = groupPoints >= 7 || (groupPoints >= 5 && groupGd > 0);
+  const groupWon = groupPoints >= 13 || (groupPoints >= 11 && groupGd > 2);
+
+  const championsLeagueResult: ChampionsLeagueResult = groupQualified
+    ? {
+        group: groupWon ? 'Won group' : 'Qualified second',
+        exitRound: 'Group stage',
+        roundsWon: 0,
+        won: false,
+        opponent: groupOpponents[0]?.name
+      }
+    : {
+        group: 'Dropped in group',
+        exitRound: 'Group stage',
+        roundsWon: 0,
+        won: false,
+        opponent: groupMatches[groupMatches.length - 1]?.opponent
+      };
+
+  if (groupQualified) {
+    let knockoutsOut = false;
+    let roundsWon = 0;
+    const knockoutRounds: { round: 'Round of 16' | 'Quarter-final' | 'Semi-final' | 'Final'; pool: { name: string; rating: number }[] }[] = [
+      { round: 'Round of 16', pool: CL_R16_OPPONENTS },
+      { round: 'Quarter-final', pool: CL_QF_OPPONENTS },
+      { round: 'Semi-final', pool: CL_SF_OPPONENTS },
+      { round: 'Final', pool: CL_FINAL_OPPONENTS }
+    ];
+    for (const { round, pool } of knockoutRounds) {
+      if (knockoutsOut) break;
+      const opponent = pool[Math.floor(rng() * pool.length)];
+      const legs = buildChampionsLeagueKnockoutTie(round, opponent, rng);
+      let tieGf = 0;
+      let tieGa = 0;
+      const legMatches: Match[] = [];
+      for (const leg of legs) {
+        const pressure = round === 'Final' ? 0.18 : round === 'Semi-final' ? 0.1 : round === 'Quarter-final' ? 0.05 : 0;
+        const match = playFixture(leg, ratings, managerLeagueBoost, managerCupBoost, varianceMultiplier, rng, candidates, pressure);
+        tieGf += match.gf;
+        tieGa += match.ga;
+        legMatches.push(match);
+      }
+      legMatches[legMatches.length - 1].aggregate = { gf: tieGf, ga: tieGa };
+
+      const advanced = round === 'Final' ? tieGf > tieGa : tieGf > tieGa || (tieGf === tieGa && rng() < 0.5);
+      for (const m of legMatches) allMatches.push(m);
+
+      if (advanced) {
+        roundsWon += 1;
+        if (round === 'Final') {
+          championsLeagueResult.won = true;
+          championsLeagueResult.exitRound = 'Winners';
+        }
+      } else {
+        knockoutsOut = true;
+        championsLeagueResult.exitRound = round;
+        championsLeagueResult.opponent = opponent.name;
+      }
+    }
+    championsLeagueResult.roundsWon = roundsWon;
+  }
+
+  const faCupResult: CupResult = { competition: 'FA Cup', exitRound: 'Third Round', roundsWon: 0, won: false };
+  for (let roundIdx = 0; roundIdx < 6; roundIdx += 1) {
+    const fx = buildFaCupRound(roundIdx, rng);
+    if (!fx) break;
+    const pressure = fx.round === 'Final' ? 0.16 : fx.round === 'Semi-final' ? 0.1 : fx.round === 'Quarter-final' ? 0.05 : 0;
+    const match = playFixture(fx, ratings, managerLeagueBoost, managerCupBoost, varianceMultiplier, rng, candidates, pressure);
+    if (match.result === 'D') {
+      const replayWin = rng() < 0.5 + (ratings.clutch - 60) * 0.005;
+      if (replayWin) {
+        match.gf = match.ga + 1;
+        match.result = 'W';
+      } else {
+        match.gf = Math.max(0, match.ga - 1);
+        match.result = 'L';
+      }
+    }
+    allMatches.push(match);
+    if (match.result === 'W') {
+      faCupResult.roundsWon += 1;
+      if (fx.round === 'Final') {
+        faCupResult.won = true;
+        faCupResult.exitRound = 'Winners';
+      }
+    } else {
+      faCupResult.exitRound = fx.round ?? 'Third Round';
+      faCupResult.opponent = fx.opponent;
+      break;
+    }
+  }
+
+  const sortedMatches = sortFixtures(allMatches as unknown as ScheduledFixture[]) as unknown as Match[];
+
+  for (const match of sortedMatches) {
+    const { scorers, assisters } = attributeMatchGoals(match, candidates, rng);
+    match.scorers = scorers;
+    match.assisters = assisters;
+    match.cleanSheet = match.ga === 0;
+  }
+
+  const playerStats = aggregatePlayerStats(run, sortedMatches, candidates);
+
+  const plMatches = sortedMatches.filter((m) => m.competition === 'PL');
+  const { table } = buildPlTable(plMatches, tableRng);
+
+  const leagueResult = buildLeagueResultFromMatches(plMatches, table);
+
+  rebalancePlayerGoalsToMatches(playerStats, plMatches, sortedMatches);
+
+  const awards = deriveAwards(playerStats);
+  const highlights = deriveHighlights(sortedMatches, plMatches, ratings, table, playerStats);
+
+  const trophies = [leagueResult.won, faCupResult.won, championsLeagueResult.won].filter(Boolean).length;
+  const score = scoreTreble(leagueResult, faCupResult, championsLeagueResult, trophies, ratings, run.mode);
   const ordered = [...run.picks].sort((a, b) => pickScore(b) - pickScore(a));
+
   const result: SimulationResult = {
     seed,
     mode: run.mode,
     score,
     trophies,
     ratings,
-    league,
-    faCup,
-    championsLeague,
+    league: leagueResult,
+    faCup: faCupResult,
+    championsLeague: championsLeagueResult,
     bestPick: ordered[0] ?? run.picks[0],
     weakLink: ordered[ordered.length - 1] ?? run.picks[0],
     managerImpact: describeManagerImpact(manager, ratings),
-    shareText: ''
+    shareText: '',
+    matches: sortedMatches,
+    playerStats,
+    leagueTable: table,
+    awards,
+    highlights
   };
   result.shareText = createShareText(result);
   return result;
 }
 
-function simulateLeague(ratings: TeamRatings, leagueBoost: number, rng: () => number, varianceMultiplier: number): LeagueResult {
-  const power = weightedTeamPower(ratings);
-  const noise = (rng() - 0.5) * 24 * varianceMultiplier;
-  const points = Math.round(Math.max(40, Math.min(101, 28 + power * 0.5 + ratings.control * 0.16 + ratings.consistency * 0.14 + ratings.chemistry * 0.06 + leagueBoost * 0.6 + noise)));
-  const position = points >= 94 ? 1 : points >= 86 ? 2 : points >= 78 ? 3 : points >= 70 ? 5 : points >= 60 ? 8 : 13;
+function rebalancePlayerGoalsToMatches(
+  _playerStats: PlayerSeasonStats[],
+  _plMatches: Match[],
+  _sortedMatches: Match[]
+): void {
+  // intentionally a no-op: stats are derived directly from match scorers,
+  // so totals are consistent by construction.
+}
+
+function playFixture(
+  fx: ScheduledFixture,
+  ratings: TeamRatings,
+  managerLeagueBoost: number,
+  managerCupBoost: number,
+  varianceMultiplier: number,
+  rng: () => number,
+  _candidates: unknown,
+  roundPressure?: number
+): Match {
+  const inputs: MatchInputs = {
+    ratings,
+    opponentRating: fx.opponentRating,
+    venue: fx.venue,
+    managerLeagueBoost,
+    managerCupBoost,
+    competition: fx.competition,
+    roundPressure,
+    varianceMultiplier
+  };
+  const { gf, ga } = simulateMatch(inputs, rng);
+  return {
+    matchday: fx.matchday,
+    date: fx.date,
+    competition: fx.competition,
+    round: fx.round,
+    opponent: fx.opponent,
+    opponentRating: fx.opponentRating,
+    venue: fx.venue,
+    gf,
+    ga,
+    result: resultLetter(gf, ga),
+    scorers: [],
+    assisters: [],
+    cleanSheet: ga === 0
+  };
+}
+
+function buildLeagueResultFromMatches(
+  plMatches: Match[],
+  table: ReturnType<typeof buildPlTable>['table']
+): LeagueResult {
+  let wins = 0;
+  let draws = 0;
+  let losses = 0;
+  let goalsFor = 0;
+  let goalsAgainst = 0;
+  for (const m of plMatches) {
+    goalsFor += m.gf;
+    goalsAgainst += m.ga;
+    if (m.result === 'W') wins += 1;
+    else if (m.result === 'D') draws += 1;
+    else losses += 1;
+  }
+  const points = wins * 3 + draws;
+  const position = findUserPosition(table);
   return {
     points,
     position,
     label: position === 1 ? 'Champions' : `${ordinal(position)} place`,
-    won: position === 1
+    won: position === 1,
+    wins,
+    draws,
+    losses,
+    goalsFor,
+    goalsAgainst
   };
-}
-
-function simulateFaCup(ratings: TeamRatings, cupBoost: number, rng: () => number, varianceMultiplier: number): CupResult {
-  const rounds = ['Third Round', 'Fourth Round', 'Fifth Round', 'Quarter-final', 'Semi-final', 'Final'];
-  let roundsWon = 0;
-  for (const round of rounds) {
-    const roundPressure = round === 'Final' ? 0.14 : round === 'Semi-final' ? 0.09 : round === 'Quarter-final' ? 0.05 : 0;
-    const chance = 0.38 + ratings.clutch / 340 + ratings.defence / 520 + ratings.chemistry / 700 + cupBoost / 110 - roundPressure;
-    if (rng() < Math.min(0.82, chance + (rng() - 0.5) * 0.22 * varianceMultiplier)) {
-      roundsWon += 1;
-    } else {
-      return { competition: 'FA Cup', exitRound: round, roundsWon, won: false };
-    }
-  }
-  return { competition: 'FA Cup', exitRound: 'Winners', roundsWon, won: true };
-}
-
-function simulateChampionsLeague(ratings: TeamRatings, cupBoost: number, rng: () => number, varianceMultiplier: number): ChampionsLeagueResult {
-  const groupPower = ratings.control * 0.27 + ratings.attack * 0.2 + ratings.defence * 0.18 + ratings.consistency * 0.18 + ratings.managerBoost * 0.18;
-  const groupRoll = groupPower + (rng() - 0.5) * 28 * varianceMultiplier;
-  const group = groupRoll > 82 ? 'Won group' : groupRoll > 68 ? 'Qualified second' : 'Dropped in group';
-  if (group === 'Dropped in group') return { group, exitRound: 'Group stage', roundsWon: 0, won: false };
-
-  const rounds = ['Round of 16', 'Quarter-final', 'Semi-final', 'Final'];
-  let roundsWon = 0;
-  const seedBonus = group === 'Won group' ? 0.05 : 0;
-  for (const round of rounds) {
-    const roundTax = round === 'Final' ? 0.16 : round === 'Semi-final' ? 0.1 : round === 'Quarter-final' ? 0.05 : 0;
-    const chance = 0.34 + ratings.clutch / 360 + ratings.attack / 560 + ratings.defence / 600 + cupBoost / 120 + seedBonus - roundTax;
-    if (rng() < Math.min(0.78, chance + (rng() - 0.5) * 0.24 * varianceMultiplier)) {
-      roundsWon += 1;
-    } else {
-      return { group, exitRound: round, roundsWon, won: false };
-    }
-  }
-  return { group, exitRound: 'Winners', roundsWon, won: true };
 }
 
 function scoreTreble(
@@ -123,6 +323,9 @@ function describeManagerImpact(manager: ManagerPick['manager'] | undefined, rati
 }
 
 function ordinal(value: number): string {
-  const suffix = value === 1 ? 'st' : value === 2 ? 'nd' : value === 3 ? 'rd' : 'th';
+  const tens = value % 100;
+  if (tens >= 11 && tens <= 13) return `${value}th`;
+  const ones = value % 10;
+  const suffix = ones === 1 ? 'st' : ones === 2 ? 'nd' : ones === 3 ? 'rd' : 'th';
   return `${value}${suffix}`;
 }

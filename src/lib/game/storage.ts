@@ -5,8 +5,46 @@ import { simulateRun } from '$lib/game/simulation';
 import type { ClassicFormation, GameMode, RunState } from '$lib/game/types';
 
 const STORAGE_KEY = 'treble-quest-run';
+const STREAK_KEY = 'treble-quest-streak';
 const classicFormations = new Set<ClassicFormation>(['4-3-3', '4-4-2', '4-2-3-1', '3-4-3']);
 const initialRun = browser ? loadRun() : undefined;
+
+export type StreakState = {
+  current: number;
+  best: number;
+};
+
+function loadStreak(): StreakState {
+  if (!browser) return { current: 0, best: 0 };
+  try {
+    const raw = localStorage.getItem(STREAK_KEY);
+    if (!raw) return { current: 0, best: 0 };
+    return JSON.parse(raw) as StreakState;
+  } catch {
+    return { current: 0, best: 0 };
+  }
+}
+
+function saveStreak(streak: StreakState) {
+  if (!browser) return;
+  localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+}
+
+export function recordStreakResult(trophies: number): StreakState {
+  const streak = loadStreak();
+  if (trophies > 0) {
+    streak.current += 1;
+    if (streak.current > streak.best) streak.best = streak.current;
+  } else {
+    streak.current = 0;
+  }
+  saveStreak(streak);
+  return streak;
+}
+
+export function getStreak(): StreakState {
+  return loadStreak();
+}
 
 function createRunStore() {
   const { subscribe, set, update } = writable<RunState | undefined>(initialRun);
