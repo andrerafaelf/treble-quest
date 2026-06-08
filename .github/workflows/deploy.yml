@@ -64,6 +64,7 @@ jobs:
             --exclude='server/data' \
             server
           rm -rf server/src/lib
+          cp deploy/repair-nginx-vps.sh artifacts/repair-nginx-vps.sh
 
       - uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
@@ -90,7 +91,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: 'artifacts/site.tar.gz,artifacts/server.tar.gz'
+          source: 'artifacts/site.tar.gz,artifacts/server.tar.gz,artifacts/repair-nginx-vps.sh'
           target: '/tmp/treble-quest-deploy'
           strip_components: 1
 
@@ -152,39 +153,48 @@ jobs:
               fi
             done
 
-            if ! sudo nginx -t 2>/dev/null; then
-              echo "[deploy] repairing stale Docker upstreams in nginx.conf"
-              sudo cp /etc/nginx/nginx.conf "/etc/nginx/nginx.conf.bak.$(date +%F-%H%M%S)"
-              sudo sed -i -E 's/server[[:space:]]+[a-z][-a-z]*:([0-9]+);/server 127.0.0.1:\1;/g' /etc/nginx/nginx.conf
-              if ! sudo nginx -t; then
-                echo "[deploy] FATAL: nginx config still invalid after upstream repair"
-                sudo nginx -t 2>&1 || true
-                exit 1
-              fi
-            fi
+            PUBLIC_PORT_OWNERS="$(sudo ss -tlnp | grep -E ':(80|443)[[:space:]]' || true)"
+            echo "[deploy] public port owners:"
+            echo "${PUBLIC_PORT_OWNERS:-[deploy] no listeners on 80/443}"
 
-            # Deploy /r/ proxy snippet for share result pages
-            printf '    location /r/ {\n        proxy_pass http://127.0.0.1:8787;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_read_timeout 10s;\n    }\n' | sudo tee /etc/nginx/treble-quest-share.conf > /dev/null
-            if ! sudo grep -q 'treble-quest-share.conf' /etc/nginx/nginx.conf; then
-              echo "[deploy] adding include for /r/ proxy in nginx config"
-              sudo sed -i '/server_name.*treble\.quest/a\    include /etc/nginx/treble-quest-share.conf;' /etc/nginx/nginx.conf
-              if ! sudo nginx -t; then
-                echo "[deploy] WARNING: include injection failed, removing"
-                sudo sed -i '/treble-quest-share.conf/d' /etc/nginx/nginx.conf
-              fi
-            fi
-
-            sudo systemctl enable nginx || true
-            if sudo nginx -s reload 2>/dev/null; then
-              echo "[deploy] nginx reloaded"
+            if echo "$PUBLIC_PORT_OWNERS" | grep -q 'docker-proxy'; then
+              echo "[deploy] shared Docker edge owns 80/443; repairing Treble route there"
+              sudo bash "$BUNDLE_DIR/repair-nginx-vps.sh"
             else
-              echo "[deploy] nginx reload failed — attempting restart"
-              sudo systemctl restart nginx 2>/dev/null || sudo systemctl start nginx 2>/dev/null || {
-                echo "[deploy] WARNING: nginx failed to start"
-                sudo journalctl -xeu nginx.service --no-pager -n 30 || true
-                sudo ss -tlnp | grep -E ':80|:443' || true
-                echo "[deploy] continuing — API is healthy on localhost"
-              }
+              if ! sudo nginx -t 2>/dev/null; then
+                echo "[deploy] repairing stale Docker upstreams in nginx.conf"
+                sudo cp /etc/nginx/nginx.conf "/etc/nginx/nginx.conf.bak.$(date +%F-%H%M%S)"
+                sudo sed -i -E 's/server[[:space:]]+[a-z][-a-z]*:([0-9]+);/server 127.0.0.1:\1;/g' /etc/nginx/nginx.conf
+                if ! sudo nginx -t; then
+                  echo "[deploy] FATAL: nginx config still invalid after upstream repair"
+                  sudo nginx -t 2>&1 || true
+                  exit 1
+                fi
+              fi
+
+              # Deploy /r/ proxy snippet for share result pages
+              printf '    location /r/ {\n        proxy_pass http://127.0.0.1:8787;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_read_timeout 10s;\n    }\n' | sudo tee /etc/nginx/treble-quest-share.conf > /dev/null
+              if ! sudo grep -q 'treble-quest-share.conf' /etc/nginx/nginx.conf; then
+                echo "[deploy] adding include for /r/ proxy in nginx config"
+                sudo sed -i '/server_name.*treble\.quest/a\    include /etc/nginx/treble-quest-share.conf;' /etc/nginx/nginx.conf
+                if ! sudo nginx -t; then
+                  echo "[deploy] WARNING: include injection failed, removing"
+                  sudo sed -i '/treble-quest-share.conf/d' /etc/nginx/nginx.conf
+                fi
+              fi
+
+              sudo systemctl enable nginx || true
+              if sudo nginx -s reload 2>/dev/null; then
+                echo "[deploy] nginx reloaded"
+              else
+                echo "[deploy] nginx reload failed — attempting restart"
+                sudo systemctl restart nginx 2>/dev/null || sudo systemctl start nginx 2>/dev/null || {
+                  echo "[deploy] FATAL: nginx failed to start"
+                  sudo journalctl -xeu nginx.service --no-pager -n 30 || true
+                  sudo ss -tlnp | grep -E ':80|:443' || true
+                  exit 1
+                }
+              fi
             fi
 
             for i in $(seq 1 6); do
@@ -195,10 +205,11 @@ jobs:
               echo "[deploy] attempt $i: public API not reachable"
               sleep 3
               if [ "$i" -eq 6 ]; then
-                echo "[deploy] WARNING: public API not reachable via nginx (API is healthy on localhost)"
+                echo "[deploy] FATAL: public API is not reachable"
                 sudo systemctl status nginx --no-pager || true
                 sudo journalctl -u nginx --no-pager -n 30 || true
-                echo "[deploy] deploy succeeded — nginx proxy may need manual attention on shared VPS"
+                sudo ss -tlnp | grep -E ':80|:443|:8787' || true
+                exit 1
               fi
             done
 

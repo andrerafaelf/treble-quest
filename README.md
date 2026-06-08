@@ -103,26 +103,45 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 | `ALLOWED_ORIGINS`                 | `https://treble.quest`     |
 | `PUBLIC_GOOGLE_SITE_VERIFICATION` | (your Search Console token, optional) |
 
-The API runs as a separate origin on `api.treble.quest`, proxied by nginx to
-the Node service bound to `127.0.0.1:8787`. CORS is gated by `ALLOWED_ORIGINS`.
+The API runs as a separate origin on `api.treble.quest`, proxied to the Node
+service on port `8787`. On a single-purpose VPS, host nginx can proxy to
+`127.0.0.1:8787`. On the current shared VPS, Docker owns public ports `80` and
+`443`, so the Dockerized shared nginx edge must proxy to the host via its Docker
+gateway instead. The deploy workflow detects that mode and runs
+[`deploy/repair-nginx-vps.sh`](deploy/repair-nginx-vps.sh).
 
 ### API troubleshooting
 
 If the leaderboard service is healthy on the VPS but `https://api.treble.quest`
-times out publicly, check nginx before changing the Node service:
+times out publicly, first check which process owns the public edge:
 
 ```bash
 curl -v http://127.0.0.1:8787/health
+sudo ss -tlnp | grep -E ':80|:443|:8787'
 sudo nginx -t
 sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx
 ```
 
-`nginx -t` must pass. An error like `host not found in upstream "client:3000"`
-means a stale nginx config from another app is still loaded from `/etc/nginx`.
-Production deploys repair that one known-bad host-level upstream by replacing
-`server client:3000;` with `server 127.0.0.1:3000;` after backing up
-`/etc/nginx/nginx.conf`. This is intentionally narrow for a shared VPS: the
-deploy does not replace nginx config or remove other apps' server blocks.
+If `docker-proxy` owns `80`/`443`, do not start or restart host nginx to take
+those ports. Keep the VPS shared and repair only Treble Quest's route in the
+Dockerized edge:
+
+```bash
+sudo bash /tmp/treble-quest-deploy/repair-nginx-vps.sh
+```
+
+The script finds the nginx container publishing `443`, binds the API to that
+container's Docker gateway, patches Treble Quest `proxy_pass` targets that still
+point at an unreachable loopback/public address, validates nginx, reloads the
+container, and then checks `https://api.treble.quest/health`.
+
+If host nginx owns the public edge, `nginx -t` must pass. An error like
+`host not found in upstream "client:3000"` means a stale nginx config from
+another app is still loaded from `/etc/nginx`. Production deploys repair that
+one known-bad host-level upstream by replacing `server client:3000;` with
+`server 127.0.0.1:3000;` after backing up `/etc/nginx/nginx.conf`. This is
+intentionally narrow for a shared VPS: the deploy does not replace nginx config
+or remove other apps' server blocks.
 
 For any other nginx error, fix only the stale config that owns the bad upstream,
 then reload nginx and re-check the public health endpoint:
