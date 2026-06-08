@@ -12,6 +12,9 @@
   $: run = $runStore;
   $: result = run?.result;
   $: slots = run ? getDraftSlots(run.mode, run.formation) : [];
+  $: topScorer = run?.picks
+    .filter((p) => p.type === 'player' && !p.player.positions.includes('GK'))
+    .sort((a, b) => (b.type === 'player' ? b.player.attack : 0) - (a.type === 'player' ? a.player.attack : 0))[0];
 
   function replay() {
     runStore.replay();
@@ -42,7 +45,7 @@
   </section>
 {:else}
   <section class="result-page">
-    <div class="result-card">
+    <div class="result-card" class:treble={result.trophies === 3}>
       <ResultHero {result} />
       <CompetitionBreakdown {result} />
       <section class="insight-grid">
@@ -61,11 +64,21 @@
           <h2>{result.ratings.managerBoost}</h2>
           <p>{result.managerImpact}</p>
         </article>
+        {#if topScorer?.type === 'player'}
+          <article>
+            <span>Top scorer</span>
+            <h2>{topScorer.player.name}</h2>
+            <p>Attack {topScorer.player.attack} · {topScorer.player.season}</p>
+          </article>
+        {/if}
       </section>
       <section class="final-squad-pitch" aria-label="Final squad">
         <SquadRail picks={run.picks} {slots} />
       </section>
       <LeaderboardSubmit {run} />
+      <div class="kofi-nudge">
+        <p>Enjoying Treble Quest? <a href="https://ko-fi.com/treblequest" target="_blank" rel="noreferrer">Support on Ko-fi</a> to keep it online and growing.</p>
+      </div>
       <SharePanel text={result.shareText} />
       <div class="toolbar-row">
         <Button onclick={replay}>Play again</Button>

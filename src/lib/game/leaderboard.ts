@@ -5,11 +5,20 @@ const API_BASE = (env.PUBLIC_API_BASE ?? 'http://127.0.0.1:8787').replace(/\/$/,
 
 const SUBMITTED_KEY = 'treble-quest-submitted';
 
+export type SquadEntry = {
+  slot: string;
+  name: string;
+  overall: number;
+  rarity: string;
+  isManager: boolean;
+};
+
 export type LeaderboardEntry = {
   name: string;
   score: number;
   trophies: number;
   formation: string | null;
+  squad: SquadEntry[] | null;
   createdAt: number;
 };
 

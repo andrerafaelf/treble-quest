@@ -41,6 +41,7 @@ app.get<{ Querystring: { mode?: string; limit?: string } }>('/leaderboard', asyn
       score: r.score,
       trophies: r.trophies,
       formation: r.formation,
+      squad: r.squad ? JSON.parse(r.squad) : null,
       createdAt: r.created_at
     }))
   };
@@ -85,6 +86,7 @@ app.post<{ Body: SubmitBody }>('/scores', {
     mode: verified.mode,
     formation: verified.formation ?? null,
     seed: verified.seed,
+    squad: JSON.stringify(verified.squad),
     created_at: Date.now(),
     ip_hash: ipHash
   });

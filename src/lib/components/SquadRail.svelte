@@ -85,6 +85,9 @@
             <div class:filled={Boolean(pick)} class="pitch-player">
               <span>{slot.short}</span>
               <strong>{pickName(pick, slot)}</strong>
+              {#if pick?.type === 'player'}
+                <em>{pick.player.overall}</em>
+              {/if}
             </div>
           {/if}
         {/each}

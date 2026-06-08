@@ -27,6 +27,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_scores_created ON scores(created_at);
 `);
 
+// Add squad column if it doesn't exist yet (safe migration)
+try {
+  db.exec(`ALTER TABLE scores ADD COLUMN squad TEXT`);
+} catch {
+  // Column already exists
+}
+
 export type ScoreRow = {
   id: number;
   run_id: string;
@@ -36,16 +43,17 @@ export type ScoreRow = {
   mode: string;
   formation: string | null;
   seed: number;
+  squad: string | null;
   created_at: number;
 };
 
 export const insertScore = db.prepare(`
-  INSERT INTO scores (run_id, name, score, trophies, mode, formation, seed, created_at, ip_hash)
-  VALUES (@run_id, @name, @score, @trophies, @mode, @formation, @seed, @created_at, @ip_hash)
+  INSERT INTO scores (run_id, name, score, trophies, mode, formation, seed, squad, created_at, ip_hash)
+  VALUES (@run_id, @name, @score, @trophies, @mode, @formation, @seed, @squad, @created_at, @ip_hash)
 `);
 
 export const topScores = db.prepare(`
-  SELECT id, run_id, name, score, trophies, mode, formation, seed, created_at
+  SELECT id, run_id, name, score, trophies, mode, formation, seed, squad, created_at
   FROM scores
   WHERE mode = @mode
   ORDER BY score DESC, created_at ASC

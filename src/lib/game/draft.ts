@@ -205,9 +205,9 @@ function chooseUnique<T extends { id: string }>(items: T[], count: number, rng: 
 }
 
 const RARITY_WEIGHT: Record<PlayerSeason['rarity'], number> = {
-  solid: 12,
-  elite: 3,
-  legend: 1
+  solid: 8,
+  elite: 5,
+  legend: 3
 };
 
 function chooseDiversePlayers(items: PlayerSeason[], count: number, rng: () => number): PlayerSeason[] {

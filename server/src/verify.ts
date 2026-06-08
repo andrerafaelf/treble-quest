@@ -11,6 +11,14 @@ export type SubmittedRun = {
   picks: Array<{ slotId: string; optionId: string }>;
 };
 
+export type SquadEntry = {
+  slot: string;
+  name: string;
+  overall: number;
+  rarity: string;
+  isManager: boolean;
+};
+
 export type VerifyOk = {
   ok: true;
   runId: string;
@@ -18,6 +26,7 @@ export type VerifyOk = {
   mode: GameMode;
   formation?: ClassicFormation;
   result: SimulationResult;
+  squad: SquadEntry[];
 };
 
 export type VerifyErr = { ok: false; reason: string };
@@ -76,12 +85,20 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
   }
 
   const result = simulateRun(run);
+  const squad: SquadEntry[] = run.picks.map((pick) => ({
+    slot: pick.slot.short,
+    name: pick.type === 'manager' ? pick.manager.name : pick.player.name,
+    overall: pick.type === 'manager' ? pick.manager.boost : pick.player.overall,
+    rarity: pick.type === 'manager' ? 'manager' : pick.player.rarity,
+    isManager: pick.type === 'manager',
+  }));
   return {
     ok: true,
     runId: submitted.id,
     seed: submitted.seed,
     mode: submitted.mode,
     formation: submitted.formation,
-    result
+    result,
+    squad,
   };
 }
