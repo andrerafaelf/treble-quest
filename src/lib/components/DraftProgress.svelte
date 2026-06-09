@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { draftSlots } from '$lib/game/draft';
+  import { classicDraftSlots } from '$lib/game/draft';
   import type { DraftPick, DraftSlot } from '$lib/game/types';
 
-  let { currentPick = 0, picks = [], slots = draftSlots }: { currentPick?: number; picks?: DraftPick[]; slots?: DraftSlot[] } = $props();
+  let { currentPick = 0, picks = [], slots = classicDraftSlots }: { currentPick?: number; picks?: DraftPick[]; slots?: DraftSlot[] } = $props();
 </script>
 
 <div class="draft-progress" aria-label="Draft progress">

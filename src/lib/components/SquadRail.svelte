@@ -1,11 +1,11 @@
 <script lang="ts">
   import JerseyPitchView from '$lib/components/JerseyPitchView.svelte';
-  import { draftSlots } from '$lib/game/draft';
+  import { classicDraftSlots } from '$lib/game/draft';
   import type { DraftPick, DraftSlot, DraftSlotId } from '$lib/game/types';
 
   let {
     picks = [],
-    slots = draftSlots,
+    slots = classicDraftSlots,
     showRatings = true
   }: {
     picks?: DraftPick[];
