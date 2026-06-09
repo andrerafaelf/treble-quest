@@ -1,8 +1,15 @@
 <script lang="ts">
-  import type { Match } from '$lib/game/types';
+  import type { LeagueTableRow, Match, SimulationResult } from '$lib/game/types';
   import { onDestroy, onMount } from 'svelte';
 
-  let { matches, onDone }: { matches: Match[]; onDone: () => void } = $props();
+  let { matches, leagueTable = [], result, onDone }: {
+    matches: Match[];
+    leagueTable?: LeagueTableRow[];
+    result?: SimulationResult;
+    onDone: () => void;
+  } = $props();
+
+  let simDone = $state(false);
 
   const SPEEDS = [
     { label: '0.5x', ms: 1200 },
@@ -51,7 +58,7 @@
     if (paused) return;
     if (currentIndex >= matches.length - 1) {
       stop();
-      onDone();
+      simDone = true;
       return;
     }
     currentIndex += 1;
@@ -106,7 +113,7 @@
 
   function skip() {
     stop();
-    onDone();
+    simDone = true;
   }
 
   function togglePause() {
@@ -206,58 +213,77 @@
 </script>
 
 <section class="playback" aria-label="Match-by-match season playback">
-  <div class="playback-header">
-    <span class="playback-eyebrow">Match {currentIndex + 1} / {matches.length}</span>
-    <div class="playback-controls">
-      <div class="pb-speed" role="group" aria-label="Playback speed">
-        {#each SPEEDS as s, i (s.label)}
-          <button
-            type="button"
-            class="pb-speed-btn"
-            class:active={speedIndex === i}
-            onclick={() => setSpeed(i)}
-            aria-label={`${s.label} speed`}
-            aria-pressed={speedIndex === i}>{s.label}</button
-          >
-        {/each}
+  {#if simDone}
+    <!-- Done state: show final standings + prompt -->
+    <div class="sim-done-banner">
+      <div class="sim-done-outcome">
+        {#if result}
+          <span class="sim-done-label">
+            {result.trophies === 3 ? '🏆 Treble!' : result.worldCup?.won ? '🏆 World Cup!' : result.league.won ? '🏆 Champions!' : result.trophies > 0 ? '🏆 Trophy winner!' : `Finished ${result.league.position === 1 ? '1st' : result.league.position + 'th'}`}
+          </span>
+          {#if !result.worldCup}
+            <span class="sim-done-pts">{result.league.points} pts · {result.league.wins}-{result.league.draws}-{result.league.losses}</span>
+          {:else}
+            <span class="sim-done-pts">{result.worldCup.wins}-{result.worldCup.draws}-{result.worldCup.losses} in World Cup</span>
+          {/if}
+        {/if}
       </div>
-      <button type="button" class="pb-btn pb-pause" onclick={togglePause}>
-        {paused ? 'Resume' : 'Pause'}
-      </button>
-      <button type="button" class="pb-btn pb-skip" onclick={skip}>Skip to results</button>
+      <button class="sim-done-cta" onclick={onDone}>View Full Results →</button>
     </div>
-  </div>
+  {:else}
+    <div class="playback-header">
+      <span class="playback-eyebrow">Match {currentIndex + 1} / {matches.length}</span>
+      <div class="playback-controls">
+        <div class="pb-speed" role="group" aria-label="Playback speed">
+          {#each SPEEDS as s, i (s.label)}
+            <button
+              type="button"
+              class="pb-speed-btn"
+              class:active={speedIndex === i}
+              onclick={() => setSpeed(i)}
+              aria-label={`${s.label} speed`}
+              aria-pressed={speedIndex === i}>{s.label}</button
+            >
+          {/each}
+        </div>
+        <button type="button" class="pb-btn pb-pause" onclick={togglePause}>
+          {paused ? 'Resume' : 'Pause'}
+        </button>
+        <button type="button" class="pb-btn pb-skip" onclick={skip}>Skip</button>
+      </div>
+    </div>
 
-  <div class="playback-progress">
-    <div class="playback-progress-fill" style="width: {progress}%"></div>
-  </div>
+    <div class="playback-progress">
+      <div class="playback-progress-fill" style="width: {progress}%"></div>
+    </div>
 
-  {#if current}
-    <article class="playback-match playback-{current.result.toLowerCase()}">
-      <span class="pm-comp">{compLabel(current)}</span>
-      <span class="pm-date"
-        >{current.date} · {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span
-      >
-      <div class="pm-score-row">
-        <span class="pm-opp">{current.venue === 'A' ? current.opponent : 'Your XI'}</span>
-        <span class="pm-score"
-          >{current.venue === 'A' ? current.ga : current.gf} – {current.venue === 'A' ? current.gf : current.ga}</span
+    {#if current}
+      <article class="playback-match playback-{current.result.toLowerCase()}">
+        <span class="pm-comp">{compLabel(current)}</span>
+        <span class="pm-date"
+          >{current.date} · {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span
         >
-        <span class="pm-opp">{current.venue === 'A' ? 'Your XI' : current.opponent}</span>
-      </div>
-      <div class="pm-badge pm-badge-{current.result.toLowerCase()}">
-        {current.result === 'W' ? 'WIN' : current.result === 'D' ? 'DRAW' : 'LOSS'}
-      </div>
-      {#if current.scorers.length > 0}
-        <p class="pm-scorers">{scorerSummary(current)}</p>
-      {/if}
-      {#if current.aggregate}
-        <p class="pm-agg">Aggregate {current.aggregate.gf}–{current.aggregate.ga}</p>
-      {/if}
-    </article>
+        <div class="pm-score-row">
+          <span class="pm-opp">{current.venue === 'A' ? current.opponent : 'Your XI'}</span>
+          <span class="pm-score"
+            >{current.venue === 'A' ? current.ga : current.gf} – {current.venue === 'A' ? current.gf : current.ga}</span
+          >
+          <span class="pm-opp">{current.venue === 'A' ? 'Your XI' : current.opponent}</span>
+        </div>
+        <div class="pm-badge pm-badge-{current.result.toLowerCase()}">
+          {current.result === 'W' ? 'WIN' : current.result === 'D' ? 'DRAW' : 'LOSS'}
+        </div>
+        {#if current.scorers.length > 0}
+          <p class="pm-scorers">{scorerSummary(current)}</p>
+        {/if}
+        {#if current.aggregate}
+          <p class="pm-agg">Aggregate {current.aggregate.gf}–{current.aggregate.ga}</p>
+        {/if}
+      </article>
+    {/if}
   {/if}
 
-  <!-- Live standings panel -->
+  <!-- Live standings panel — always visible -->
   <div class="standings">
     <div class="standings-tabs" role="tablist">
       {#if !hasWorldCup}
@@ -275,48 +301,79 @@
 
     <div class="standings-body">
       {#if activeTab === 'pl'}
-        <!-- PL mini-table: your XI stats -->
-        <div class="st-pl">
-          <div class="st-pl-row st-pl-head">
-            <span class="st-club">Your XI</span>
-            <span class="st-num">P</span>
-            <span class="st-num">W</span>
-            <span class="st-num">D</span>
-            <span class="st-num">L</span>
-            <span class="st-num">GD</span>
-            <span class="st-num st-pts">Pts</span>
-          </div>
-          <div class="st-pl-row st-pl-user">
-            <span class="st-club st-club-user">Your XI</span>
-            <span class="st-num">{plPlayed}</span>
-            <span class="st-num">{runningTotals.pl.w}</span>
-            <span class="st-num">{runningTotals.pl.d}</span>
-            <span class="st-num">{runningTotals.pl.l}</span>
-            <span class="st-num">{plGd > 0 ? '+' : ''}{plGd}</span>
-            <span class="st-num st-pts">{runningTotals.pl.pts}</span>
-          </div>
-          {#if plLast5.length > 0}
-            <div class="st-form">
-              <span class="st-form-label">Form</span>
-              <div class="st-form-badges">
-                {#each plLast5 as m}
-                  <span class="st-form-badge st-form-{m.result.toLowerCase()}">{m.result}</span>
-                {/each}
+        <!-- Full PL table — final rows if simDone, live user row during playback -->
+        {#if simDone && leagueTable.length > 0}
+          <div class="st-full-table">
+            <div class="st-row st-head">
+              <span class="st-rank">#</span>
+              <span class="st-club-col">Club</span>
+              <span class="st-num">P</span>
+              <span class="st-num">W</span>
+              <span class="st-num">D</span>
+              <span class="st-num">L</span>
+              <span class="st-num st-gd">GD</span>
+              <span class="st-num st-pts">Pts</span>
+            </div>
+            {#each leagueTable as row, idx}
+              <div class="st-row" class:st-user={row.isUser} class:st-cl-spot={idx < 4 && !row.isUser} class:st-rel={idx >= 17 && !row.isUser}>
+                <span class="st-rank">{idx + 1}</span>
+                <span class="st-club-col" class:st-user-name={row.isUser}>{row.club}</span>
+                <span class="st-num">{row.played}</span>
+                <span class="st-num">{row.wins}</span>
+                <span class="st-num">{row.draws}</span>
+                <span class="st-num">{row.losses}</span>
+                <span class="st-num st-gd">{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}</span>
+                <span class="st-num st-pts">{row.points}</span>
               </div>
+            {/each}
+          </div>
+        {:else}
+          <!-- Live: full table with user row updating, others as placeholders -->
+          <div class="st-full-table">
+            <div class="st-row st-head">
+              <span class="st-rank">#</span>
+              <span class="st-club-col">Club</span>
+              <span class="st-num">P</span>
+              <span class="st-num">W</span>
+              <span class="st-num">D</span>
+              <span class="st-num">L</span>
+              <span class="st-num st-gd">GD</span>
+              <span class="st-num st-pts">Pts</span>
             </div>
-          {/if}
-          {#if plHistory.length > 0}
-            <div class="st-recent">
-              {#each plHistory.slice(-4).reverse() as m}
-                <div class="st-recent-row">
-                  <span class="st-recent-result st-recent-{m.result.toLowerCase()}">{m.result}</span>
-                  <span class="st-recent-opp">{m.opponent}</span>
-                  <span class="st-recent-score">{m.gf}–{m.ga}</span>
+            {#each leagueTable as row, idx}
+              {@const isUser = row.isUser}
+              <div class="st-row" class:st-user={isUser}>
+                <span class="st-rank">{idx + 1}</span>
+                <span class="st-club-col" class:st-user-name={isUser}>{row.club}</span>
+                {#if isUser}
+                  <span class="st-num">{plPlayed}</span>
+                  <span class="st-num">{runningTotals.pl.w}</span>
+                  <span class="st-num">{runningTotals.pl.d}</span>
+                  <span class="st-num">{runningTotals.pl.l}</span>
+                  <span class="st-num st-gd">{plGd > 0 ? '+' : ''}{plGd}</span>
+                  <span class="st-num st-pts">{runningTotals.pl.pts}</span>
+                {:else}
+                  <span class="st-num st-dim">–</span>
+                  <span class="st-num st-dim">–</span>
+                  <span class="st-num st-dim">–</span>
+                  <span class="st-num st-dim">–</span>
+                  <span class="st-num st-dim st-gd">–</span>
+                  <span class="st-num st-dim st-pts">–</span>
+                {/if}
+              </div>
+            {/each}
+            {#if plLast5.length > 0}
+              <div class="st-form">
+                <span class="st-form-label">Form</span>
+                <div class="st-form-badges">
+                  {#each plLast5 as m}
+                    <span class="st-form-badge st-form-{m.result.toLowerCase()}">{m.result}</span>
+                  {/each}
                 </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
+              </div>
+            {/if}
+          </div>
+        {/if}
 
       {:else if activeTab === 'cl'}
         <div class="st-bracket">
@@ -383,8 +440,55 @@
 </section>
 
 <style>
+  /* Done banner */
+  .sim-done-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .sim-done-outcome {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sim-done-label {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #f8fafc;
+  }
+
+  .sim-done-pts {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .sim-done-cta {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.1rem;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+
+  .sim-done-cta:hover {
+    opacity: 0.88;
+  }
+
   .standings {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -424,49 +528,85 @@
     padding: 0.75rem;
   }
 
-  /* PL table */
-  .st-pl-row {
-    display: grid;
-    grid-template-columns: 1fr repeat(6, 2rem);
-    gap: 0;
-    align-items: center;
-    padding: 0.25rem 0;
+  /* Full PL table */
+  .st-full-table {
+    overflow-x: auto;
   }
 
-  .st-pl-head {
+  .st-row {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr repeat(4, 1.6rem) 2.2rem 2.2rem;
+    align-items: center;
+    gap: 0;
+    padding: 0.22rem 0.25rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  .st-head {
     font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--muted);
     border-bottom: 1px solid var(--line);
-    padding-bottom: 0.35rem;
-    margin-bottom: 0.25rem;
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.15rem;
+    border-radius: 0;
   }
 
-  .st-pl-user {
-    font-size: 0.82rem;
-    font-weight: 600;
+  .st-user {
+    background: rgba(230, 57, 70, 0.08);
+    border-left: 2px solid var(--accent);
+    padding-left: 0.15rem;
   }
 
-  .st-club {
-    font-size: 0.82rem;
+  .st-cl-spot {
+    border-left: 2px solid rgba(69, 123, 157, 0.4);
+    padding-left: 0.15rem;
   }
 
-  .st-club-user {
+  .st-rel {
+    opacity: 0.6;
+  }
+
+  .st-rank {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .st-club-col {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 0.25rem;
+  }
+
+  .st-user-name {
     color: var(--accent);
     font-weight: 700;
   }
 
   .st-num {
     text-align: center;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
+  }
+
+  .st-gd {
+    color: var(--text);
   }
 
   .st-pts {
     color: var(--gold);
     font-weight: 700;
+  }
+
+  .st-dim {
+    opacity: 0.3;
   }
 
   /* Form */
@@ -505,51 +645,6 @@
   .st-form-w { background: rgba(16, 185, 129, 0.25); color: #10b981; }
   .st-form-d { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
   .st-form-l { background: rgba(230, 57, 70, 0.22); color: var(--accent); }
-
-  /* Recent matches */
-  .st-recent {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .st-recent-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    padding: 0.15rem 0;
-  }
-
-  .st-recent-result {
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 2px;
-    font-size: 0.58rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .st-recent-w { background: rgba(16, 185, 129, 0.25); color: #10b981; }
-  .st-recent-d { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
-  .st-recent-l { background: rgba(230, 57, 70, 0.22); color: var(--accent); }
-
-  .st-recent-opp {
-    flex: 1;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .st-recent-score {
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-  }
 
   /* Bracket (CL / FAC / WC) */
   .st-bracket {
