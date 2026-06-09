@@ -149,18 +149,136 @@ nav a:hover {
   color: var(--text);
 }
 
-.hero {
+/* ===== Home page ===== */
+.home-page {
   min-height: calc(100vh - 158px);
   display: grid;
   align-content: center;
-  padding: 42px 0 24px;
+  padding: 32px 16px 24px;
 }
 
-.hero-inner {
+.home-wrap {
+  max-width: 660px;
+  margin: 0 auto;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.home-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.home-crest-sm {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.55));
+}
+
+.home-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.home-title {
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.home-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.home-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.75fr);
-  gap: 28px;
-  align-items: end;
+  grid-template-columns: 1fr 1fr;
+}
+
+.home-modes {
+  padding: 20px 24px;
+  border-right: 1px solid var(--line);
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.home-config {
+  padding: 20px 20px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.home-config .formation-selector {
+  margin-top: 0;
+}
+
+.start-wc-btn {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.15s;
+}
+
+.start-wc-btn:hover {
+  opacity: 0.88;
+}
+
+.home-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.015);
+  flex-wrap: wrap;
+}
+
+.home-foot-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.foot-link {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.foot-link:hover {
+  color: var(--text);
+}
+
+.foot-link-resume {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .eyebrow {
@@ -178,21 +296,6 @@ p {
   margin-top: 0;
 }
 
-.hero h1 {
-  font-size: clamp(3.1rem, 10vw, 7.8rem);
-  line-height: 0.86;
-  letter-spacing: 0;
-  margin: 12px 0 20px;
-  max-width: 760px;
-}
-
-.hero-copy {
-  color: var(--muted);
-  font-size: clamp(1.02rem, 2vw, 1.25rem);
-  line-height: 1.55;
-  max-width: 610px;
-}
-
 .kofi-nudge {
   text-align: center;
   padding: 12px 0 4px;
@@ -205,7 +308,6 @@ p {
   font-weight: 600;
 }
 
-.cta-row,
 .toolbar-row {
   display: flex;
   flex-wrap: wrap;
@@ -1754,11 +1856,18 @@ p {
   nav {
     width: 100%;
   }
-  .hero {
+  .home-page {
     min-height: auto;
-    padding-top: 30px;
+    padding-top: 16px;
   }
-  .hero-inner,
+  .home-panel {
+    grid-template-columns: 1fr;
+  }
+  .home-modes {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
   .play-grid,
   .result-hero,
   .support-panel {
@@ -1775,6 +1884,25 @@ p {
   }
   .options-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .mode-tabs {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mode-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .mode-tabs button {
+    padding: 7px 12px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .lb-squad-players {
+    grid-template-columns: 1fr;
   }
   .spin-badge {
     display: none;
@@ -2469,7 +2597,6 @@ p {
   background: linear-gradient(90deg, var(--accent), var(--gold));
   transition: width 0.35s ease;
 }
-
 
 .playback-match {
   border: 1px solid var(--line);

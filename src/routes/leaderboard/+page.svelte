@@ -24,7 +24,8 @@
 
   async function load(next: LeaderboardTab) {
     tab = next;
-    mode = next === 'world-cup' ? 'world-cup' : (next === 'global' || next === 'global-no-overall') ? 'global' : 'classic';
+    mode =
+      next === 'world-cup' ? 'world-cup' : next === 'global' || next === 'global-no-overall' ? 'global' : 'classic';
     const hideRatings = next === 'classic-no-overall' || next === 'global-no-overall';
     status = 'loading';
     expanded = new Set();
@@ -83,7 +84,10 @@
 
 <svelte:head>
   <title>Leaderboard - Treble Quest</title>
-  <meta name="description" content="Top Treble Quest scores from Classic, Global, and World Cup mode runs, including no-overall variants." />
+  <meta
+    name="description"
+    content="Top Treble Quest scores from Classic, Global, and World Cup mode runs, including no-overall variants."
+  />
 </svelte:head>
 
 <section class="page-section">
@@ -101,19 +105,16 @@
       role="tab"
       aria-selected={tab === 'classic-no-overall'}
       class:active={tab === 'classic-no-overall'}
-      onclick={() => load('classic-no-overall')}>Classic No Overall</button
+      onclick={() => load('classic-no-overall')}>Classic · No OVR</button
     >
-    <button
-      role="tab"
-      aria-selected={tab === 'global'}
-      class:active={tab === 'global'}
-      onclick={() => load('global')}>Global</button
+    <button role="tab" aria-selected={tab === 'global'} class:active={tab === 'global'} onclick={() => load('global')}
+      >Global</button
     >
     <button
       role="tab"
       aria-selected={tab === 'global-no-overall'}
       class:active={tab === 'global-no-overall'}
-      onclick={() => load('global-no-overall')}>Global No Overall</button
+      onclick={() => load('global-no-overall')}>Global · No OVR</button
     >
     <button
       role="tab"
