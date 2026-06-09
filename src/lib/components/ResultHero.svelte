@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SimulationResult } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
   let { result }: { result: SimulationResult } = $props();
 
@@ -17,60 +18,59 @@
 
   const nextChallenge = $derived((): string => {
     if (worldCup) {
-      if (isPerfectWorldCup) return 'The perfect run. Can anyone top that score?';
-      if (worldCup.won)
-        return `${8 - worldCup.wins} result${8 - worldCup.wins === 1 ? '' : 's'} from a perfect 8-0. Go again.`;
-      if (worldCup.exitRound === 'Final') return 'Final beaten. One more match. Go back and finish it.';
-      if (worldCup.exitRound === 'Semi-final') return 'Semi-final exit. Three wins from glory.';
-      return 'Make it further. Build a stronger XI and go again.';
+      if (isPerfectWorldCup) return $t('result_hero.wc_perfect');
+      const away = 8 - worldCup.wins;
+      if (worldCup.won) return away === 1 ? $t('result_hero.wc_results_away_one', { values: { n: away } }) : $t('result_hero.wc_results_away_other', { values: { n: away } });
+      if (worldCup.exitRound === 'Final') return $t('result_hero.wc_final_beaten');
+      if (worldCup.exitRound === 'Semi-final') return $t('result_hero.wc_semi_exit');
+      return $t('result_hero.wc_go_further');
     }
-    if (perfectLeague && perfectCl) return 'Perfect league AND perfect Europe. The ultimate run.';
-    if (perfectLeague) return '38-0 done. Now go perfect in Europe too, 15-0 awaits.';
-    if (perfectCl) return 'Perfect 15-0 in Europe. Now do the same in the league, 38-0.';
-    if (result.trophies === 3)
-      return `Treble done with ${result.league.points} pts. Chase 38-0 and a perfect European run.`;
-    if (result.trophies === 2) return 'Double won. The Treble is one better squad away.';
-    if (result.trophies === 1 && result.league.won) return 'Title won. Add the cups, the Treble is within reach.';
-    if (result.trophies === 1) return 'One trophy. The league title is the next target.';
-    if (result.league.position === 2) return 'Runners-up. One stronger pick changes everything.';
-    if (result.league.position <= 4) return 'Top four but no title. Upgrade and push harder.';
-    return 'No trophies, but the score can always improve. Go again.';
+    if (perfectLeague && perfectCl) return $t('result_hero.perfect_both');
+    if (perfectLeague) return $t('result_hero.perfect_league_only');
+    if (perfectCl) return $t('result_hero.perfect_cl_only');
+    if (result.trophies === 3) return $t('result_hero.treble_pts', { values: { pts: result.league.points } });
+    if (result.trophies === 2) return $t('result_hero.double_won');
+    if (result.trophies === 1 && result.league.won) return $t('result_hero.title_won_chase');
+    if (result.trophies === 1) return $t('result_hero.one_trophy_chase');
+    if (result.league.position === 2) return $t('result_hero.runners_up');
+    if (result.league.position <= 4) return $t('result_hero.top_four');
+    return $t('result_hero.no_trophies_again');
   });
 </script>
 
 <section class="result-hero">
   <div>
-    <span class="eyebrow">High Score</span>
+    <span class="eyebrow">{$t('result_hero.high_score')}</span>
     <h1 class:treble-score={result.trophies === 3 || worldCup?.won}>{result.score.toLocaleString()}</h1>
     <p class:treble-text={result.trophies === 3 || worldCup?.won}>
       {#if worldCup}
         {isPerfectWorldCup
-          ? 'Perfect 8-0 World Cup.'
+          ? $t('result_hero.perfect_world_cup')
           : worldCup.won
-            ? 'World Cup won.'
-            : `Out in ${worldCup.exitRound}.`}
+            ? $t('result_hero.world_cup_won')
+            : $t('result_hero.out_in', { values: { round: worldCup.exitRound } })}
       {:else}
         {result.trophies === 3
-          ? 'Treble completed.'
+          ? $t('result_hero.treble_completed')
           : result.trophies === 0
-            ? 'No trophies this time.'
+            ? $t('result_hero.no_trophies')
             : result.trophies === 1
-              ? '1 trophy won.'
-              : `${result.trophies} trophies won.`}
+              ? $t('result_hero.one_trophy')
+              : $t('result_hero.trophies_won', { values: { n: result.trophies } })}
       {/if}
     </p>
     <p class="result-next-challenge">{nextChallenge()}</p>
   </div>
   {#if worldCup}
     <div class="trophy-strip" aria-label="World Cup result">
-      <span class:won={worldCup.won}>World Cup</span>
-      <span class:won={isPerfectWorldCup}>8-0 target</span>
+      <span class:won={worldCup.won}>{$t('result_hero.trophy_world_cup')}</span>
+      <span class:won={isPerfectWorldCup}>{$t('result_hero.trophy_8_0')}</span>
     </div>
   {:else}
     <div class="trophy-strip" aria-label={`${result.trophies} trophies`}>
-      <span class:won={result.league.won}>Premier League</span>
-      <span class:won={result.faCup.won}>FA Cup</span>
-      <span class:won={result.championsLeague.won}>Champions League</span>
+      <span class:won={result.league.won}>{$t('result_hero.trophy_premier_league')}</span>
+      <span class:won={result.faCup.won}>{$t('result_hero.trophy_fa_cup')}</span>
+      <span class:won={result.championsLeague.won}>{$t('result_hero.trophy_champions_league')}</span>
     </div>
   {/if}
 </section>

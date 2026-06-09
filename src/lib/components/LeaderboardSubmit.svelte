@@ -2,8 +2,9 @@
   import Button from '$lib/components/Button.svelte';
   import { fetchLeaderboardSpot, getSavedName, hasSubmitted, saveName, submitScore } from '$lib/game/leaderboard';
   import type { RunState } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
-  let { run }: { run: RunState } = $props();
+  let { run, lang = 'en' }: { run: RunState; lang?: string } = $props();
 
   let name = $state(getSavedName());
   const alreadySubmitted = $derived(hasSubmitted(run.id));
@@ -13,25 +14,26 @@
   let spotLoading = $state(false);
   let confirmedRank = $state<number | null>(null);
   let confirmedTotal = $state<number | null>(null);
+
   const boardLabel = $derived(
     run.mode === 'classic'
       ? run.hideRatings
-        ? 'Classic No Overall'
-        : 'Classic'
+        ? $t('leaderboard_submit.board_classic_no_ovr')
+        : $t('leaderboard_submit.board_classic')
       : run.mode === 'world-cup'
-        ? 'World Cup'
-        : 'Quick',
+        ? $t('leaderboard_submit.board_world_cup')
+        : $t('leaderboard_submit.board_quick'),
   );
 
   $effect(() => {
     if (alreadySubmitted) status = 'success';
   });
 
-  const ERROR_LABELS: Record<string, string> = {
-    invalid_name: 'Pick a name (2–16 chars, letters/numbers).',
-    invalid_run: 'Run rejected by the server.',
-    already_submitted: 'This run is already on the board.',
-    submit_failed: 'Could not reach the leaderboard. Try again.',
+  const ERROR_KEYS: Record<string, string> = {
+    invalid_name: 'leaderboard_submit.err_invalid_name',
+    invalid_run: 'leaderboard_submit.err_invalid_run',
+    already_submitted: 'leaderboard_submit.err_already_submitted',
+    submit_failed: 'leaderboard_submit.err_submit_failed',
   };
 
   $effect(() => {
@@ -39,21 +41,10 @@
     let cancelled = false;
     spotLoading = true;
     fetchLeaderboardSpot(run.mode, run.result.score, run.mode === 'classic' && run.hideRatings === true)
-      .then((spot) => {
-        if (cancelled) return;
-        spotRank = spot.rank;
-      })
-      .catch(() => {
-        if (cancelled) return;
-        spotRank = null;
-      })
-      .finally(() => {
-        if (cancelled) return;
-        spotLoading = false;
-      });
-    return () => {
-      cancelled = true;
-    };
+      .then((spot) => { if (cancelled) return; spotRank = spot.rank; })
+      .catch(() => { if (cancelled) return; spotRank = null; })
+      .finally(() => { if (cancelled) return; spotLoading = false; });
+    return () => { cancelled = true; };
   });
 
   async function onSubmit(event: Event) {
@@ -69,7 +60,7 @@
       status = 'success';
     } catch (err) {
       const key = err instanceof Error ? err.message : 'submit_failed';
-      errorMessage = ERROR_LABELS[key] ?? ERROR_LABELS.submit_failed;
+      errorMessage = $t(ERROR_KEYS[key] ?? ERROR_KEYS.submit_failed);
       status = 'error';
     }
   }
@@ -79,33 +70,27 @@
   {#if status === 'success'}
     <div class="lb-success">
       <div>
-        <strong>Score submitted</strong>
+        <strong>{$t('leaderboard_submit.score_submitted')}</strong>
         {#if confirmedRank}
           <p class="lb-confirmed-rank" class:lb-confirmed-top={confirmedRank <= 10}>
-            {confirmedRank <= 10 ? `Top 10 locked: #${confirmedRank}` : `Leaderboard rank: #${confirmedRank}`}
-            {#if confirmedTotal}
-              <span>/ {confirmedTotal}</span>
-            {/if}
+            {confirmedRank <= 10 ? $t('leaderboard_submit.top_10_locked', { values: { rank: confirmedRank } }) : $t('leaderboard_submit.lb_rank', { values: { rank: confirmedRank } })}
+            {#if confirmedTotal}<span>/ {confirmedTotal}</span>{/if}
           </p>
         {/if}
       </div>
-      <a href="/leaderboard">View leaderboard →</a>
+      <a href="/{lang}/leaderboard">{$t('leaderboard_submit.view_leaderboard')}</a>
     </div>
   {:else}
     <form onsubmit={onSubmit}>
       {#if spotLoading}
-        <p class="lb-spot lb-spot-muted">Calculating your leaderboard spot…</p>
+        <p class="lb-spot lb-spot-muted">{$t('leaderboard_submit.calculating')}</p>
       {:else if spotRank}
         <div class="lb-spot" class:lb-spot-top={spotRank <= 10}>
-          <strong>{spotRank <= 10 ? `Top 10 (#${spotRank})` : `Projected rank #${spotRank}`}</strong>
-          <span
-            >{spotRank <= 10
-              ? `Submit to claim your ${boardLabel} spot.`
-              : `Submit to lock your ${boardLabel} leaderboard rank.`}</span
-          >
+          <strong>{spotRank <= 10 ? $t('leaderboard_submit.top_10_label', { values: { rank: spotRank } }) : $t('leaderboard_submit.projected_rank', { values: { rank: spotRank } })}</strong>
+          <span>{spotRank <= 10 ? $t('leaderboard_submit.submit_claim', { values: { board: boardLabel } }) : $t('leaderboard_submit.submit_lock', { values: { board: boardLabel } })}</span>
         </div>
       {/if}
-      <label for="lb-name">Add your name to the leaderboard</label>
+      <label for="lb-name">{$t('leaderboard_submit.add_name')}</label>
       <div class="lb-row">
         <input
           id="lb-name"
@@ -114,12 +99,12 @@
           maxlength="16"
           required
           autocomplete="off"
-          placeholder="Manager name"
+          placeholder={$t('leaderboard_submit.name_placeholder')}
           bind:value={name}
           disabled={status === 'submitting'}
         />
         <Button type="submit" disabled={status === 'submitting' || name.trim().length < 2}>
-          {status === 'submitting' ? 'Submitting…' : 'Submit'}
+          {status === 'submitting' ? $t('leaderboard_submit.submitting') : $t('leaderboard_submit.submit')}
         </Button>
       </div>
       {#if status === 'error'}

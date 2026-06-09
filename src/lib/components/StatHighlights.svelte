@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { StatHighlights } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
   let { highlights, achievements = [] }: { highlights: StatHighlights; achievements?: string[] } = $props();
 
@@ -10,13 +11,13 @@
   const verdict = $derived(
     titleWon
       ? highlights.isWorldCup
-        ? 'WC WINNERS'
-        : 'TITLE WON'
+        ? $t('highlights.wc_winners')
+        : $t('highlights.title_won')
       : delta >= 3
-        ? 'OVERPERFORMED'
+        ? $t('highlights.overperformed')
         : delta <= -3
-          ? 'UNDERPERFORMED'
-          : 'AS EXPECTED',
+          ? $t('highlights.underperformed')
+          : $t('highlights.as_expected'),
   );
   const verdictClass = $derived(
     titleWon || delta >= 3 ? 'verdict-over' : delta <= -3 ? 'verdict-under' : 'verdict-met',
@@ -24,15 +25,15 @@
 
   const finishNext = $derived((): string | null => {
     if (highlights.isWorldCup) {
-      if (highlights.actualFinish === 1) return 'Next: perfect 8-0';
-      if (highlights.actualFinish === 2) return 'Next: reach the Final';
-      if (highlights.actualFinish <= 4) return 'Next: Final';
-      if (highlights.actualFinish <= 8) return 'Next: semi-final';
-      return 'Next: make the knockouts';
+      if (highlights.actualFinish === 1) return $t('highlights.next_perfect_8_0');
+      if (highlights.actualFinish === 2) return $t('highlights.next_reach_final');
+      if (highlights.actualFinish <= 4) return $t('highlights.next_final');
+      if (highlights.actualFinish <= 8) return $t('highlights.next_semi');
+      return $t('highlights.next_knockouts');
     }
-    if (highlights.actualFinish === 1) return 'Next: 38-0';
-    if (highlights.actualFinish === 2) return 'Next: win the title';
-    if (highlights.actualFinish <= 4) return 'Next: top two';
+    if (highlights.actualFinish === 1) return $t('highlights.next_38_0');
+    if (highlights.actualFinish === 2) return $t('highlights.next_win_title');
+    if (highlights.actualFinish <= 4) return $t('highlights.next_top_two');
     return null;
   });
 
@@ -49,11 +50,11 @@
 <section class="highlights-panel" aria-label="Season highlights">
   <div class="highlights-finish">
     <article class="finish-card">
-      <span class="finish-label">Finished</span>
+      <span class="finish-label">{$t('highlights.finished')}</span>
       <strong>{finishedOrdinal}</strong>
     </article>
     <article class="finish-card">
-      <span class="finish-label">Projected</span>
+      <span class="finish-label">{$t('highlights.projected')}</span>
       <strong class="finish-muted">{expectedOrdinal}</strong>
     </article>
     <article class="finish-card finish-verdict {verdictClass}">
@@ -79,16 +80,16 @@
 
   <div class="mini-stats">
     <article class="mini-stat">
-      <span>Clean Sheets</span>
+      <span>{$t('highlights.clean_sheets')}</span>
       <strong>{highlights.cleanSheets}</strong>
     </article>
     <article class="mini-stat">
-      <span>Longest Win Streak</span>
+      <span>{$t('highlights.longest_win_streak')}</span>
       <strong>{highlights.longestWinStreak}</strong>
     </article>
     {#if highlights.biggestWin}
       <article class="mini-stat mini-stat-wide">
-        <span>Biggest Win</span>
+        <span>{$t('highlights.biggest_win')}</span>
         <strong>{highlights.biggestWin.gf}-{highlights.biggestWin.ga} vs {highlights.biggestWin.opponent}</strong>
       </article>
     {/if}

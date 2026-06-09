@@ -1,19 +1,22 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import type { SupportedLocale } from '$lib/i18n';
+  import { t } from 'svelte-i18n';
 
   const consentKey = 'trebleQuestAnalyticsConsent';
   const consentGrantedEvent = 'treblequest:analytics-consent-granted';
   const analyticsEnabled = Boolean(env.PUBLIC_GA_MEASUREMENT_ID);
+
+  const lang = $derived<SupportedLocale>(($page.params.lang as SupportedLocale) ?? 'en');
 
   let ready = $state(false);
   let choice = $state<'unknown' | 'granted' | 'denied'>('unknown');
 
   onMount(() => {
     if (!analyticsEnabled) return;
-
-    choice =
-      (window.localStorage.getItem(consentKey) as 'granted' | 'denied' | null) ?? 'unknown';
+    choice = (window.localStorage.getItem(consentKey) as 'granted' | 'denied' | null) ?? 'unknown';
     ready = true;
   });
 
@@ -32,16 +35,13 @@
 {#if analyticsEnabled && ready && choice === 'unknown'}
   <section class="cookie-banner" aria-label="Analytics consent">
     <div>
-      <strong>Help improve Treble Quest?</strong>
-      <p>
-        Analytics help spot broken flows, popular modes, and where the game needs polish. No ads,
-        no accounts, and Google Analytics only loads if you accept.
-      </p>
+      <strong>{$t('cookie.title')}</strong>
+      <p>{$t('cookie.body')}</p>
     </div>
     <div class="cookie-actions">
-      <button type="button" class="button primary" onclick={acceptAnalytics}>Accept analytics</button>
-      <button type="button" class="button ghost" onclick={declineAnalytics}>No thanks</button>
-      <a href="/privacy">Privacy</a>
+      <button type="button" class="button primary" onclick={acceptAnalytics}>{$t('cookie.accept')}</button>
+      <button type="button" class="button ghost" onclick={declineAnalytics}>{$t('cookie.decline')}</button>
+      <a href={`/${lang}/privacy`}>{$t('cookie.privacy')}</a>
     </div>
   </section>
 {/if}

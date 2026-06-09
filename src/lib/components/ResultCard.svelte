@@ -1,14 +1,27 @@
 <script lang="ts">
   import type { RunState, SimulationResult } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
   let { result, run }: { result: SimulationResult; run: RunState } = $props();
 
   const playerPicks = $derived(run.picks.filter((p) => p.type === 'player'));
-  const modeLabel = $derived(run.mode === 'world-cup' ? 'World Cup' : run.mode === 'global' ? `Global · ${run.formation}` : run.formation ?? 'Classic');
+  const modeLabel = $derived(
+    run.mode === 'world-cup'
+      ? `World Cup · ${run.formation}`
+      : run.mode === 'global'
+        ? `Global · ${run.formation}`
+        : (run.formation ?? 'Classic'),
+  );
   const ovr = $derived(Math.round((result.ratings.attack + result.ratings.control + result.ratings.defence) / 3));
-  const perfectWorldCup = $derived(Boolean(result.worldCup?.won && result.worldCup.wins === 8 && result.worldCup.draws === 0 && result.worldCup.losses === 0));
+  const perfectWorldCup = $derived(
+    Boolean(
+      result.worldCup?.won && result.worldCup.wins === 8 && result.worldCup.draws === 0 && result.worldCup.losses === 0,
+    ),
+  );
 
-  const wcRecord = $derived(result.worldCup ? `${result.worldCup.wins}-${result.worldCup.draws}-${result.worldCup.losses}` : '');
+  const wcRecord = $derived(
+    result.worldCup ? `${result.worldCup.wins}-${result.worldCup.draws}-${result.worldCup.losses}` : '',
+  );
   const plRecord = $derived(`${result.league.wins}-${result.league.draws}-${result.league.losses}`);
 
   function ordinal(n: number): string {
@@ -26,18 +39,18 @@
 
   const outcomeLabel = $derived(
     perfectWorldCup
-      ? 'Perfect 8-0'
+      ? $t('result_card.perfect_8_0')
       : result.worldCup?.won
-        ? 'World Cup Won'
+        ? $t('result_card.world_cup_won')
         : result.trophies === 3
-          ? 'Treble'
+          ? $t('result_card.treble')
           : result.league.won
-            ? 'Champions'
+            ? $t('result_card.champions')
             : result.trophies === 2
-              ? 'Double'
+              ? $t('result_card.double')
               : result.trophies === 1
-                ? 'Trophy Winner'
-                : `${ordinal(result.league.position)} Place`
+                ? $t('result_card.trophy_winner')
+                : `${ordinal(result.league.position)} Place`,
   );
 
   const isWinner = $derived(result.league.won || result.trophies > 0 || !!result.worldCup?.won);
@@ -45,16 +58,16 @@
   // CL and FA Cup pills for classic mode
   const clPill = $derived(
     result.championsLeague.won
-      ? { text: 'UCL Winners', ok: true }
+      ? { text: $t('result_card.ucl_winners'), ok: true }
       : result.championsLeague.exitRound === 'League phase'
-        ? { text: 'UCL: Groups', ok: false }
-        : { text: `UCL: ${result.championsLeague.exitRound}`, ok: false }
+        ? { text: $t('result_card.ucl_groups'), ok: false }
+        : { text: $t('result_card.ucl_exit', { values: { round: result.championsLeague.exitRound } }), ok: false },
   );
 
   const facPill = $derived(
     result.faCup.won
-      ? { text: 'FA Cup', ok: true }
-      : { text: `FA Cup: ${result.faCup.exitRound}`, ok: false }
+      ? { text: $t('result_card.fa_cup'), ok: true }
+      : { text: $t('result_card.fa_cup_exit', { values: { round: result.faCup.exitRound } }), ok: false },
   );
 </script>
 
@@ -67,7 +80,7 @@
     </div>
     <div class="rc-ovr-badge">
       <span class="rc-ovr-val">{ovr}</span>
-      <span class="rc-ovr-lbl">OVR</span>
+      <span class="rc-ovr-lbl">{$t('result_card.ovr')}</span>
     </div>
   </div>
 
@@ -76,15 +89,15 @@
     <div class="rc-outcome">{outcomeLabel}</div>
     {#if result.worldCup}
       <div class="rc-record">{wcRecord}</div>
-      <div class="rc-record-sub">W · D · L</div>
+      <div class="rc-record-sub">{$t('result_card.w_d_l')}</div>
     {:else}
       <div class="rc-pts-row">
-        <span class="rc-pts">{result.league.points}<span class="rc-pts-lbl">pts</span></span>
+        <span class="rc-pts">{result.league.points}<span class="rc-pts-lbl">{$t('result_card.pts')}</span></span>
         <span class="rc-sep">·</span>
         <span class="rc-pos">{ordinal(result.league.position)}</span>
       </div>
       <div class="rc-record">{plRecord}</div>
-      <div class="rc-record-sub">W · D · L</div>
+      <div class="rc-record-sub">{$t('result_card.w_d_l')}</div>
     {/if}
   </div>
 
@@ -117,7 +130,7 @@
         <div class="rc-award">
           <span class="rc-award-ico">⚽</span>
           <div class="rc-award-body">
-            <span class="rc-award-lbl">Golden Boot</span>
+            <span class="rc-award-lbl">{$t('result_card.golden_boot')}</span>
             <span class="rc-award-name">{result.awards.goldenBoot.name}</span>
           </div>
           <span class="rc-award-stat">{result.awards.goldenBoot.goals}G</span>
@@ -127,7 +140,7 @@
         <div class="rc-award">
           <span class="rc-award-ico">★</span>
           <div class="rc-award-body">
-            <span class="rc-award-lbl">Player of Season</span>
+            <span class="rc-award-lbl">{$t('result_card.player_of_season')}</span>
             <span class="rc-award-name">{result.awards.playerOfSeason.name}</span>
           </div>
         </div>
@@ -137,8 +150,8 @@
 
   <!-- Footer -->
   <div class="rc-footer">
-    <span class="rc-verified">✓ Verified result</span>
-    <span class="rc-cta">treble.quest</span>
+    <span class="rc-verified">{$t('result_card.verified')}</span>
+    <span class="rc-cta">{$t('result_card.branding')}</span>
   </div>
 </div>
 
@@ -147,7 +160,7 @@
     width: 400px;
     background: #100c0c;
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #e2e8f0;
     position: absolute;
@@ -162,7 +175,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 14px 18px 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .rc-brand {
@@ -190,8 +203,8 @@
     display: flex;
     align-items: baseline;
     gap: 3px;
-    background: rgba(244,162,97,0.12);
-    border: 1px solid rgba(244,162,97,0.2);
+    background: rgba(244, 162, 97, 0.12);
+    border: 1px solid rgba(244, 162, 97, 0.2);
     border-radius: 6px;
     padding: 3px 8px;
   }
@@ -216,15 +229,15 @@
   .rc-hero {
     padding: 18px 18px 14px;
     text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .rc-hero-win {
-    background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(13,17,23,0) 60%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 17, 23, 0) 60%);
   }
 
   .rc-hero-loss {
-    background: linear-gradient(135deg, rgba(69,123,157,0.08) 0%, rgba(13,17,23,0) 60%);
+    background: linear-gradient(135deg, rgba(69, 123, 157, 0.08) 0%, rgba(13, 17, 23, 0) 60%);
   }
 
   .rc-outcome {
@@ -290,7 +303,7 @@
     display: flex;
     gap: 6px;
     padding: 8px 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .rc-cup {
@@ -303,15 +316,15 @@
   }
 
   .rc-cup-ok {
-    background: rgba(16,185,129,0.15);
+    background: rgba(16, 185, 129, 0.15);
     color: #10b981;
-    border: 1px solid rgba(16,185,129,0.3);
+    border: 1px solid rgba(16, 185, 129, 0.3);
   }
 
   .rc-cup-out {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     color: #64748b;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   /* Squad */
@@ -325,7 +338,7 @@
     align-items: center;
     gap: 0 8px;
     padding: 4px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
 
   .rc-player:last-child {
@@ -373,14 +386,14 @@
     flex-direction: column;
     gap: 4px;
     padding: 8px 18px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .rc-award {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 6px;
     padding: 6px 10px;
   }
@@ -428,7 +441,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 18px 12px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .rc-verified {

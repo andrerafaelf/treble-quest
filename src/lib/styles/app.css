@@ -229,24 +229,6 @@ nav a:hover {
   margin-top: 0;
 }
 
-.start-wc-btn {
-  width: 100%;
-  padding: 13px 16px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  text-align: left;
-  transition: opacity 0.15s;
-}
-
-.start-wc-btn:hover {
-  opacity: 0.88;
-}
-
 .home-foot {
   display: flex;
   align-items: center;
@@ -2738,4 +2720,122 @@ p {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── RTL (Arabic) ───────────────────────────────────────────────── */
+[dir='rtl'] {
+  font-family:
+    'Segoe UI',
+    Tahoma,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+[dir='rtl'] .site-header {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .site-header nav {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .lang-switcher {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+  padding-inline-start: 0;
+  padding-inline-end: 1rem;
+}
+
+[dir='rtl'] .home-foot {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .home-foot-links {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .toolbar-row {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .lb-main {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .lb-info {
+  text-align: right;
+}
+
+[dir='rtl'] .lb-right {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+[dir='rtl'] .share-buttons {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .result-hero .trophy-strip {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .breakdown-grid article {
+  text-align: right;
+}
+
+[dir='rtl'] .hunt-grid {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .awards-grid {
+  direction: rtl;
+}
+
+[dir='rtl'] .award-card {
+  text-align: right;
+}
+
+[dir='rtl'] .mini-stats {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .highlights-finish {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .footer-links {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .cookie-actions {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .lb-squad-manager,
+[dir='rtl'] .lb-squad-player {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir='rtl'] .mode-tabs {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .rc {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='rtl'] .rc-header,
+[dir='rtl'] .rc-footer {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .rc-award {
+  flex-direction: row-reverse;
+}
+
+[dir='rtl'] .rc-cups {
+  flex-direction: row-reverse;
 }

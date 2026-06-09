@@ -15,6 +15,11 @@
   import { getDraftSlots } from '$lib/game/draft';
   import { runStore } from '$lib/game/storage';
   import type { ClassicFormation, GameMode } from '$lib/game/types';
+  import type { LayoutData } from '../$types';
+  import { t } from 'svelte-i18n';
+
+  let { data }: { data: LayoutData } = $props();
+  const lang = $derived(data.lang);
 
   let mode = $state<GameMode>('classic');
   let choosingClassic = $state(false);
@@ -60,7 +65,7 @@
     window.setTimeout(() => {
       if (next && next.currentPick >= getDraftSlots(next.mode, next.formation).length) {
         runStore.finish();
-        goto('/result');
+        goto(`/${lang}/result`);
       }
       selecting = false;
     }, 420);
@@ -87,42 +92,42 @@
 </script>
 
 <svelte:head>
-  <title>Play Treble Quest</title>
+  <title>{$t('play.page_title')}</title>
 </svelte:head>
 
 {#if !run}
   <section class="page-section narrow">
-    <span class="eyebrow">New run</span>
-    <h1 class="page-title">Choose your run.</h1>
+    <span class="eyebrow">{$t('play.new_run')}</span>
+    <h1 class="page-title">{$t('play.choose_run')}</h1>
     <Card>
       <ModeSelector value={mode} onSelect={selectMode} />
       {#if choosingClassic}
         <label class="toggle-row">
           <input type="checkbox" bind:checked={noOverall} />
-          <span>No overall mode</span>
-          <strong>Hard</strong>
+          <span>{$t('play.no_overall_mode')}</span>
+          <strong>{$t('play.hard')}</strong>
         </label>
         <FormationSelector onSelect={selectFormation} />
       {/if}
       <div class="toolbar-row">
-        <Button href="/" variant="ghost">Back home</Button>
+        <Button href={`/${lang}`} variant="ghost">{$t('play.back_home')}</Button>
       </div>
     </Card>
   </section>
 {:else if run.result}
   <section class="page-section narrow">
-    <span class="eyebrow">Run complete</span>
-    <h1 class="page-title">Your result is ready.</h1>
+    <span class="eyebrow">{$t('play.run_complete')}</span>
+    <h1 class="page-title">{$t('play.result_ready')}</h1>
     <div class="toolbar-row">
-      <Button href="/result">View result</Button>
-      <Button variant="secondary" onclick={() => runStore.replay()}>Replay mode</Button>
-      <Button variant="danger" onclick={clearRun}>Clear run</Button>
+      <Button href={`/${lang}/result`}>{$t('play.view_result')}</Button>
+      <Button variant="secondary" onclick={() => runStore.replay()}>{$t('play.replay_mode')}</Button>
+      <Button variant="danger" onclick={clearRun}>{$t('play.clear_run')}</Button>
     </div>
   </section>
 {:else if namingTeam}
   <section class="page-section narrow">
-    <span class="eyebrow">Name your club</span>
-    <h1 class="page-title">What's the club called?</h1>
+    <span class="eyebrow">{$t('play.name_your_club')}</span>
+    <h1 class="page-title">{$t('play.club_called')}</h1>
     <Card>
       <form
         onsubmit={(e) => {
@@ -133,14 +138,14 @@
         <input
           class="team-name-input"
           type="text"
-          placeholder="e.g. FC Disaster, The Invincibles..."
+          placeholder={$t('play.club_placeholder')}
           maxlength="40"
           bind:value={teamNameInput}
           autofocus
         />
         <div class="toolbar-row">
-          <Button type="submit">Start draft</Button>
-          <Button variant="ghost" onclick={confirmTeamName}>Skip</Button>
+          <Button type="submit">{$t('play.start_draft')}</Button>
+          <Button variant="ghost" onclick={confirmTeamName}>{$t('play.skip')}</Button>
         </div>
       </form>
     </Card>
@@ -168,7 +173,7 @@
         {/if}
       </div>
       <div class="toolbar-row">
-        <Button variant="ghost" onclick={clearRun}>Clear run</Button>
+        <Button variant="ghost" onclick={clearRun}>{$t('play.clear_run')}</Button>
       </div>
     </div>
     <SquadRail picks={run.picks} {slots} showRatings={!run.hideRatings} />

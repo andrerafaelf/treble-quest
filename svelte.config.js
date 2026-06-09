@@ -1,6 +1,9 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+const LOCALES = ['en', 'es', 'ar', 'pt-PT', 'de', 'it', 'id'];
+const ROUTES = ['', '/play', '/result', '/leaderboard', '/about', '/how-to-play', '/privacy', '/support'];
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
@@ -11,7 +14,14 @@ const config = {
       fallback: undefined,
       precompress: false,
       strict: true
-    })
+    }),
+    prerender: {
+      entries: [
+        '/',
+        ...ROUTES.filter((r) => r !== '').map((route) => route),
+        ...LOCALES.flatMap((lang) => ROUTES.map((route) => `/${lang}${route}`))
+      ]
+    }
   }
 };
 

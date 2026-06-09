@@ -1,8 +1,8 @@
 import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
 import { createRun, replayRun, selectOption } from '$lib/game/draft';
 import { simulateRun } from '$lib/game/simulation';
 import type { ClassicFormation, GameMode, RunState } from '$lib/game/types';
+import { writable } from 'svelte/store';
 
 const STORAGE_KEY = 'treble-quest-run';
 const STREAK_KEY = 'treble-quest-streak';
@@ -106,7 +106,7 @@ function createRunStore() {
     clear() {
       set(undefined);
       persist(undefined);
-    }
+    },
   };
 }
 
@@ -138,5 +138,5 @@ function hasInvalidMode(run: RunState): boolean {
 }
 
 function hasInvalidClassicFormation(run: RunState): boolean {
-  return run.mode === 'classic' && (!run.formation || !classicFormations.has(run.formation));
+  return !run.formation || !classicFormations.has(run.formation);
 }

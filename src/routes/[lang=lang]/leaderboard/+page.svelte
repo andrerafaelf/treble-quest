@@ -5,6 +5,11 @@
   import Button from '$lib/components/Button.svelte';
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
+  import type { LayoutData } from '../$types';
+  import { t } from 'svelte-i18n';
+
+  let { data }: { data: LayoutData } = $props();
+  const lang = $derived(data.lang);
 
   type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global' | 'global-no-overall';
 
@@ -44,7 +49,6 @@
     }
   }
 
-  // Load initial tab once on mount, not inside $effect to avoid re-triggering on state changes.
   load(initialTab());
 
   function toggle(i: number) {
@@ -59,11 +63,11 @@
   }
 
   function trophyLabel(n: number, entryMode: GameMode): string {
-    if (entryMode === 'world-cup') return n > 0 ? 'World Cup' : 'No trophy';
-    if (n === 3) return 'Treble';
-    if (n === 2) return 'Double';
-    if (n === 1) return '1 trophy';
-    return 'No trophies';
+    if (entryMode === 'world-cup') return n > 0 ? $t('leaderboard.trophy_world_cup') : $t('leaderboard.trophy_no_trophy');
+    if (n === 3) return $t('leaderboard.trophy_treble');
+    if (n === 2) return $t('leaderboard.trophy_double');
+    if (n === 1) return $t('leaderboard.trophy_one');
+    return $t('leaderboard.trophy_none');
   }
 
   function manager(squad: SquadEntry[]): SquadEntry | undefined {
@@ -78,60 +82,35 @@
     const params = new URLSearchParams({ mode });
     if (entry.formation) params.set('formation', entry.formation);
     if (tab === 'classic-no-overall' || tab === 'global-no-overall') params.set('hideRatings', '1');
-    return `/play?${params.toString()}`;
+    return `/${lang}/play?${params.toString()}`;
   }
 </script>
 
 <svelte:head>
-  <title>Leaderboard - Treble Quest</title>
-  <meta
-    name="description"
-    content="Top Treble Quest scores from Classic, Global, and World Cup mode runs, including no-overall variants."
-  />
+  <title>{$t('leaderboard.page_title')}</title>
+  <meta name="description" content={$t('leaderboard.meta_description')} />
 </svelte:head>
 
 <section class="page-section">
-  <span class="eyebrow">Leaderboard</span>
-  <h1 class="page-title">High Scores</h1>
+  <span class="eyebrow">{$t('leaderboard.eyebrow')}</span>
+  <h1 class="page-title">{$t('leaderboard.title')}</h1>
 
   <div class="mode-tabs" role="tablist" aria-label="Game mode">
-    <button
-      role="tab"
-      aria-selected={tab === 'classic'}
-      class:active={tab === 'classic'}
-      onclick={() => load('classic')}>Classic</button
-    >
-    <button
-      role="tab"
-      aria-selected={tab === 'classic-no-overall'}
-      class:active={tab === 'classic-no-overall'}
-      onclick={() => load('classic-no-overall')}>Classic · No OVR</button
-    >
-    <button role="tab" aria-selected={tab === 'global'} class:active={tab === 'global'} onclick={() => load('global')}
-      >Global</button
-    >
-    <button
-      role="tab"
-      aria-selected={tab === 'global-no-overall'}
-      class:active={tab === 'global-no-overall'}
-      onclick={() => load('global-no-overall')}>Global · No OVR</button
-    >
-    <button
-      role="tab"
-      aria-selected={tab === 'world-cup'}
-      class:active={tab === 'world-cup'}
-      onclick={() => load('world-cup')}>World Cup</button
-    >
+    <button role="tab" aria-selected={tab === 'classic'} class:active={tab === 'classic'} onclick={() => load('classic')}>{$t('leaderboard.tab_classic')}</button>
+    <button role="tab" aria-selected={tab === 'classic-no-overall'} class:active={tab === 'classic-no-overall'} onclick={() => load('classic-no-overall')}>{$t('leaderboard.tab_classic_no_ovr')}</button>
+    <button role="tab" aria-selected={tab === 'global'} class:active={tab === 'global'} onclick={() => load('global')}>{$t('leaderboard.tab_global')}</button>
+    <button role="tab" aria-selected={tab === 'global-no-overall'} class:active={tab === 'global-no-overall'} onclick={() => load('global-no-overall')}>{$t('leaderboard.tab_global_no_ovr')}</button>
+    <button role="tab" aria-selected={tab === 'world-cup'} class:active={tab === 'world-cup'} onclick={() => load('world-cup')}>{$t('leaderboard.tab_world_cup')}</button>
   </div>
 
   {#if status === 'loading'}
-    <p class="text-flow">Loading...</p>
+    <p class="text-flow">{$t('leaderboard.loading')}</p>
   {:else if status === 'error'}
-    <p class="text-flow">Could not load the leaderboard. Try again later.</p>
-    <Button variant="secondary" onclick={() => load(tab)}>Retry</Button>
+    <p class="text-flow">{$t('leaderboard.error')}</p>
+    <Button variant="secondary" onclick={() => load(tab)}>{$t('leaderboard.retry')}</Button>
   {:else if entries.length === 0}
-    <p class="text-flow">No scores yet. Be the first.</p>
-    <Button href="/play">Start a run</Button>
+    <p class="text-flow">{$t('leaderboard.no_scores')}</p>
+    <Button href={`/${lang}/play`}>{$t('leaderboard.start_run')}</Button>
   {:else}
     <ol class="lb-list">
       {#each entries as entry, i (entry.name + entry.createdAt)}
@@ -140,9 +119,7 @@
         <li class:top={i < 3} class:treble={entry.trophies === 3 || (mode === 'world-cup' && entry.trophies > 0)}>
           <button
             class="lb-main"
-            onclick={() => {
-              if (hasSquad) toggle(i);
-            }}
+            onclick={() => { if (hasSquad) toggle(i); }}
             aria-expanded={isOpen}
             disabled={!hasSquad}
           >
@@ -153,16 +130,13 @@
               <span class="lb-name">{entry.name}</span>
               <span class="lb-meta">
                 {trophyLabel(entry.trophies, mode)}
-                {#if entry.formation}
-                  / {entry.formation}{/if}
+                {#if entry.formation}/ {entry.formation}{/if}
                 / {formatDate(entry.createdAt)}
               </span>
             </span>
             <span class="lb-right">
               <span class="lb-score">{entry.score.toLocaleString()}</span>
-              {#if hasSquad}
-                <span class="lb-chevron" class:open={isOpen}>▾</span>
-              {/if}
+              {#if hasSquad}<span class="lb-chevron" class:open={isOpen}>▾</span>{/if}
             </span>
           </button>
 
@@ -171,9 +145,9 @@
               {#if manager(entry.squad)}
                 {@const mgr = manager(entry.squad)!}
                 <div class="lb-squad-manager">
-                  <span class="lb-slot">MGR</span>
+                  <span class="lb-slot">{$t('leaderboard.mgr_slot')}</span>
                   <span class="lb-player-name">{mgr.name}</span>
-                  <span class="lb-rarity manager">Manager</span>
+                  <span class="lb-rarity manager">{$t('leaderboard.manager_label')}</span>
                 </div>
               {/if}
               <div class="lb-squad-players">
@@ -191,7 +165,7 @@
 
           {#if i === 0}
             <div class="lb-beat">
-              <Button href={beatUrl(entry)} variant="secondary">🏆 Beat this score</Button>
+              <Button href={beatUrl(entry)} variant="secondary">{$t('leaderboard.beat_score')}</Button>
             </div>
           {/if}
         </li>

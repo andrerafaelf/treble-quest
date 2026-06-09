@@ -1,13 +1,17 @@
+<script lang="ts">
+  import { page } from '$app/stores';
+  import type { SupportedLocale } from '$lib/i18n';
+  import { t } from 'svelte-i18n';
+
+  const lang = $derived<SupportedLocale>(($page.params.lang as SupportedLocale) ?? 'en');
+</script>
+
 <footer class="site-footer">
-  <p>
-    Treble Quest is an independent, fan-made football draft game. It is not affiliated with,
-    endorsed by, or sponsored by any football club, league, competition, governing body, game
-    publisher, or ratings provider. Player, club and season references are used descriptively.
-  </p>
+  <p>{$t('footer.disclaimer')}</p>
   <div class="footer-links">
-    <a href="/support">Support</a>
+    <a href={`/${lang}/support`}>{$t('footer.support')}</a>
     <a href="https://ko-fi.com/treblequest" target="_blank" rel="noreferrer">Ko-fi</a>
     <a href="https://x.com/PlayTrebleQuest" target="_blank" rel="noreferrer">X</a>
-    <a href="/privacy">Privacy</a>
+    <a href={`/${lang}/privacy`}>{$t('footer.privacy')}</a>
   </div>
 </footer>

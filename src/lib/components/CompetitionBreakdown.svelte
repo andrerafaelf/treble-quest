@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SimulationResult } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
   let { result }: { result: SimulationResult } = $props();
 
@@ -24,154 +25,133 @@
   const plDroppedPoints = $derived(result.league.draws + result.league.losses * 3);
   const clSlips = $derived(result.championsLeague.draws + result.championsLeague.losses);
 
-  // PL lure copy
-  const plNextLine = $derived(() => {
+  const plNextLine = $derived((): string | null => {
     if (perfectLeague) return null;
     if (!result.league.won) {
-      if (result.league.position <= 2)
-        return `${result.league.position === 2 ? 'Runners-up' : ordinal(result.league.position)}. One stronger XI wins this. Go again.`;
-      if (result.league.position <= 4)
-        return `Top four, but the title is what counts. Upgrade your weakest slot and push for 1st.`;
-      return `Outside the top four. The gap to the title can be closed, start with a better draft.`;
+      if (result.league.position === 2) return $t('breakdown.pl_runners_up');
+      if (result.league.position <= 4) return $t('breakdown.pl_top_four');
+      return $t('breakdown.pl_outside_top_four');
     }
-    return `38-0 is ${leagueResultsOffPerfect} result${leagueResultsOffPerfect === 1 ? '' : 's'} away. Convert ${result.league.draws} draw${result.league.draws === 1 ? '' : 's'} and ${result.league.losses} loss${result.league.losses === 1 ? '' : 'es'}, ${plDroppedPoints} points dropped from a perfect 114.`;
+    const n = leagueResultsOffPerfect;
+    const r = n === 1 ? $t('breakdown.result_one') : $t('breakdown.result_other');
+    const d = result.league.draws === 1 ? $t('breakdown.draw_one') : $t('breakdown.draw_other');
+    const l = result.league.losses === 1 ? $t('breakdown.loss_one') : $t('breakdown.loss_other');
+    return $t('breakdown.pl_38_away', { values: { n, result: r, draws: result.league.draws, draw: d, losses: result.league.losses, loss: l, pts: plDroppedPoints } });
   });
 
-  // CL lure copy
-  const clNextLine = $derived(() => {
+  const clNextLine = $derived((): string | null => {
     if (perfectCl) return null;
     if (!result.championsLeague.won) {
-      if (result.championsLeague.exitRound === 'Final')
-        return `Final beaten. One more match to be European champion. Come back and finish it.`;
-      if (result.championsLeague.exitRound === 'Semi-final')
-        return `Semi-final exit. Four rounds from glory, a better squad gets through.`;
-      if (result.championsLeague.exitRound === 'Quarter-final')
-        return `Quarter-final exit. Six rounds from the top. Build a side that lasts the distance.`;
-      if (result.championsLeague.exitRound === 'Round of 16')
-        return `Round of 16 exit. The knockout rounds demand elite players at every slot.`;
-      return `Dropped in the league phase. Make the knockouts first, then chase the trophy.`;
+      if (result.championsLeague.exitRound === 'Final') return $t('breakdown.cl_final_beaten');
+      if (result.championsLeague.exitRound === 'Semi-final') return $t('breakdown.cl_semi_exit');
+      if (result.championsLeague.exitRound === 'Quarter-final') return $t('breakdown.cl_quarter_exit');
+      if (result.championsLeague.exitRound === 'Round of 16') return $t('breakdown.cl_r16_exit');
+      return $t('breakdown.cl_league_phase');
     }
-    return `15-0 is ${clResultsOffPerfect} result${clResultsOffPerfect === 1 ? '' : 's'} away. ${clSlips} slip${clSlips === 1 ? '' : 's'} cost you, the perfect run allows zero.`;
+    const n = clResultsOffPerfect;
+    const r = n === 1 ? $t('breakdown.result_one') : $t('breakdown.result_other');
+    const s = clSlips === 1 ? $t('breakdown.slip_one') : $t('breakdown.slip_other');
+    return $t('breakdown.cl_15_away', { values: { n, result: r, slips: clSlips, slip: s } });
   });
 
-  function ordinal(n: number): string {
-    const t = n % 100;
-    if (t >= 11 && t <= 13) return `${n}th`;
-    const s = n % 10;
-    return `${n}${s === 1 ? 'st' : s === 2 ? 'nd' : s === 3 ? 'rd' : 'th'}`;
+  function combinedMsg(): string {
+    if (combinedProgress === 100) return $t('breakdown.combined_flawless');
+    if (combinedProgress >= 80) return $t('breakdown.combined_elite');
+    if (combinedProgress >= 60) return $t('breakdown.combined_pushing');
+    return $t('breakdown.combined_room');
+  }
+
+  function wcSlipsMsg(): string {
+    if (!worldCup) return '';
+    const slips = worldCup.draws + worldCup.losses;
+    const away = 8 - worldCup.wins;
+    if (away === 1) return $t('breakdown.wc_slips_one', { values: { n: away, slips } });
+    return $t('breakdown.wc_slips_other', { values: { n: away, slips } });
   }
 </script>
 
 <section class="breakdown-grid">
   {#if worldCup}
     <article class:won={worldCup.won}>
-      <span>{worldCup.won ? 'World Cup won' : 'World Cup'}</span>
-      <h2>{perfectWorldCup ? 'Perfect 8-0' : worldCup.won ? 'Winners' : worldCup.exitRound}</h2>
+      <span>{worldCup.won ? $t('breakdown.wc_won_label') : $t('breakdown.wc_label')}</span>
+      <h2>{perfectWorldCup ? $t('breakdown.wc_perfect') : worldCup.won ? $t('breakdown.wc_winners') : worldCup.exitRound}</h2>
       <p class="league-record">
         {worldCup.wins}W / {worldCup.draws}D / {worldCup.losses}L
-        <span class="record-pts">target 8-0</span>
+        <span class="record-pts">{$t('breakdown.wc_target')}</span>
       </p>
       <p class="league-goals">
-        GF {worldCup.goalsFor} / GA {worldCup.goalsAgainst} / GD {worldCup.goalsFor - worldCup.goalsAgainst > 0
-          ? '+'
-          : ''}{worldCup.goalsFor - worldCup.goalsAgainst}
+        GF {worldCup.goalsFor} / GA {worldCup.goalsAgainst} / GD {worldCup.goalsFor - worldCup.goalsAgainst > 0 ? '+' : ''}{worldCup.goalsFor - worldCup.goalsAgainst}
       </p>
       {#if perfectWorldCup}
-        <p>Flawless. 8 wins from 8. The perfect tournament.</p>
+        <p>{$t('breakdown.wc_flawless')}</p>
       {:else if worldCup.won}
         <p>{worldCup.group}</p>
-        <p>
-          8-0 is {8 - worldCup.wins} result{8 - worldCup.wins === 1 ? '' : 's'} away. {worldCup.draws + worldCup.losses}
-          slip{worldCup.draws + worldCup.losses === 1 ? '' : 's'} cost you, the perfect run allows none.
-        </p>
+        <p>{wcSlipsMsg()}</p>
       {:else if worldCup.exitRound === 'Final'}
-        <p>Final exit. One match from the trophy. Draft a stronger XI and go back.</p>
+        <p>{$t('breakdown.wc_final_exit')}</p>
       {:else if worldCup.exitRound === 'Semi-final'}
-        <p>
-          Semi-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Three wins from the title, build the
-          squad that gets there.
-        </p>
+        <p>{$t('breakdown.wc_semi_exit', { values: { opponent: worldCup.opponent ? $t('breakdown.lost_to', { values: { opponent: worldCup.opponent } }) : '' } })}</p>
       {:else if worldCup.exitRound === 'Quarter-final'}
-        <p>
-          Quarter-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} The trophy needs four more rounds
-          of wins.
-        </p>
+        <p>{$t('breakdown.wc_quarter_exit', { values: { opponent: worldCup.opponent ? $t('breakdown.lost_to', { values: { opponent: worldCup.opponent } }) : '' } })}</p>
       {:else if worldCup.exitRound === 'Round of 16' || worldCup.exitRound === 'Round of 32'}
-        <p>
-          Early exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Elite-rated players survive the knockout
-          rounds, upgrade your squad.
-        </p>
+        <p>{$t('breakdown.wc_early_exit', { values: { opponent: worldCup.opponent ? $t('breakdown.lost_to', { values: { opponent: worldCup.opponent } }) : '' } })}</p>
       {:else}
-        <p>Group stage exit. The dream starts by getting out of the group.</p>
+        <p>{$t('breakdown.wc_group_exit')}</p>
       {/if}
     </article>
   {:else}
     <article class="perfect-hunt" style="grid-column: 1 / -1;">
-      <span>Perfect Season Chase</span>
-      <h2>38-0 + 15-0</h2>
+      <span>{$t('breakdown.perfect_hunt')}</span>
+      <h2>{$t('breakdown.perfect_hunt_target')}</h2>
       <p class="hunt-summary">
-        Combined chase progress: <strong>{combinedProgress}%</strong>
-        {#if combinedProgress === 100}, flawless.{:else if combinedProgress >= 80}, elite territory.{:else if combinedProgress >= 60},
-          pushing for it.{:else}, room to grow.{/if}
+        {$t('breakdown.combined_progress', { values: { pct: combinedProgress } })}{combinedMsg()}
       </p>
       <div class="hunt-grid">
         <section class="hunt-track" class:track-complete={perfectLeague}>
           <header>
-            <strong>Premier League</strong>
-            <em>{result.league.wins}/38 wins</em>
+            <strong>{$t('breakdown.pl_label')}</strong>
+            <em>{$t('breakdown.pl_wins', { values: { wins: result.league.wins } })}</em>
           </header>
           <div class="hunt-bar" role="presentation" aria-hidden="true">
             <span style={`width: ${plProgress}%`}></span>
           </div>
           {#if perfectLeague}
-            <p>Perfect. 114/114 points. Nothing left to prove in the league.</p>
+            <p>{$t('breakdown.pl_perfect')}</p>
           {:else if result.league.won}
-            <p>
-              {leagueResultsOffPerfect} result{leagueResultsOffPerfect === 1 ? '' : 's'} short of 38-0. {plDroppedPoints}
-              points dropped from perfect 114.
-            </p>
+            <p>{leagueResultsOffPerfect === 1 ? $t('breakdown.pl_short_one', { values: { n: leagueResultsOffPerfect, pts: plDroppedPoints } }) : $t('breakdown.pl_short_other', { values: { n: leagueResultsOffPerfect, pts: plDroppedPoints } })}</p>
           {:else}
-            <p>Win the title first, then chase 38-0.</p>
+            <p>{$t('breakdown.pl_win_first')}</p>
           {/if}
         </section>
 
         <section class="hunt-track" class:track-complete={perfectCl}>
           <header>
-            <strong>Champions League</strong>
-            <em>{result.championsLeague.wins}/15 wins</em>
+            <strong>{$t('breakdown.cl_label')}</strong>
+            <em>{$t('breakdown.cl_wins', { values: { wins: result.championsLeague.wins } })}</em>
           </header>
           <div class="hunt-bar" role="presentation" aria-hidden="true">
             <span style={`width: ${clProgress}%`}></span>
           </div>
           {#if perfectCl}
-            <p>Perfect. 15 wins from 15. Europe conquered without a slip.</p>
+            <p>{$t('breakdown.cl_perfect')}</p>
           {:else if result.championsLeague.won}
-            <p>
-              {clResultsOffPerfect} result{clResultsOffPerfect === 1 ? '' : 's'} short of 15-0. {clSlips} slip{clSlips ===
-              1
-                ? ''
-                : 's'}, the perfect run allows zero.
-            </p>
+            <p>{clResultsOffPerfect === 1 ? $t('breakdown.cl_short_one', { values: { n: clResultsOffPerfect, slips: clSlips } }) : $t('breakdown.cl_short_other', { values: { n: clResultsOffPerfect, slips: clSlips } })}</p>
           {:else}
-            <p>Lift the trophy first, then hunt the perfect 15-0.</p>
+            <p>{$t('breakdown.cl_win_first')}</p>
           {/if}
         </section>
       </div>
     </article>
 
     <article class:won={result.league.won}>
-      <span>{result.league.won ? 'Premier League won' : 'Premier League'}</span>
-      <h2>{perfectLeague ? 'Perfect 38-0' : result.league.label}</h2>
+      <span>{result.league.won ? $t('breakdown.pl_won_label') : $t('breakdown.pl_label')}</span>
+      <h2>{perfectLeague ? $t('breakdown.pl_perfect_label') : result.league.label}</h2>
       <p class="league-record">
         {result.league.wins}W / {result.league.draws}D / {result.league.losses}L
-        <span class="record-pts">{result.league.points} pts</span>
+        <span class="record-pts">{$t('breakdown.pl_pts', { values: { pts: result.league.points } })}</span>
       </p>
       <p class="league-goals">
-        GF {result.league.goalsFor} / GA {result.league.goalsAgainst} / GD {result.league.goalsFor -
-          result.league.goalsAgainst >
-        0
-          ? '+'
-          : ''}{result.league.goalsFor - result.league.goalsAgainst}
+        GF {result.league.goalsFor} / GA {result.league.goalsAgainst} / GD {result.league.goalsFor - result.league.goalsAgainst > 0 ? '+' : ''}{result.league.goalsFor - result.league.goalsAgainst}
       </p>
       {#if plNextLine()}
         <p>{plNextLine()}</p>
@@ -179,33 +159,33 @@
     </article>
 
     <article class:won={result.faCup.won}>
-      <span>{result.faCup.won ? 'FA Cup won' : 'FA Cup'}</span>
-      <h2>{result.faCup.won ? 'Winners' : result.faCup.exitRound}</h2>
+      <span>{result.faCup.won ? $t('breakdown.fa_won_label') : $t('breakdown.fa_label')}</span>
+      <h2>{result.faCup.won ? $t('breakdown.fa_winners') : result.faCup.exitRound}</h2>
       <p>
         {#if result.faCup.won}
-          All six rounds won.
+          {$t('breakdown.fa_all_rounds')}
         {:else if result.faCup.opponent}
-          Lost to {result.faCup.opponent}.
+          {$t('breakdown.fa_lost_to', { values: { opponent: result.faCup.opponent } })}
         {:else}
-          Knocked out in {result.faCup.exitRound}.
+          {$t('breakdown.fa_knocked_out', { values: { round: result.faCup.exitRound } })}
         {/if}
       </p>
     </article>
 
     <article class:won={result.championsLeague.won}>
-      <span>{result.championsLeague.won ? 'Champions League won' : 'Champions League'}</span>
-      <h2>{perfectCl ? 'Perfect 15-0' : result.championsLeague.won ? 'Winners' : result.championsLeague.exitRound}</h2>
+      <span>{result.championsLeague.won ? $t('breakdown.cl_won_label') : $t('breakdown.cl_label')}</span>
+      <h2>{perfectCl ? $t('breakdown.cl_perfect_label') : result.championsLeague.won ? $t('breakdown.wc_winners') : result.championsLeague.exitRound}</h2>
       <p class="league-record">
         {result.championsLeague.wins}W / {result.championsLeague.draws}D / {result.championsLeague.losses}L
-        <span class="record-pts">target 15-0</span>
+        <span class="record-pts">{$t('breakdown.cl_target')}</span>
       </p>
       <p>
         {#if result.championsLeague.won}
           {result.championsLeague.group}
         {:else if result.championsLeague.exitRound === 'League phase'}
-          Dropped in league phase{result.championsLeague.opponent ? `, vs ${result.championsLeague.opponent}` : ''}.
+          {$t('breakdown.dropped_league_phase', { values: { opponent: result.championsLeague.opponent ? $t('breakdown.vs_opponent', { values: { opponent: result.championsLeague.opponent } }) : '' } })}
         {:else if result.championsLeague.opponent}
-          Lost to {result.championsLeague.opponent}.
+          {$t('breakdown.fa_lost_to', { values: { opponent: result.championsLeague.opponent } })}
         {:else}
           {result.championsLeague.group}
         {/if}

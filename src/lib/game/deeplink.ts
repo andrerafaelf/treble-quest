@@ -33,10 +33,6 @@ export function parseRunConfigFromUrl(url: URL): DeepLinkRunConfig | null {
   const mode = parseMode(url.searchParams.get('mode'));
   if (!mode) return null;
 
-  if (mode !== 'classic' && mode !== 'global') {
-    return { mode, hideRatings: false };
-  }
-
   const formation = parseClassicFormation(url.searchParams.get('formation'));
   const hideRatings =
     asBool(url.searchParams.get('noOverall')) ||

@@ -3,6 +3,7 @@
   import { createShareText } from '$lib/game/share';
   import { createShareLink } from '$lib/game/share-api';
   import type { RunState, SimulationResult } from '$lib/game/types';
+  import { t } from 'svelte-i18n';
 
   let { run, result }: { run: RunState; result: SimulationResult } = $props();
 
@@ -12,6 +13,7 @@
   let loading = $state(false);
   let copied = $state(false);
   let xHint = $state(false);
+  let cachedCapture = $state<{ file: File; blob: Blob } | null>(null);
 
   $effect(() => {
     if (run && !shareUrl && !loading && !shareError) {
@@ -27,6 +29,12 @@
           loading = false;
         });
     }
+  });
+
+  $effect(() => {
+    captureCard().then((result) => {
+      cachedCapture = result;
+    });
   });
 
   const shareText = $derived(createShareText(result, shareUrl ?? siteUrl));
@@ -67,72 +75,67 @@
     }
   }
 
-  async function shareOnX() {
+  function shareOnX() {
     xHint = false;
     if (xHintTimer) clearTimeout(xHintTimer);
     const intent = new URL('https://x.com/intent/post');
     intent.searchParams.set('text', shareText);
 
     if (navigator.maxTouchPoints > 0) {
-      // Mobile: open immediately to avoid popup blocker (no async before window.open)
+      if (cachedCapture && navigator.canShare?.({ files: [cachedCapture.file] })) {
+        navigator.share({ text: shareText, files: [cachedCapture.file] }).catch(() => {});
+        return;
+      }
       window.open(intent.toString(), '_blank', 'noopener,noreferrer');
       return;
     }
 
-    // Desktop: capture image, download, then open tweet composer
-    const captured = await captureCard();
-    if (captured) {
-      downloadFile(captured.file);
-      xHint = true;
-      xHintTimer = setTimeout(() => (xHint = false), 8000);
-    }
+    // Desktop: open intent immediately, then capture and download image
     window.open(intent.toString(), '_blank', 'noopener,noreferrer');
+    captureCard().then((captured) => {
+      if (captured) {
+        downloadFile(captured.file);
+        xHint = true;
+        xHintTimer = setTimeout(() => (xHint = false), 8000);
+      }
+    });
   }
 
-  async function shareOnWhatsApp() {
+  function shareOnWhatsApp() {
     const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
     if (navigator.maxTouchPoints > 0) {
-      // Mobile: open immediately to avoid popup blocker (no async before window.open)
+      if (cachedCapture && navigator.canShare?.({ files: [cachedCapture.file] })) {
+        navigator.share({ text: shareText, files: [cachedCapture.file] }).catch(() => {});
+        return;
+      }
       window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
 
-    // Desktop: copy image to clipboard, then open WhatsApp Web so user can paste
-    const captured = await captureCard();
+    // Desktop: copy image to clipboard, then open WhatsApp Web
+    const captured = cachedCapture;
     if (captured) {
-      try {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': captured.blob })]);
-        await new Promise((r) => setTimeout(r, 120));
-      } catch {
-        /* clipboard write not supported — just open WhatsApp with text */
-      }
+      navigator.clipboard
+        .write([new ClipboardItem({ 'image/png': captured.blob })])
+        .catch(() => {});
     }
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   async function saveImage() {
-    const captured = await captureCard();
+    const captured = cachedCapture ?? (await captureCard());
     if (captured) downloadFile(captured.file);
   }
 
-  async function nativeShare() {
-    const captured = await captureCard();
-    if (captured && navigator.canShare?.({ files: [captured.file] })) {
-      try {
-        await navigator.share({ text: shareText, files: [captured.file] });
-        return;
-      } catch {
-        /* fall through */
-      }
+  function nativeShare() {
+    if (cachedCapture && navigator.canShare?.({ files: [cachedCapture.file] })) {
+      navigator.share({ text: shareText, files: [cachedCapture.file] }).catch(() => {});
+      return;
     }
     if (navigator.share) {
-      try {
-        await navigator.share({ text: shareText, url: shareUrl ?? siteUrl });
-        return;
-      } catch {
-        /* ignore */
-      }
+      navigator.share({ text: shareText, url: shareUrl ?? siteUrl }).catch(() => {});
+      return;
     }
     shareOnX();
   }
@@ -141,22 +144,22 @@
 <section class="share-panel">
   <div class="share-modal">
     <div class="share-buttons">
-      <button class="share-btn share-btn--whatsapp" onclick={shareOnWhatsApp}>WhatsApp</button>
+      <button class="share-btn share-btn--whatsapp" onclick={shareOnWhatsApp}>{$t('share.whatsapp')}</button>
       <button class="share-btn share-btn--x" onclick={shareOnX}>𝕏</button>
-      <button class="share-btn share-btn--copy" onclick={copyLink}>{copied ? '✓ Copied' : '🔗 Copy'}</button>
+      <button class="share-btn share-btn--copy" onclick={copyLink}>{copied ? $t('share.copied') : $t('share.copy')}</button>
     </div>
     <div class="share-buttons">
-      <button class="share-btn share-btn--image" onclick={saveImage}>📷 Save image</button>
-      <button class="share-btn share-btn--native" onclick={nativeShare}>📤 Share</button>
+      <button class="share-btn share-btn--image" onclick={saveImage}>{$t('share.save_image')}</button>
+      <button class="share-btn share-btn--native" onclick={nativeShare}>{$t('share.share')}</button>
     </div>
     {#if xHint}
-      <p class="share-note share-note--hint">Image saved, attach it to your post on 𝕏.</p>
+      <p class="share-note share-note--hint">{$t('share.x_hint')}</p>
     {:else if loading}
-      <p class="share-note">Preparing verified link…</p>
+      <p class="share-note">{$t('share.preparing_link')}</p>
     {:else if shareUrl}
-      <p class="share-note">Verified link opens a server-checked result page, proof it's real.</p>
+      <p class="share-note">{$t('share.verified_link')}</p>
     {:else if shareError}
-      <p class="share-note share-note--error">Could not create verified link. You can still share text.</p>
+      <p class="share-note share-note--error">{$t('share.link_error')}</p>
     {/if}
   </div>
 </section>

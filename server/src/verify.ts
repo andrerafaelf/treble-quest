@@ -37,7 +37,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
   if (submitted.mode !== 'classic' && submitted.mode !== 'world-cup' && submitted.mode !== 'global') {
     return { ok: false, reason: 'invalid mode' };
   }
-  if ((submitted.mode === 'classic' || submitted.mode === 'global') && !submitted.formation) {
+  if (!submitted.formation) {
     return { ok: false, reason: 'missing formation' };
   }
   if (!Number.isFinite(submitted.seed) || submitted.seed <= 0 || submitted.seed > 2147483647) {
@@ -60,7 +60,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     seed: submitted.seed,
     mode: submitted.mode,
     formation: submitted.formation,
-    hideRatings: (submitted.mode === 'classic' || submitted.mode === 'global') && submitted.hideRatings === true,
+    hideRatings: submitted.hideRatings === true,
     startedAt: submitted.startedAt,
     currentPick: 0,
     picks: [],
