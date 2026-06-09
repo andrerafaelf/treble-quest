@@ -56,6 +56,13 @@
   function players(squad: SquadEntry[]): SquadEntry[] {
     return squad.filter((s) => !s.isManager);
   }
+
+  function beatUrl(entry: LeaderboardEntry): string {
+    const params = new URLSearchParams({ mode });
+    if (mode === 'classic' && entry.formation) params.set('formation', entry.formation);
+    if (tab === 'classic-no-overall') params.set('hideRatings', '1');
+    return `/play?${params.toString()}`;
+  }
 </script>
 
 <svelte:head>
@@ -155,8 +162,22 @@
               </div>
             </div>
           {/if}
+
+          {#if i === 0}
+            <div class="lb-beat">
+              <Button href={beatUrl(entry)} variant="secondary">🏆 Beat this score</Button>
+            </div>
+          {/if}
         </li>
       {/each}
     </ol>
   {/if}
 </section>
+
+<style>
+  .lb-beat {
+    padding: 0.75rem 1rem 1rem;
+    display: flex;
+    justify-content: center;
+  }
+</style>
