@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { replaceState } from '$app/navigation';
   import { page } from '$app/state';
   import Button from '$lib/components/Button.svelte';
@@ -10,6 +11,7 @@
   const VALID_TABS: LeaderboardTab[] = ['quick', 'classic', 'classic-no-overall', 'world-cup'];
 
   function initialTab(): LeaderboardTab {
+    if (!browser) return 'quick';
     const t = page.url.searchParams.get('tab');
     return VALID_TABS.includes(t as LeaderboardTab) ? (t as LeaderboardTab) : 'quick';
   }
@@ -26,9 +28,11 @@
     const hideRatings = next === 'classic-no-overall';
     status = 'loading';
     expanded = new Set();
-    const url = new URL(page.url);
-    url.searchParams.set('tab', next);
-    replaceState(url, {});
+    if (browser) {
+      const url = new URL(page.url);
+      url.searchParams.set('tab', next);
+      replaceState(url, {});
+    }
     try {
       const data = await fetchLeaderboard(mode, 50, hideRatings);
       entries = data.entries;
