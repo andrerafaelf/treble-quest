@@ -9,7 +9,7 @@
 
   let { children } = $props();
 
-  const siteUrl = env.PUBLIC_SITE_URL ?? 'https://example.com/';
+  const siteUrl = env.PUBLIC_SITE_URL ?? 'https://treble.quest/';
   const googleSiteVerification = env.PUBLIC_GOOGLE_SITE_VERIFICATION;
   const ogImage = new URL('og-image.png', siteUrl).toString();
 </script>
