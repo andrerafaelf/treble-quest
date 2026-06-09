@@ -138,7 +138,7 @@
           <article>
             <span>Manager impact</span>
             <h2>{result.ratings.managerBoost}</h2>
-            <p>{result.managerImpact}</p>
+            <p>{result.managerImpact.key}</p>
           </article>
           {#if streak}
             <article class:streak-fire={streak.current >= 3}>

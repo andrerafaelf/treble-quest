@@ -295,7 +295,9 @@
     "manager_desc": "Mulai permainan dengan identitas manajer.",
     "simulating": "Mensimulasikan",
     "treble_chase": "Perburuan treble sedang ditentukan.",
-    "select_player": "Pilih satu pemain untuk posisi {label}."
+    "select_player": "Pilih satu pemain untuk posisi {label}.",
+    "overall": "Keseluruhan",
+    "overall_hidden": "Rating tersembunyi"
   },
   "modes": {
     "classic_label": "Mode Klasik",
@@ -368,6 +370,57 @@
     "kicker": "Independen, buatan penggemar, masih berkembang",
     "cta": "Dukung di Ko-fi dan bantu batch skuat berikutnya masuk ke dalam game.",
     "kofi_button": "Dukung di Ko-fi"
+  },
+  "manager": {
+    "style": {
+      "balanced": "Seimbang",
+      "attacking": "Menyerang",
+      "defensive": "Bertahan",
+      "pressing": "Pressing",
+      "counter": "Serangan Balik"
+    },
+    "temperament": {
+      "calm": "Tenang",
+      "intense": "Intens",
+      "pragmatic": "Pragmatis",
+      "romantic": "Romantis"
+    }
+  },
+  "manager_impact": {
+    "no_manager": "Tidak ada manajer yang dipilih — skuat sepenuhnya mengandalkan bakat mentah.",
+    "style_balanced": "{name} menjaga skuat tetap stabil di ketiga kompetisi. Bonus manajer: {boost}.",
+    "style_balanced_wc": "{name} menjaga perjalanan turnamen tetap stabil. Bonus manajer: {boost}.",
+    "style_attacking": "{name} mendorong serangan ke wilayah penentu pertandingan. Bonus manajer: {boost}.",
+    "style_defensive": "{name} membuat pertandingan gugur terasa terkendali dan ketat. Bonus manajer: {boost}.",
+    "style_pressing": "{name} meningkatkan tempo dan chemistry grup. Bonus manajer: {boost}.",
+    "style_counter": "{name} memberi tim keunggulan lebih tajam di pertandingan piala. Bonus manajer: {boost}."
+  },
+  "round": {
+    "Final": "Final",
+    "Semi-final": "Semifinal",
+    "Quarter-final": "Perempat Final",
+    "Round of 16": "Babak 16 Besar",
+    "Round of 32": "Babak 32 Besar",
+    "Group stage": "Fase Grup",
+    "League phase": "Fase Liga",
+    "Third Round": "Babak Ketiga",
+    "Fourth Round": "Babak Keempat",
+    "Fifth Round": "Babak Kelima",
+    "Sixth Round": "Babak Keenam",
+    "Winners": "Juara"
+  },
+  "share_text": {
+    "wc_perfect": "Perjalanan sempurna 8-0 di Piala Dunia dengan XI terbaik sepanjang masa.",
+    "wc_won": "Piala Dunia diraih dengan XI terbaik sepanjang masa ({record}).",
+    "wc_out": "XI terbaik sepanjang masaku mencatat {record} di mode Piala Dunia.",
+    "wc_challenge": "Bisakah kamu mencapai 8-0?",
+    "treble": "Treble tercapai dengan XI terbaik sepanjang masa — {pts} poin ({record}).",
+    "champions": "Juara dengan XI terbaik sepanjang masa — {pts} poin ({record}).",
+    "no_title": "XI terbaik sepanjang masaku finis dengan {pts} poin ({record}).",
+    "perfect_league": "Sempurna 38-0.",
+    "perfect_europe": "Sempurna 15-0 di Eropa.",
+    "top_scorer": "{name} menjadi top scorer dengan {goals} gol.",
+    "challenge": "Bisakah kamu memenangkan Treble di Treble Quest?"
   },
   "lang_switcher": {
     "label": "Bahasa"

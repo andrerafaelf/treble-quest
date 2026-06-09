@@ -37,7 +37,7 @@
     });
   });
 
-  const shareText = $derived(createShareText(result, shareUrl ?? siteUrl));
+  const shareText = $derived(createShareText(result, shareUrl ?? siteUrl, $t));
 
   let xHintTimer: ReturnType<typeof setTimeout> | null = null;
 

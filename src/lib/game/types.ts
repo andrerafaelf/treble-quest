@@ -265,7 +265,7 @@ export type SimulationResult = {
   worldCup?: WorldCupResult;
   bestPick: PlayerPick | ManagerPick;
   weakLink: PlayerPick | ManagerPick;
-  managerImpact: string;
+  managerImpact: { key: string; values?: Record<string, string | number> };
   shareText: string;
   matches: Match[];
   playerStats: PlayerSeasonStats[];

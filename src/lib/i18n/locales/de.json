@@ -295,7 +295,9 @@
     "manager_desc": "Beginne das Spiel mit einer Trainer-Identität.",
     "simulating": "Wird simuliert",
     "treble_chase": "Die Tripletten-Jagd wird gerade entschieden.",
-    "select_player": "Wähle einen Spieler für die {label}-Position."
+    "select_player": "Wähle einen Spieler für die {label}-Position.",
+    "overall": "Gesamtwertung",
+    "overall_hidden": "Bewertungen ausgeblendet"
   },
   "modes": {
     "classic_label": "Klassischer Modus",
@@ -368,6 +370,57 @@
     "kicker": "Unabhängig, von Fans gemacht, noch im Wachstum",
     "cta": "Unterstütze auf Ko-fi und hilf dem nächsten Kader-Paket, ins Spiel zu kommen.",
     "kofi_button": "Auf Ko-fi unterstützen"
+  },
+  "manager": {
+    "style": {
+      "balanced": "Ausgewogen",
+      "attacking": "Offensiv",
+      "defensive": "Defensiv",
+      "pressing": "Pressing",
+      "counter": "Konter"
+    },
+    "temperament": {
+      "calm": "Ruhig",
+      "intense": "Intensiv",
+      "pragmatic": "Pragmatisch",
+      "romantic": "Romantisch"
+    }
+  },
+  "manager_impact": {
+    "no_manager": "Es wurde kein Trainer ausgewählt — der Kader verlässt sich vollständig auf sein rohes Talent.",
+    "style_balanced": "{name} hielt den Kader in allen drei Wettbewerben stabil. Trainer-Bonus: {boost}.",
+    "style_balanced_wc": "{name} hielt den Turnierdurchlauf stabil. Trainer-Bonus: {boost}.",
+    "style_attacking": "{name} trieb den Angriff in siegentscheidendes Territorium. Trainer-Bonus: {boost}.",
+    "style_defensive": "{name} ließ die K.o.-Begegnungen kontrolliert und eng wirken. Trainer-Bonus: {boost}.",
+    "style_pressing": "{name} hob Tempo und Chemie der Gruppe. Trainer-Bonus: {boost}.",
+    "style_counter": "{name} gab der Mannschaft eine schärfere Pokalkampf-Kante. Trainer-Bonus: {boost}."
+  },
+  "round": {
+    "Final": "Finale",
+    "Semi-final": "Halbfinale",
+    "Quarter-final": "Viertelfinale",
+    "Round of 16": "Achtelfinale",
+    "Round of 32": "Sechzehntelfinale",
+    "Group stage": "Gruppenphase",
+    "League phase": "Ligaphase",
+    "Third Round": "Dritte Runde",
+    "Fourth Round": "Vierte Runde",
+    "Fifth Round": "Fünfte Runde",
+    "Sixth Round": "Sechste Runde",
+    "Winners": "Sieger"
+  },
+  "share_text": {
+    "wc_perfect": "Perfekter 8-0 WM-Durchlauf mit meinem ewigen XI.",
+    "wc_won": "WM gewonnen mit meinem ewigen XI ({record}).",
+    "wc_out": "Mein ewiges XI ging {record} im WM-Modus.",
+    "wc_challenge": "Schaffst du 8-0?",
+    "treble": "Triplette geschafft mit meinem ewigen XI — {pts} Pkt. ({record}).",
+    "champions": "Meister mit meinem ewigen XI — {pts} Pkt. ({record}).",
+    "no_title": "Mein ewiges XI beendete mit {pts} Pkt. ({record}).",
+    "perfect_league": "Perfektes 38-0.",
+    "perfect_europe": "Perfektes 15-0 in Europa.",
+    "top_scorer": "{name} war Torschützenkönig mit {goals} Toren.",
+    "challenge": "Kannst du die Triplette in Treble Quest gewinnen?"
   },
   "lang_switcher": {
     "label": "Sprache"

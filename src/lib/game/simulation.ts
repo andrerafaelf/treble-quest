@@ -664,16 +664,12 @@ function clampNumber(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function describeManagerImpact(manager: ManagerPick['manager'] | undefined, ratings: TeamRatings, mode: RunState['mode'] = 'classic'): string {
-  if (!manager) return 'No manager was selected, so the squad leaned entirely on raw talent.';
-  const styleText = {
-    balanced: mode === 'world-cup' ? 'kept the tournament run stable' : 'kept the squad stable across all three competitions',
-    attacking: 'pushed the attack into match-winning territory',
-    defensive: 'made the knockout ties feel controlled and narrow',
-    pressing: 'lifted the tempo and chemistry of the group',
-    counter: 'gave the side a sharper cup-tie edge'
-  }[manager.style];
-  return `${manager.name} ${styleText}. Manager boost: ${ratings.managerBoost}.`;
+function describeManagerImpact(manager: ManagerPick['manager'] | undefined, ratings: TeamRatings, mode: RunState['mode'] = 'classic'): SimulationResult['managerImpact'] {
+  if (!manager) return { key: 'manager_impact.no_manager' };
+  const styleKey = mode === 'world-cup' && manager.style === 'balanced'
+    ? 'manager_impact.style_balanced_wc'
+    : `manager_impact.style_${manager.style}`;
+  return { key: styleKey, values: { name: manager.name, boost: ratings.managerBoost } };
 }
 
 function ordinal(value: number): string {

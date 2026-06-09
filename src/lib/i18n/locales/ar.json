@@ -295,7 +295,9 @@
     "manager_desc": "ابدأ الجولة بهوية مدرب.",
     "simulating": "جارٍ المحاكاة",
     "treble_chase": "ملاحقة الثلاثية تُحسم الآن.",
-    "select_player": "اختر لاعباً لمركز {label}."
+    "select_player": "اختر لاعباً لمركز {label}.",
+    "overall": "الإجمالي",
+    "overall_hidden": "التقييمات مخفية"
   },
   "modes": {
     "classic_label": "الوضع الكلاسيكي",
@@ -368,6 +370,57 @@
     "kicker": "مستقل، من صنع المشجعين، لا يزال ينمو",
     "cta": "ادعم على Ko-fi وساعد الدفعة التالية من الفرق على الدخول في اللعبة.",
     "kofi_button": "ادعم على Ko-fi"
+  },
+  "manager": {
+    "style": {
+      "balanced": "متوازن",
+      "attacking": "هجومي",
+      "defensive": "دفاعي",
+      "pressing": "ضغط",
+      "counter": "هجمة مرتدة"
+    },
+    "temperament": {
+      "calm": "هادئ",
+      "intense": "متحمس",
+      "pragmatic": "براغماتي",
+      "romantic": "رومانسي"
+    }
+  },
+  "manager_impact": {
+    "no_manager": "لم يُختر مدرب — اعتمد الفريق كلياً على موهبته الخام.",
+    "style_balanced": "{name} أبقى الفريق مستقراً في المسابقات الثلاث. دعم المدرب: {boost}.",
+    "style_balanced_wc": "{name} أبقى مسيرة البطولة مستقرة. دعم المدرب: {boost}.",
+    "style_attacking": "{name} دفع الهجوم إلى مستوى يحسم المباريات. دعم المدرب: {boost}.",
+    "style_defensive": "{name} جعل مباريات الإقصاء تبدو مسيطراً عليها ومتوازنة. دعم المدرب: {boost}.",
+    "style_pressing": "{name} رفع إيقاع المجموعة وكيمياءها. دعم المدرب: {boost}.",
+    "style_counter": "{name} أعطى الفريق حداً أحدّ في مباريات الكأس. دعم المدرب: {boost}."
+  },
+  "round": {
+    "Final": "النهائي",
+    "Semi-final": "نصف النهائي",
+    "Quarter-final": "ربع النهائي",
+    "Round of 16": "دور الـ16",
+    "Round of 32": "دور الـ32",
+    "Group stage": "دور المجموعات",
+    "League phase": "مرحلة الدوري",
+    "Third Round": "الجولة الثالثة",
+    "Fourth Round": "الجولة الرابعة",
+    "Fifth Round": "الجولة الخامسة",
+    "Sixth Round": "الجولة السادسة",
+    "Winners": "الفائزون"
+  },
+  "share_text": {
+    "wc_perfect": "مسيرة 8-0 مثالية في كأس العالم مع فريقي الخماسي من كل العصور.",
+    "wc_won": "كأس العالم مُحقَّق مع فريقي الخماسي من كل العصور ({record}).",
+    "wc_out": "فريقي الخماسي من كل العصور حقق {record} في وضع كأس العالم.",
+    "wc_challenge": "هل تستطيع تحقيق 8-0؟",
+    "treble": "الثلاثية مُكتملة مع فريقي الخماسي من كل العصور — {pts} نقطة ({record}).",
+    "champions": "بطولة محققة مع فريقي الخماسي من كل العصور — {pts} نقطة ({record}).",
+    "no_title": "فريقي الخماسي من كل العصور أنهى بـ {pts} نقطة ({record}).",
+    "perfect_league": "38-0 مثالي.",
+    "perfect_europe": "15-0 مثالي في أوروبا.",
+    "top_scorer": "{name} كان الهداف بـ {goals} أهداف.",
+    "challenge": "هل تستطيع الفوز بالثلاثية في Treble Quest؟"
   },
   "lang_switcher": {
     "label": "اللغة"

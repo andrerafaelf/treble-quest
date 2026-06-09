@@ -143,7 +143,7 @@
           <article>
             <span>{$t('result.manager_impact')}</span>
             <h2>{result.ratings.managerBoost}</h2>
-            <p>{result.managerImpact}</p>
+            <p>{$t(result.managerImpact.key, { values: result.managerImpact.values })}</p>
           </article>
           {#if streak}
             <article class:streak-fire={streak.current >= 3}>

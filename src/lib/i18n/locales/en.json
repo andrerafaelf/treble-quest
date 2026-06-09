@@ -288,15 +288,6 @@
     "verified": "✓ Verified result",
     "branding": "treble.quest"
   },
-  "spin": {
-    "pick_label": "Pick {label}",
-    "pick_complete": "Pick Complete",
-    "touchline_brief": "Touchline Brief",
-    "manager_desc": "Start the run with a manager identity.",
-    "simulating": "Simulating",
-    "treble_chase": "The treble chase is being settled.",
-    "select_player": "Select one player for the {label} slot."
-  },
   "modes": {
     "classic_label": "Classic Mode",
     "classic_hint": "Manager plus a full XI, including exact RB, CB, CM and front-three slots. English football.",
@@ -371,5 +362,67 @@
   },
   "lang_switcher": {
     "label": "Language"
+  },
+  "manager": {
+    "style": {
+      "balanced": "Balanced",
+      "attacking": "Attacking",
+      "defensive": "Defensive",
+      "pressing": "Pressing",
+      "counter": "Counter"
+    },
+    "temperament": {
+      "calm": "Calm",
+      "intense": "Intense",
+      "pragmatic": "Pragmatic",
+      "romantic": "Romantic"
+    }
+  },
+  "manager_impact": {
+    "no_manager": "No manager was selected — the squad leaned entirely on raw talent.",
+    "style_balanced": "{name} kept the squad stable across all three competitions. Manager boost: {boost}.",
+    "style_balanced_wc": "{name} kept the tournament run stable. Manager boost: {boost}.",
+    "style_attacking": "{name} pushed the attack into match-winning territory. Manager boost: {boost}.",
+    "style_defensive": "{name} made the knockout ties feel controlled and narrow. Manager boost: {boost}.",
+    "style_pressing": "{name} lifted the tempo and chemistry of the group. Manager boost: {boost}.",
+    "style_counter": "{name} gave the side a sharper cup-tie edge. Manager boost: {boost}."
+  },
+  "spin": {
+    "pick_label": "Pick {label}",
+    "pick_complete": "Pick Complete",
+    "touchline_brief": "Touchline Brief",
+    "manager_desc": "Start the run with a manager identity.",
+    "simulating": "Simulating",
+    "treble_chase": "The treble chase is being settled.",
+    "select_player": "Select one player for the {label} slot.",
+    "overall": "Overall",
+    "overall_hidden": "Ratings hidden"
+  },
+  "round": {
+    "Final": "Final",
+    "Semi-final": "Semi-final",
+    "Quarter-final": "Quarter-final",
+    "Round of 16": "Round of 16",
+    "Round of 32": "Round of 32",
+    "Group stage": "Group stage",
+    "League phase": "League phase",
+    "Third Round": "Third Round",
+    "Fourth Round": "Fourth Round",
+    "Fifth Round": "Fifth Round",
+    "Sixth Round": "Sixth Round",
+    "Winners": "Winners"
+  },
+  "share_text": {
+    "wc_perfect": "Perfect 8-0 World Cup run with my all-time XI.",
+    "wc_won": "World Cup won with my all-time XI ({record}).",
+    "wc_out": "My all-time XI went {record} in World Cup mode.",
+    "wc_challenge": "Can you go 8-0?",
+    "treble": "Treble completed with my all-time XI — {pts} pts ({record}).",
+    "champions": "Champions with my all-time XI — {pts} pts ({record}).",
+    "no_title": "My all-time XI finished with {pts} pts ({record}).",
+    "perfect_league": "Perfect 38-0.",
+    "perfect_europe": "Perfect 15-0 in Europe.",
+    "top_scorer": "{name} top scored with {goals} goals.",
+    "challenge": "Can you win the Treble on Treble Quest?"
   }
 }

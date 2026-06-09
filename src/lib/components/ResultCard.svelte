@@ -55,19 +55,23 @@
 
   const isWinner = $derived(result.league.won || result.trophies > 0 || !!result.worldCup?.won);
 
+  function tRound(round: string): string {
+    return $t(`round.${round}`, { default: round });
+  }
+
   // CL and FA Cup pills for classic mode
   const clPill = $derived(
     result.championsLeague.won
       ? { text: $t('result_card.ucl_winners'), ok: true }
       : result.championsLeague.exitRound === 'League phase'
         ? { text: $t('result_card.ucl_groups'), ok: false }
-        : { text: $t('result_card.ucl_exit', { values: { round: result.championsLeague.exitRound } }), ok: false },
+        : { text: $t('result_card.ucl_exit', { values: { round: tRound(result.championsLeague.exitRound) } }), ok: false },
   );
 
   const facPill = $derived(
     result.faCup.won
       ? { text: $t('result_card.fa_cup'), ok: true }
-      : { text: $t('result_card.fa_cup_exit', { values: { round: result.faCup.exitRound } }), ok: false },
+      : { text: $t('result_card.fa_cup_exit', { values: { round: tRound(result.faCup.exitRound) } }), ok: false },
   );
 </script>
 

@@ -295,7 +295,9 @@
     "manager_desc": "Comienza la partida con una identidad de entrenador.",
     "simulating": "Simulando",
     "treble_chase": "La persecución del triplete está siendo decidida.",
-    "select_player": "Selecciona un jugador para la posición de {label}."
+    "select_player": "Selecciona un jugador para la posición de {label}.",
+    "overall": "General",
+    "overall_hidden": "Valoraciones ocultas"
   },
   "modes": {
     "classic_label": "Modo Clásico",
@@ -368,6 +370,57 @@
     "kicker": "Independiente, hecho por fans, sigue creciendo",
     "cta": "Apoya en Ko-fi y ayuda al próximo lote de equipos a entrar en el juego.",
     "kofi_button": "Apoyar en Ko-fi"
+  },
+  "manager": {
+    "style": {
+      "balanced": "Equilibrado",
+      "attacking": "Atacante",
+      "defensive": "Defensivo",
+      "pressing": "Presión",
+      "counter": "Contragolpe"
+    },
+    "temperament": {
+      "calm": "Tranquilo",
+      "intense": "Intenso",
+      "pragmatic": "Pragmático",
+      "romantic": "Romántico"
+    }
+  },
+  "manager_impact": {
+    "no_manager": "No se seleccionó entrenador — el equipo se apoyó totalmente en el talento.",
+    "style_balanced": "{name} mantuvo al equipo estable en las tres competiciones. Impulso del entrenador: {boost}.",
+    "style_balanced_wc": "{name} mantuvo estable la carrera en el torneo. Impulso del entrenador: {boost}.",
+    "style_attacking": "{name} impulsó el ataque hasta ganar partidos. Impulso del entrenador: {boost}.",
+    "style_defensive": "{name} hizo que los enfrentamientos de eliminación se sintieran controlados y disputados. Impulso del entrenador: {boost}.",
+    "style_pressing": "{name} elevó el ritmo y la química del grupo. Impulso del entrenador: {boost}.",
+    "style_counter": "{name} dio al equipo un filo más afilado en los partidos de copa. Impulso del entrenador: {boost}."
+  },
+  "round": {
+    "Final": "Final",
+    "Semi-final": "Semifinal",
+    "Quarter-final": "Cuartos de final",
+    "Round of 16": "Octavos de final",
+    "Round of 32": "Dieciseisavos de final",
+    "Group stage": "Fase de grupos",
+    "League phase": "Fase de liga",
+    "Third Round": "Tercera ronda",
+    "Fourth Round": "Cuarta ronda",
+    "Fifth Round": "Quinta ronda",
+    "Sixth Round": "Sexta ronda",
+    "Winners": "Campeones"
+  },
+  "share_text": {
+    "wc_perfect": "Mundial perfecto 8-0 con mi XI histórico.",
+    "wc_won": "Mundial ganado con mi XI histórico ({record}).",
+    "wc_out": "Mi XI histórico quedó {record} en el modo Mundial.",
+    "wc_challenge": "¿Puedes lograr 8-0?",
+    "treble": "Triplete completado con mi XI histórico — {pts} pts ({record}).",
+    "champions": "Campeón con mi XI histórico — {pts} pts ({record}).",
+    "no_title": "Mi XI histórico terminó con {pts} pts ({record}).",
+    "perfect_league": "38-0 perfecto.",
+    "perfect_europe": "15-0 perfecto en Europa.",
+    "top_scorer": "{name} fue el máximo goleador con {goals} goles.",
+    "challenge": "¿Puedes ganar el Triplete en Treble Quest?"
   },
   "lang_switcher": {
     "label": "Idioma"

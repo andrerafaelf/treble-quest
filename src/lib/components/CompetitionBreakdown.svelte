@@ -25,6 +25,10 @@
   const plDroppedPoints = $derived(result.league.draws + result.league.losses * 3);
   const clSlips = $derived(result.championsLeague.draws + result.championsLeague.losses);
 
+  function tRound(round: string): string {
+    return $t(`round.${round}`, { default: round });
+  }
+
   const plNextLine = $derived((): string | null => {
     if (perfectLeague) return null;
     if (!result.league.won) {
@@ -74,7 +78,7 @@
   {#if worldCup}
     <article class:won={worldCup.won}>
       <span>{worldCup.won ? $t('breakdown.wc_won_label') : $t('breakdown.wc_label')}</span>
-      <h2>{perfectWorldCup ? $t('breakdown.wc_perfect') : worldCup.won ? $t('breakdown.wc_winners') : worldCup.exitRound}</h2>
+      <h2>{perfectWorldCup ? $t('breakdown.wc_perfect') : worldCup.won ? $t('breakdown.wc_winners') : tRound(worldCup.exitRound)}</h2>
       <p class="league-record">
         {worldCup.wins}W / {worldCup.draws}D / {worldCup.losses}L
         <span class="record-pts">{$t('breakdown.wc_target')}</span>
@@ -160,21 +164,21 @@
 
     <article class:won={result.faCup.won}>
       <span>{result.faCup.won ? $t('breakdown.fa_won_label') : $t('breakdown.fa_label')}</span>
-      <h2>{result.faCup.won ? $t('breakdown.fa_winners') : result.faCup.exitRound}</h2>
+      <h2>{result.faCup.won ? $t('breakdown.fa_winners') : tRound(result.faCup.exitRound)}</h2>
       <p>
         {#if result.faCup.won}
           {$t('breakdown.fa_all_rounds')}
         {:else if result.faCup.opponent}
           {$t('breakdown.fa_lost_to', { values: { opponent: result.faCup.opponent } })}
         {:else}
-          {$t('breakdown.fa_knocked_out', { values: { round: result.faCup.exitRound } })}
+          {$t('breakdown.fa_knocked_out', { values: { round: tRound(result.faCup.exitRound) } })}
         {/if}
       </p>
     </article>
 
     <article class:won={result.championsLeague.won}>
       <span>{result.championsLeague.won ? $t('breakdown.cl_won_label') : $t('breakdown.cl_label')}</span>
-      <h2>{perfectCl ? $t('breakdown.cl_perfect_label') : result.championsLeague.won ? $t('breakdown.wc_winners') : result.championsLeague.exitRound}</h2>
+      <h2>{perfectCl ? $t('breakdown.cl_perfect_label') : result.championsLeague.won ? $t('breakdown.wc_winners') : tRound(result.championsLeague.exitRound)}</h2>
       <p class="league-record">
         {result.championsLeague.wins}W / {result.championsLeague.draws}D / {result.championsLeague.losses}L
         <span class="record-pts">{$t('breakdown.cl_target')}</span>

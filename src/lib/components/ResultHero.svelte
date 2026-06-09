@@ -48,7 +48,7 @@
           ? $t('result_hero.perfect_world_cup')
           : worldCup.won
             ? $t('result_hero.world_cup_won')
-            : $t('result_hero.out_in', { values: { round: worldCup.exitRound } })}
+            : $t('result_hero.out_in', { values: { round: $t(`round.${worldCup.exitRound}`, { default: worldCup.exitRound }) } })}
       {:else}
         {result.trophies === 3
           ? $t('result_hero.treble_completed')
