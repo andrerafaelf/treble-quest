@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
   import type { Match } from '$lib/game/types';
+  import { onDestroy, onMount } from 'svelte';
 
   let { matches, onDone }: { matches: Match[]; onDone: () => void } = $props();
 
@@ -9,7 +9,7 @@
     { label: '1x', ms: 600 },
     { label: '2x', ms: 300 },
     { label: '4x', ms: 130 },
-    { label: '8x', ms: 55 }
+    { label: '8x', ms: 55 },
   ];
   const DEFAULT_SPEED_INDEX = 1;
   const STORAGE_KEY = 'treble-quest-playback-speed';
@@ -69,7 +69,7 @@
     } else if (m.competition === 'FAC') {
       runningTotals.fac = m.result === 'W' ? `${m.round} won` : `${m.round} out`;
     } else if (m.competition === 'CL') {
-      runningTotals.cl = m.result === 'W' ? `${m.round} win` : m.round ?? 'League phase';
+      runningTotals.cl = m.result === 'W' ? `${m.round} win` : (m.round ?? 'League phase');
     }
   }
 
@@ -105,10 +105,10 @@
   const hasWorldCup = $derived(matches.some((m) => m.competition === 'WC'));
 
   function compLabel(m: Match): string {
-    if (m.competition === 'WC') return `World Cup - ${m.round}`;
+    if (m.competition === 'WC') return m.round ? `World Cup - ${m.round}` : 'World Cup';
     if (m.competition === 'PL') return 'Premier League';
-    if (m.competition === 'FAC') return `FA Cup - ${m.round}`;
-    return `Champions League - ${m.round}`;
+    if (m.competition === 'FAC') return m.round ? `FA Cup - ${m.round}` : 'FA Cup';
+    return m.round ? `Champions League - ${m.round}` : 'Champions League';
   }
 
   function scorerSummary(m: Match): string {
@@ -120,7 +120,13 @@
       counts.set(s.name, arr);
     }
     return Array.from(counts.entries())
-      .map(([name, mins]) => `${name} ${mins.sort((a, b) => a - b).map((minute) => `${minute}'`).join(' ')}`)
+      .map(
+        ([name, mins]) =>
+          `${name} ${mins
+            .sort((a, b) => a - b)
+            .map((minute) => `${minute}'`)
+            .join(' ')}`,
+      )
       .join(' / ');
   }
 </script>
@@ -137,8 +143,8 @@
             class:active={speedIndex === i}
             onclick={() => setSpeed(i)}
             aria-label={`${s.label} speed`}
-            aria-pressed={speedIndex === i}
-          >{s.label}</button>
+            aria-pressed={speedIndex === i}>{s.label}</button
+          >
         {/each}
       </div>
       <button type="button" class="pb-btn pb-pause" onclick={togglePause}>
@@ -155,10 +161,14 @@
   {#if current}
     <article class="playback-match playback-{current.result.toLowerCase()}">
       <span class="pm-comp">{compLabel(current)}</span>
-      <span class="pm-date">{current.date} / {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span>
+      <span class="pm-date"
+        >{current.date} / {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span
+      >
       <div class="pm-score-row">
         <span class="pm-opp">{current.venue === 'A' ? current.opponent : 'Your XI'}</span>
-        <span class="pm-score">{current.venue === 'A' ? current.ga : current.gf} - {current.venue === 'A' ? current.gf : current.ga}</span>
+        <span class="pm-score"
+          >{current.venue === 'A' ? current.ga : current.gf} - {current.venue === 'A' ? current.gf : current.ga}</span
+        >
         <span class="pm-opp">{current.venue === 'A' ? 'Your XI' : current.opponent}</span>
       </div>
       <div class="pm-badge pm-badge-{current.result.toLowerCase()}">

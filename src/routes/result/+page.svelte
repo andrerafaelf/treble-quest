@@ -17,24 +17,29 @@
   import { recordStreakResult, runStore, type StreakState } from '$lib/game/storage';
   import { onDestroy } from 'svelte';
 
-  $: run = $runStore;
-  $: result = run?.result;
-  $: slots = run ? getDraftSlots(run.mode, run.formation) : [];
-  $: replayLabel = result?.worldCup ? 'Run it back for 8-0' : 'Run it back for 38-0 + 15-0';
+  const run = $derived($runStore);
+  const result = $derived(run?.result);
+  const slots = $derived(run ? getDraftSlots(run.mode, run.formation) : []);
+  const replayLabel = $derived(result?.worldCup ? 'Run it back for 8-0' : 'Run it back for 38-0 + 15-0');
 
-  let streak: StreakState | null = null;
-  $: if (result && streak === null) {
-    streak = recordStreakResult(result.trophies);
-  }
+  let streak = $state<StreakState | null>(null);
+  let playbackDone = $state(false);
+  let keepResultOnLeave = $state(false);
+  let lastSeedSeen = $state<number | undefined>(undefined);
 
-  let playbackDone = false;
-  let keepResultOnLeave = false;
-  $: resultKey = result?.seed;
-  $: if (resultKey !== undefined && lastSeedSeen !== resultKey) {
-    playbackDone = false;
-    lastSeedSeen = resultKey;
-  }
-  let lastSeedSeen: number | undefined = undefined;
+  $effect(() => {
+    if (result && streak === null) {
+      streak = recordStreakResult(result.trophies);
+    }
+  });
+
+  $effect(() => {
+    const resultKey = result?.seed;
+    if (resultKey !== undefined && lastSeedSeen !== resultKey) {
+      playbackDone = false;
+      lastSeedSeen = resultKey;
+    }
+  });
 
   function finishPlayback() {
     playbackDone = true;

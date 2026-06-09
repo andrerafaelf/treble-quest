@@ -1,9 +1,5 @@
 // ISO 3166-1 alpha-2 codes for flagsapi.com
 const CODES: Record<string, string> = {
-  England: 'GB',
-  Scotland: 'GB',
-  Wales: 'GB',
-  'Northern Ireland': 'GB',
   'Republic of Ireland': 'IE',
   France: 'FR',
   Brazil: 'BR',
@@ -98,6 +94,14 @@ const CODES: Record<string, string> = {
   Israel: 'IL',
 };
 
+// flagsapi.com doesn't support GB subdivision flags; use flagcdn.com which does
+const GB_SUBDIVISIONS: Record<string, string> = {
+  England: 'gb-eng',
+  Scotland: 'gb-sct',
+  Wales: 'gb-wls',
+  'Northern Ireland': 'gb-nir',
+};
+
 export function flagCode(nationality: string): string | null {
   return CODES[nationality] ?? null;
 }
@@ -107,6 +111,11 @@ export function flagUrl(
   size: 16 | 24 | 32 | 48 | 64 = 24,
   style: 'flat' | 'shiny' = 'flat',
 ): string {
+  const gbCode = GB_SUBDIVISIONS[nationality];
+  if (gbCode) {
+    const cdnWidth = size <= 16 ? 20 : size <= 32 ? 40 : 80;
+    return `https://flagcdn.com/w${cdnWidth}/${gbCode}.png`;
+  }
   const code = CODES[nationality];
   if (!code) return '';
   return `https://flagsapi.com/${code}/${style}/${size}.png`;

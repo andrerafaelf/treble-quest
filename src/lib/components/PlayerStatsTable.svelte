@@ -27,14 +27,16 @@
     <span class="ps-num">CS</span>
   </div>
   {#each sorted as p (p.playerId)}
+    {@const pFlag = flagUrl(p.nationality, 16, 'flat')}
     <div class="ps-grid ps-row">
       <span class="ps-pos" data-pos={p.positionShort}>{p.positionShort}</span>
       <span class="ps-name">
-        {#if flagUrl(p.nationality, 16, 'flat')}
+        {#if pFlag}
           <img
             class="ps-flag"
-            src={flagUrl(p.nationality, 16, 'flat')}
+            src={pFlag}
             alt={p.nationality}
+            title={p.nationality}
             width="16"
             height="16"
             loading="lazy"

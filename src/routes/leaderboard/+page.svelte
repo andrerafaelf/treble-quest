@@ -126,7 +126,7 @@
             <span class="lb-right">
               <span class="lb-score">{entry.score.toLocaleString()}</span>
               {#if hasSquad}
-                <span class="lb-chevron" class:open={isOpen}>v</span>
+                <span class="lb-chevron" class:open={isOpen}>›</span>
               {/if}
             </span>
           </button>
