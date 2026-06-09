@@ -43,9 +43,9 @@
           />
         {/if}{p.name}</span
       >
-      <span class="ps-num">{p.goals || '—'}</span>
-      <span class="ps-num">{p.assists || '—'}</span>
-      <span class="ps-num">{p.cleanSheets || '—'}</span>
+      <span class="ps-num">{p.goals || '-'}</span>
+      <span class="ps-num">{p.assists || '-'}</span>
+      <span class="ps-num">{p.cleanSheets || '-'}</span>
     </div>
   {/each}
 </section>

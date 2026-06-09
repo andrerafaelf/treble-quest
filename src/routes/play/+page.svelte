@@ -21,6 +21,8 @@
   let noOverall = $state(false);
   let selecting = $state(false);
   let deepLinkApplied = $state(false);
+  let namingTeam = $state(false);
+  let teamNameInput = $state('');
 
   const run = $derived($runStore);
   const slots = $derived(run ? getDraftSlots(run.mode, run.formation) : getDraftSlots(mode));
@@ -40,10 +42,19 @@
     choosingClassic = false;
     noOverall = false;
     startRun(nextMode);
+    teamNameInput = '';
+    namingTeam = true;
   }
 
   function selectFormation(formation: ClassicFormation) {
     startRun(mode, formation, noOverall);
+    teamNameInput = '';
+    namingTeam = true;
+  }
+
+  function confirmTeamName() {
+    runStore.setTeamName(teamNameInput);
+    namingTeam = false;
   }
 
   function clearRun() {
@@ -115,6 +126,27 @@
       <Button variant="secondary" onclick={() => runStore.replay()}>Replay mode</Button>
       <Button variant="danger" onclick={clearRun}>Clear run</Button>
     </div>
+  </section>
+{:else if namingTeam}
+  <section class="page-section narrow">
+    <span class="eyebrow">Name your club</span>
+    <h1 class="page-title">What's the club called?</h1>
+    <Card>
+      <form onsubmit={(e) => { e.preventDefault(); confirmTeamName(); }}>
+        <input
+          class="team-name-input"
+          type="text"
+          placeholder="e.g. FC Disaster, The Invincibles..."
+          maxlength="40"
+          bind:value={teamNameInput}
+          autofocus
+        />
+        <div class="toolbar-row">
+          <Button type="submit">Start draft</Button>
+          <Button variant="ghost" onclick={confirmTeamName}>Skip</Button>
+        </div>
+      </form>
+    </Card>
   </section>
 {:else}
   <section class="play-grid">

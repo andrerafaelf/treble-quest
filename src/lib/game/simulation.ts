@@ -201,13 +201,13 @@ export function simulateRun(run: RunState): SimulationResult {
   const playerStats = aggregatePlayerStats(run, sortedMatches, candidates);
 
   const plMatches = sortedMatches.filter((m) => m.competition === 'PL');
-  const { table } = buildPlTable(plMatches, tableRng);
+  const { table } = buildPlTable(plMatches, tableRng, run.teamName);
 
   const leagueResult = buildLeagueResultFromMatches(plMatches, table);
 
   rebalancePlayerGoalsToMatches(playerStats, plMatches, sortedMatches);
 
-  const awards = deriveAwards(playerStats);
+  const awards = deriveAwards(playerStats, run.teamName);
   const highlights = deriveHighlights(sortedMatches, plMatches, ratings, table, playerStats);
 
   const trophies = [leagueResult.won, faCupResult.won, championsLeagueResult.won].filter(Boolean).length;

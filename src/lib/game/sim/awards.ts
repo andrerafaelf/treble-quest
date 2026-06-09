@@ -1,7 +1,8 @@
 import { USER_CLUB_NAME } from '$lib/game/sim/clubRatings';
 import type { PlayerSeasonStats, SeasonAwards } from '$lib/game/types';
 
-export function deriveAwards(playerStats: PlayerSeasonStats[]): SeasonAwards {
+export function deriveAwards(playerStats: PlayerSeasonStats[], teamName?: string): SeasonAwards {
+  const clubName = teamName?.trim() || USER_CLUB_NAME;
   const sortedByGoals = [...playerStats].sort((a, b) => b.goals - a.goals || b.assists - a.assists);
   const sortedByAssists = [...playerStats].sort((a, b) => b.assists - a.assists || b.goals - a.goals);
   const goalkeepers = playerStats.filter((p) => p.positionShort === 'GK');
@@ -17,34 +18,34 @@ export function deriveAwards(playerStats: PlayerSeasonStats[]): SeasonAwards {
 
   return {
     goldenBoot: boot
-      ? { name: boot.name, nationality: boot.nationality, club: USER_CLUB_NAME, goals: boot.goals, fromUser: true }
-      : { name: '—', nationality: '', club: USER_CLUB_NAME, goals: 0, fromUser: true },
+      ? { name: boot.name, nationality: boot.nationality, club: clubName, goals: boot.goals, fromUser: true }
+      : { name: '—', nationality: '', club: clubName, goals: 0, fromUser: true },
     goldenGlove: glove
       ? {
           name: glove.name,
           nationality: glove.nationality,
-          club: USER_CLUB_NAME,
+          club: clubName,
           cleanSheets: glove.cleanSheets,
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: USER_CLUB_NAME, cleanSheets: 0, fromUser: true },
+      : { name: '—', nationality: '', club: clubName, cleanSheets: 0, fromUser: true },
     playmaker: playmaker
       ? {
           name: playmaker.name,
           nationality: playmaker.nationality,
-          club: USER_CLUB_NAME,
+          club: clubName,
           assists: playmaker.assists,
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: USER_CLUB_NAME, assists: 0, fromUser: true },
+      : { name: '—', nationality: '', club: clubName, assists: 0, fromUser: true },
     playerOfSeason: pots
       ? {
           name: pots.name,
           nationality: pots.nationality,
-          club: USER_CLUB_NAME,
+          club: clubName,
           rating: Math.round(composite(pots)),
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: USER_CLUB_NAME, rating: 0, fromUser: true },
+      : { name: '—', nationality: '', club: clubName, rating: 0, fromUser: true },
   };
 }

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
-  import Button from '$lib/components/Button.svelte';
   import { createShareText } from '$lib/game/share';
   import { createShareLink } from '$lib/game/share-api';
   import type { RunState, SimulationResult } from '$lib/game/types';
@@ -12,8 +11,6 @@
   let shareError = $state(false);
   let loading = $state(false);
   let copied = $state(false);
-  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  let open = $state(isMobile);
   let xHint = $state(false);
 
   $effect(() => {
@@ -34,20 +31,18 @@
 
   const shareText = $derived(createShareText(result, shareUrl ?? siteUrl));
 
-  function toggle() {
-    open = !open;
-    xHint = false;
-  }
+  let xHintTimer: ReturnType<typeof setTimeout> | null = null;
 
-  async function captureCard(): Promise<File | null> {
+  async function captureCard(): Promise<{ file: File; blob: Blob } | null> {
     const el = document.getElementById('share-card-capture');
     if (!el) return null;
     try {
       const { default: html2canvas } = await import('html2canvas');
-      const canvas = await html2canvas(el, { backgroundColor: '#0f1923', scale: 2, useCORS: true });
+      const canvas = await html2canvas(el, { backgroundColor: '#100c0c', scale: 2, useCORS: true });
       const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
       if (!blob) return null;
-      return new File([blob], 'treble-quest-result.png', { type: 'image/png' });
+      const file = new File([blob], 'treble-quest-result.png', { type: 'image/png' });
+      return { file, blob };
     } catch {
       return null;
     }
@@ -74,48 +69,74 @@
 
   async function shareOnX() {
     xHint = false;
-    const file = await captureCard();
+    if (xHintTimer) clearTimeout(xHintTimer);
+    const captured = await captureCard();
     const intent = new URL('https://x.com/intent/post');
     intent.searchParams.set('text', shareText);
-    if (file) {
-      downloadFile(file);
+
+    // Mobile: try native share sheet (routes to X with image attached on iOS/Android)
+    if (captured && navigator.canShare?.({ files: [captured.file] })) {
+      try {
+        await navigator.share({ text: shareText, files: [captured.file] });
+        return;
+      } catch {
+        /* user cancelled or not supported — fall through */
+      }
+    }
+
+    // Desktop: download image + open tweet composer; user attaches manually
+    if (captured) {
+      downloadFile(captured.file);
       xHint = true;
+      xHintTimer = setTimeout(() => (xHint = false), 8000);
     }
     window.open(intent.toString(), '_blank', 'noopener,noreferrer');
   }
 
   async function shareOnWhatsApp() {
-    const file = await captureCard();
-    // On mobile: try native share with image attached
-    if (file && navigator.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({ text: shareText, files: [file] });
-        return;
-      } catch {
-        /* fall through to plain link */
-      }
-    }
-    // Desktop fallback: open WhatsApp web with text
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
+    const captured = await captureCard();
 
-  async function saveImage() {
-    const file = await captureCard();
-    if (file) downloadFile(file);
-  }
-
-  async function nativeShare() {
-    const file = await captureCard();
-    if (file && navigator.canShare?.({ files: [file] })) {
+    // Mobile: native share sheet with image attached
+    if (captured && navigator.canShare?.({ files: [captured.file] })) {
       try {
-        await navigator.share({ text: shareText, files: [file] });
+        await navigator.share({ text: shareText, files: [captured.file] });
         return;
       } catch {
         /* fall through */
       }
     }
-    // Fallback: share text only
+
+    // Desktop: copy image to clipboard, then open WhatsApp Web so user can paste
+    if (captured) {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': captured.blob })
+        ]);
+        // Small delay so clipboard is flushed before WhatsApp Web opens
+        await new Promise((r) => setTimeout(r, 120));
+      } catch {
+        /* clipboard write not supported — just open WhatsApp with text */
+      }
+    }
+    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  async function saveImage() {
+    const captured = await captureCard();
+    if (captured) downloadFile(captured.file);
+  }
+
+  async function nativeShare() {
+    const captured = await captureCard();
+    if (captured && navigator.canShare?.({ files: [captured.file] })) {
+      try {
+        await navigator.share({ text: shareText, files: [captured.file] });
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
     if (navigator.share) {
       try {
         await navigator.share({ text: shareText, url: shareUrl ?? siteUrl });
@@ -129,31 +150,26 @@
 </script>
 
 <section class="share-panel">
-  {#if !open}
-    <Button onclick={toggle} full>
-      {loading ? 'Preparing share link…' : '🔗 Share verified link'}
-    </Button>
-  {:else}
-    <div class="share-modal">
-      <div class="share-buttons">
-        <button class="share-btn share-btn--whatsapp" onclick={shareOnWhatsApp}>WhatsApp</button>
-        <button class="share-btn share-btn--x" onclick={shareOnX}>𝕏</button>
-        <button class="share-btn share-btn--copy" onclick={copyLink}>{copied ? '✓ Copied' : '🔗 Copy'}</button>
-      </div>
-      <div class="share-buttons">
-        <button class="share-btn share-btn--image" onclick={saveImage}>📷 Save image</button>
-        <button class="share-btn share-btn--native" onclick={nativeShare}>📤 Share</button>
-      </div>
-      {#if xHint}
-        <p class="share-note share-note--hint">Image downloaded, attach it to your post on 𝕏.</p>
-      {:else if shareUrl}
-        <p class="share-note">Verified link opens a server-checked result page, proof it's real.</p>
-      {:else if shareError}
-        <p class="share-note share-note--error">Could not create verified link. You can still share text.</p>
-      {/if}
-      <button class="share-close" onclick={toggle}>Close</button>
+  <div class="share-modal">
+    <div class="share-buttons">
+      <button class="share-btn share-btn--whatsapp" onclick={shareOnWhatsApp}>WhatsApp</button>
+      <button class="share-btn share-btn--x" onclick={shareOnX}>𝕏</button>
+      <button class="share-btn share-btn--copy" onclick={copyLink}>{copied ? '✓ Copied' : '🔗 Copy'}</button>
     </div>
-  {/if}
+    <div class="share-buttons">
+      <button class="share-btn share-btn--image" onclick={saveImage}>📷 Save image</button>
+      <button class="share-btn share-btn--native" onclick={nativeShare}>📤 Share</button>
+    </div>
+    {#if xHint}
+      <p class="share-note share-note--hint">Image saved, attach it to your post on 𝕏.</p>
+    {:else if loading}
+      <p class="share-note">Preparing verified link…</p>
+    {:else if shareUrl}
+      <p class="share-note">Verified link opens a server-checked result page, proof it's real.</p>
+    {:else if shareError}
+      <p class="share-note share-note--error">Could not create verified link. You can still share text.</p>
+    {/if}
+  </div>
 </section>
 
 <style>
@@ -227,17 +243,4 @@
     color: #f87171;
   }
 
-  .share-close {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 0.8rem;
-    cursor: pointer;
-    text-align: center;
-    padding: 6px;
-  }
-
-  .share-close:hover {
-    color: #e2e8f0;
-  }
 </style>

@@ -1324,6 +1324,25 @@ p {
   color: var(--text);
 }
 
+.team-name-input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #0a0808;
+  color: var(--text);
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  box-sizing: border-box;
+}
+
+.team-name-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .lb-row input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -2306,20 +2325,24 @@ p {
 /* Mobile tweaks */
 @media (max-width: 720px) {
   .highlights-finish {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
+  .finish-verdict {
+    grid-column: 1 / -1;
+  }
   .finish-card {
-    padding: 12px 6px;
+    padding: 12px 8px;
   }
   .finish-card strong {
     font-size: 1.55rem;
   }
   .finish-verdict strong {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
+    word-break: break-word;
   }
   .verdict-met strong {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
   }
   .awards-grid {
     grid-template-columns: 1fr;

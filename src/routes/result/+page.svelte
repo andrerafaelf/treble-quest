@@ -86,7 +86,7 @@
   <section class="result-page">
     <div class="result-card" class:treble={result.trophies === 3 || result.worldCup?.won}>
       {#if !playbackDone}
-        <MatchPlayback matches={result.matches} leagueTable={result.leagueTable} {result} onDone={finishPlayback} />
+        <MatchPlayback matches={result.matches} leagueTable={result.leagueTable} {result} teamName={run.teamName} onDone={finishPlayback} />
       {:else}
         <ResultHero {result} />
         <StatHighlights highlights={result.highlights} />

@@ -6,9 +6,9 @@
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
-  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global';
+  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global' | 'global-no-overall';
 
-  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global'];
+  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global', 'global-no-overall'];
 
   function initialTab(): LeaderboardTab {
     if (!browser) return 'classic';
@@ -24,8 +24,8 @@
 
   async function load(next: LeaderboardTab) {
     tab = next;
-    mode = next === 'world-cup' ? 'world-cup' : next === 'global' ? 'global' : 'classic';
-    const hideRatings = next === 'classic-no-overall';
+    mode = next === 'world-cup' ? 'world-cup' : (next === 'global' || next === 'global-no-overall') ? 'global' : 'classic';
+    const hideRatings = next === 'classic-no-overall' || next === 'global-no-overall';
     status = 'loading';
     expanded = new Set();
     if (browser) {
@@ -75,15 +75,15 @@
 
   function beatUrl(entry: LeaderboardEntry): string {
     const params = new URLSearchParams({ mode });
-    if (mode === 'classic' && entry.formation) params.set('formation', entry.formation);
-    if (tab === 'classic-no-overall') params.set('hideRatings', '1');
+    if ((mode === 'classic' || mode === 'global') && entry.formation) params.set('formation', entry.formation);
+    if (tab === 'classic-no-overall' || tab === 'global-no-overall') params.set('hideRatings', '1');
     return `/play?${params.toString()}`;
   }
 </script>
 
 <svelte:head>
   <title>Leaderboard - Treble Quest</title>
-  <meta name="description" content="Top Treble Quest scores from Classic, Global, and World Cup mode runs." />
+  <meta name="description" content="Top Treble Quest scores from Classic, Global, and World Cup mode runs, including no-overall variants." />
 </svelte:head>
 
 <section class="page-section">
@@ -108,6 +108,12 @@
       aria-selected={tab === 'global'}
       class:active={tab === 'global'}
       onclick={() => load('global')}>Global</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'global-no-overall'}
+      class:active={tab === 'global-no-overall'}
+      onclick={() => load('global-no-overall')}>Global No Overall</button
     >
     <button
       role="tab"

@@ -1,6 +1,8 @@
 import { PL_CLUBS, USER_CLUB_NAME } from '$lib/game/sim/clubRatings';
 import type { LeagueTableRow, Match } from '$lib/game/types';
 
+const DEFAULT_CLUB_NAME = USER_CLUB_NAME;
+
 type UserStats = {
   wins: number;
   draws: number;
@@ -18,7 +20,8 @@ type ClubAcc = {
   goalsAgainst: number;
 };
 
-export function buildPlTable(plMatches: Match[], rng: () => number): { table: LeagueTableRow[]; userRow: LeagueTableRow } {
+export function buildPlTable(plMatches: Match[], rng: () => number, teamName?: string): { table: LeagueTableRow[]; userRow: LeagueTableRow } {
+  const clubName = teamName?.trim() || DEFAULT_CLUB_NAME;
   const userStats: UserStats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0, points: 0 };
   const mirror = new Map<string, ClubAcc>();
 
@@ -45,7 +48,7 @@ export function buildPlTable(plMatches: Match[], rng: () => number): { table: Le
   }
 
   const userRow: LeagueTableRow = {
-    club: USER_CLUB_NAME,
+    club: clubName,
     isUser: true,
     played: 38,
     wins: userStats.wins,

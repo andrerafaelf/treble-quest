@@ -116,6 +116,7 @@ export type RunState = {
   mode: GameMode;
   formation?: ClassicFormation;
   hideRatings?: boolean;
+  teamName?: string;
   startedAt: number;
   currentPick: number;
   picks: DraftPick[];

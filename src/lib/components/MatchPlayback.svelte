@@ -2,10 +2,11 @@
   import type { LeagueTableRow, Match, SimulationResult } from '$lib/game/types';
   import { onDestroy, onMount } from 'svelte';
 
-  let { matches, leagueTable = [], result, onDone }: {
+  let { matches, leagueTable = [], result, teamName = 'Your XI', onDone }: {
     matches: Match[];
     leagueTable?: LeagueTableRow[];
     result?: SimulationResult;
+    teamName?: string;
     onDone: () => void;
   } = $props();
 
@@ -271,11 +272,11 @@
           >{current.date} · {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span
         >
         <div class="pm-score-row">
-          <span class="pm-opp">{current.venue === 'A' ? current.opponent : 'Your XI'}</span>
+          <span class="pm-opp">{current.venue === 'A' ? current.opponent : teamName}</span>
           <span class="pm-score"
             >{current.venue === 'A' ? current.ga : current.gf} – {current.venue === 'A' ? current.gf : current.ga}</span
           >
-          <span class="pm-opp">{current.venue === 'A' ? 'Your XI' : current.opponent}</span>
+          <span class="pm-opp">{current.venue === 'A' ? teamName : current.opponent}</span>
         </div>
         <div class="pm-badge pm-badge-{current.result.toLowerCase()}">
           {current.result === 'W' ? 'WIN' : current.result === 'D' ? 'DRAW' : 'LOSS'}

@@ -66,6 +66,14 @@ function createRunStore() {
       persist(run);
       return run;
     },
+    setTeamName(name: string) {
+      update((run) => {
+        if (!run) return run;
+        const next = { ...run, teamName: name.trim() || undefined };
+        persist(next);
+        return next;
+      });
+    },
     choose(id: string) {
       let next: RunState | undefined;
       update((run) => {

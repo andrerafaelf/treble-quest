@@ -58,20 +58,20 @@ const porto2003_04: PlayerSeason[] = [
   p('helder-postiga-porto-2003-04', 'Hélder Postiga', 'Porto', '2003/04', 'Portugal', ['ST', 'FWD'], 'Dynamic young forward', 79, 78, 68, 40, 80, 74, 56, 'solid'),
 ];
 
-// Nacional 2008/09 — Primeira Liga champions, Madeira's finest
+// Nacional 2008/09 — 4th in Primeira Liga, Taça de Portugal semi-finalists, Madeira's European push
 const nacional2008_09: PlayerSeason[] = [
-  p('rafael-bracali-nacional-2008-09', 'Rafael Bracali', 'Nacional', '2008/09', 'Brazil', ['GK'], 'Shot-stopper, 40 appearances', 83, 18, 56, 85, 82, 84, 40, 'solid'),
-  p('maicon-nacional-2008-09', 'Maicon', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Commanding stopper, 39 appearances', 79, 62, 70, 78, 76, 78, 39, 'solid'),
-  p('alonso-nacional-2008-09', 'Alonso', 'Nacional', '2008/09', 'Brazil', ['LB', 'DEF'], 'Athletic left-back, 38 appearances', 81, 36, 62, 84, 80, 82, 38, 'solid'),
-  p('felipe-lopes-nacional-2008-09', 'Felipe Lopes', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Composed Brazilian defender', 79, 34, 60, 82, 78, 80, 32, 'solid'),
-  p('patacas-nacional-2008-09', 'Patacas', 'Nacional', '2008/09', 'Portugal', ['RB', 'DEF'], 'Experienced right-back', 78, 54, 66, 78, 76, 78, 36, 'solid'),
-  p('cleber-monteiro-nacional-2008-09', 'Cléber Monteiro', 'Nacional', '2008/09', 'Brazil', ['CM', 'MID'], 'Driving central midfielder, 39 appearances', 80, 62, 76, 72, 78, 80, 44, 'solid'),
-  p('ruben-micael-nacional-2008-09', 'Rúben Micael', 'Nacional', '2008/09', 'Portugal', ['CM', 'RW', 'MID'], 'Energetic midfielder, 5 goals', 80, 72, 76, 64, 78, 80, 46, 'solid'),
-  p('nene-nacional-2008-09', 'Nenê', 'Nacional', '2008/09', 'Brazil', ['ST', 'FWD'], 'Madeira magician, League top goalscorer', 91, 88, 92, 54, 90, 88, 66, 'legend'),
-  p('bruno-amaro-nacional-2008-09', 'Bruno Amaro', 'Nacional', '2008/09', 'Portugal', ['CM', 'LW', 'MID'], 'Creative midfielder, 3 goals', 78, 68, 74, 60, 76, 78, 48, 'solid'),
-  p('mateus-nacional-2008-09', 'Mateus', 'Nacional', '2008/09', 'Angola', ['RW', 'ST', 'FWD'], 'Angolan winger, 9 goals', 82, 82, 72, 46, 80, 78, 54, 'solid'),
-  p('miguel-fidalgo-nacional-2008-09', 'Miguel Fidalgo', 'Nacional', '2008/09', 'Portugal', ['ST', 'FWD'], 'Top scorer, 7 league goals', 82, 84, 68, 38, 80, 78, 52, 'solid'),
-  p('juninho-arcanjo-nacional-2008-09', 'Juninho Arcanjo', 'Nacional', '2008/09', 'Brazil', ['LW', 'ST', 'FWD'], 'Brazilian wide forward', 79, 78, 68, 42, 76, 74, 50, 'solid'),
+  p('rafael-bracali-nacional-2008-09', 'Rafael Bracali', 'Nacional', '2008/09', 'Brazil', ['GK'], 'Reliable first-choice goalkeeper during Nacional’s European qualification season', 83, 18, 58, 85, 82, 84, 38, 'solid'),
+  p('maicon-nacional-2008-09', 'Maicon', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Young commanding centre-back with strong aerial presence', 79, 38, 62, 82, 76, 78, 42, 'solid'),
+  p('alonso-nacional-2008-09', 'Alonso', 'Nacional', '2008/09', 'Brazil', ['LB', 'DEF'], 'Attack-minded left-back and major creative outlet from deep', 82, 64, 74, 80, 80, 82, 48, 'solid'),
+  p('felipe-lopes-nacional-2008-09', 'Felipe Lopes', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Composed left-sided centre-back in a compact defensive unit', 79, 34, 60, 82, 77, 80, 36, 'solid'),
+  p('patacas-nacional-2008-09', 'Patacas', 'Nacional', '2008/09', 'Portugal', ['RB', 'DEF'], 'Experienced right-back offering balance and delivery from wide areas', 78, 50, 66, 78, 76, 79, 36, 'solid'),
+  p('cleber-monteiro-nacional-2008-09', 'Cléber Monteiro', 'Nacional', '2008/09', 'Brazil', ['CM', 'MID'], 'Ball-winning midfielder with useful late runs into the box', 80, 62, 74, 76, 78, 80, 42, 'solid'),
+  p('ruben-micael-nacional-2008-09', 'Rúben Micael', 'Nacional', '2008/09', 'Portugal', ['CM', 'MID'], 'Technical central midfielder and breakout creator', 81, 70, 80, 66, 79, 80, 48, 'solid'),
+  p('nene-nacional-2008-09', 'Nenê', 'Nacional', '2008/09', 'Brazil', ['ST', 'FWD'], 'Primeira Liga top scorer with 20 goals; ruthless focal point of the attack', 91, 92, 78, 48, 90, 88, 62, 'legend'),
+  p('bruno-amaro-nacional-2008-09', 'Bruno Amaro', 'Nacional', '2008/09', 'Portugal', ['CM', 'MID'], 'Hard-working central midfielder with tidy possession and tactical discipline', 78, 58, 74, 68, 75, 78, 38, 'solid'),
+  p('mateus-nacional-2008-09', 'Mateus', 'Nacional', '2008/09', 'Angola', ['LW', 'FWD'], 'Direct left winger and key attacking runner supporting Nenê', 82, 82, 72, 48, 80, 78, 56, 'solid'),
+  p('miguel-fidalgo-nacional-2008-09', 'Miguel Fidalgo', 'Nacional', '2008/09', 'Portugal', ['ST', 'FWD'], 'Mobile striker and useful secondary goal threat', 80, 80, 66, 42, 78, 76, 50, 'solid'),
+  p('juninho-arcanjo-nacional-2008-09', 'Juninho Arcanjo', 'Nacional', '2008/09', 'Brazil', ['LW', 'RW', 'FWD'], 'Brazilian wide forward with flair and rotation value', 78, 76, 68, 42, 75, 74, 52, 'solid'),
 ];
 
 // Benfica 2004/05 — knocked out Liverpool, reached CL final

@@ -29,7 +29,7 @@
   });
 
   function ordinal(value: number): string {
-    if (value <= 0) return '—';
+    if (value <= 0) return '-';
     const tens = value % 100;
     if (tens >= 11 && tens <= 13) return `${value}th`;
     const ones = value % 10;

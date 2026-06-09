@@ -4,7 +4,7 @@
   let { result, run }: { result: SimulationResult; run: RunState } = $props();
 
   const playerPicks = $derived(run.picks.filter((p) => p.type === 'player'));
-  const modeLabel = $derived(run.mode === 'world-cup' ? 'World Cup' : run.mode === 'classic' ? run.formation : 'Quick');
+  const modeLabel = $derived(run.mode === 'world-cup' ? 'World Cup' : run.mode === 'global' ? `Global · ${run.formation}` : run.formation ?? 'Classic');
   const ovr = $derived(Math.round((result.ratings.attack + result.ratings.control + result.ratings.defence) / 3));
   const perfectWorldCup = $derived(Boolean(result.worldCup?.won && result.worldCup.wins === 8 && result.worldCup.draws === 0 && result.worldCup.losses === 0));
 
@@ -62,7 +62,7 @@
   <!-- Header -->
   <div class="rc-header">
     <div class="rc-brand">
-      <span class="rc-brand-name">Treble Quest</span>
+      <span class="rc-brand-name">{run.teamName ?? 'Treble Quest'}</span>
       <span class="rc-brand-mode">{modeLabel}</span>
     </div>
     <div class="rc-ovr-badge">
@@ -145,7 +145,7 @@
 <style>
   .rc {
     width: 400px;
-    background: #0d1117;
+    background: #100c0c;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.08);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
