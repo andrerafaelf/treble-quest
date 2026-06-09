@@ -1,4 +1,18 @@
-export type Position = 'GK' | 'RB' | 'CB' | 'LB' | 'CM' | 'RW' | 'ST' | 'LW' | 'RM' | 'LM' | 'DEF' | 'MID' | 'FWD' | 'ANY';
+export type Position =
+  | 'GK'
+  | 'RB'
+  | 'CB'
+  | 'LB'
+  | 'CM'
+  | 'RW'
+  | 'ST'
+  | 'LW'
+  | 'RM'
+  | 'LM'
+  | 'DEF'
+  | 'MID'
+  | 'FWD'
+  | 'ANY';
 
 export type PlayerSeason = {
   id: string;
@@ -21,6 +35,7 @@ export type PlayerSeason = {
 export type Manager = {
   id: string;
   name: string;
+  overall: number;
   clubHint?: string;
   style: 'balanced' | 'attacking' | 'defensive' | 'pressing' | 'counter';
   temperament: 'calm' | 'intense' | 'pragmatic' | 'romantic';

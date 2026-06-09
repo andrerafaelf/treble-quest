@@ -6,7 +6,7 @@ export function deriveHighlights(
   plMatches: Match[],
   ratings: TeamRatings,
   table: LeagueTableRow[],
-  playerStats: PlayerSeasonStats[]
+  playerStats: PlayerSeasonStats[],
 ): StatHighlights {
   let biggestMargin = -Infinity;
   let biggestWin: StatHighlights['biggestWin'];
@@ -35,14 +35,24 @@ export function deriveHighlights(
   const expectedFinish = expectedFinishFromPower(squadStrength);
 
   const actualPts = plMatches.reduce((sum, m) => sum + (m.result === 'W' ? 3 : m.result === 'D' ? 1 : 0), 0);
+  const leagueWins = plMatches.filter((m) => m.result === 'W').length;
+  const leagueDraws = plMatches.filter((m) => m.result === 'D').length;
+  const leagueLosses = plMatches.filter((m) => m.result === 'L').length;
+  const perfectLeague = leagueWins === 38 && leagueDraws === 0 && leagueLosses === 0;
   const delta = actualPts - expectedPoints;
 
   let narrativeHeadline = 'A SOLID CAMPAIGN';
   let narrativeBody = `Finished ${ordinal(actualFinish)} with ${actualPts} points. Projected ${ordinal(expectedFinish)} — right on the mark.`;
 
   if (actualFinish === 1) {
-    narrativeHeadline = 'CHAMPIONS OF ENGLAND';
-    narrativeBody = `Top of the pile with ${actualPts} points. Projected to finish ${ordinal(expectedFinish)} — they delivered the title.`;
+    if (perfectLeague) {
+      narrativeHeadline = 'PERFECT 38-0';
+      narrativeBody = `Maximum pressure, maximum output: 38 wins from 38. ${actualPts} points and a flawless title run.`;
+    } else {
+      const matchesOffPerfect = 38 - leagueWins;
+      narrativeHeadline = 'CHAMPIONS OF ENGLAND';
+      narrativeBody = `Title delivered with ${actualPts} points. Next target is 38-0: flip ${leagueDraws} draw${leagueDraws === 1 ? '' : 's'} and ${leagueLosses} loss${leagueLosses === 1 ? '' : 'es'} into wins (${matchesOffPerfect} results away).`;
+    }
   } else if (delta >= 10) {
     narrativeHeadline = 'NOBODY SAW THAT COMING';
     narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Projected to finish ${ordinal(expectedFinish)}. They proved everyone wrong.`;
@@ -64,14 +74,12 @@ export function deriveHighlights(
     narrativeHeadline,
     narrativeBody,
     expectedFinish,
-    actualFinish
+    actualFinish,
   };
 }
 
 function computeSquadStrength(ratings: TeamRatings, playerStats: PlayerSeasonStats[]): number {
-  const overallAvg = playerStats.length
-    ? playerStats.reduce((sum, p) => sum + p.overall, 0) / playerStats.length
-    : 65;
+  const overallAvg = playerStats.length ? playerStats.reduce((sum, p) => sum + p.overall, 0) / playerStats.length : 65;
   const chemistryBonus = (ratings.chemistry - 50) * 0.06;
   const managerBonus = ratings.managerBoost * 0.18;
   const fitBonus = (ratings.fit - 50) * 0.04;

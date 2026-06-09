@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { onDestroy } from 'svelte';
   import AwardsPanel from '$lib/components/AwardsPanel.svelte';
   import Button from '$lib/components/Button.svelte';
   import CompetitionBreakdown from '$lib/components/CompetitionBreakdown.svelte';
@@ -16,10 +15,12 @@
   import StatHighlights from '$lib/components/StatHighlights.svelte';
   import { getDraftSlots } from '$lib/game/draft';
   import { recordStreakResult, runStore, type StreakState } from '$lib/game/storage';
+  import { onDestroy } from 'svelte';
 
   $: run = $runStore;
   $: result = run?.result;
   $: slots = run ? getDraftSlots(run.mode, run.formation) : [];
+  $: replayLabel = result?.worldCup ? 'Run it back for 8-0' : 'Run it back for 38-0 + 15-0';
 
   let streak: StreakState | null = null;
   $: if (result && streak === null) {
@@ -135,7 +136,7 @@
         <SharePanel {run} {result} />
         <ResultCard {result} {run} />
         <div class="toolbar-row">
-          <Button onclick={replay}>Play again</Button>
+          <Button onclick={replay}>{replayLabel}</Button>
           <Button variant="secondary" onclick={newRun}>New mode</Button>
         </div>
       {/if}

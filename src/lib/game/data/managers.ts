@@ -5,6 +5,7 @@ export const managers: Manager[] = [
   {
     id: 'alex-ferguson-man-utd-1998-99',
     name: 'Alex Ferguson',
+    overall: 92,
     clubHint: 'Manchester United 1998/99',
     style: 'balanced',
     temperament: 'intense',
@@ -15,6 +16,7 @@ export const managers: Manager[] = [
   {
     id: 'alex-ferguson-man-utd-2007-08',
     name: 'Alex Ferguson',
+    overall: 91,
     clubHint: 'Manchester United 2007/08',
     style: 'balanced',
     temperament: 'intense',
@@ -26,6 +28,7 @@ export const managers: Manager[] = [
   {
     id: 'arsene-wenger-arsenal-1997-98',
     name: 'Arsene Wenger',
+    overall: 88,
     clubHint: 'Arsenal 1997/98',
     style: 'attacking',
     temperament: 'romantic',
@@ -36,6 +39,7 @@ export const managers: Manager[] = [
   {
     id: 'arsene-wenger-arsenal-2003-04',
     name: 'Arsene Wenger',
+    overall: 91,
     clubHint: 'Arsenal 2003/04',
     style: 'attacking',
     temperament: 'romantic',
@@ -47,6 +51,7 @@ export const managers: Manager[] = [
   {
     id: 'jose-mourinho-chelsea-2004-05',
     name: 'Jose Mourinho',
+    overall: 90,
     clubHint: 'Chelsea 2004/05',
     style: 'defensive',
     temperament: 'pragmatic',
@@ -57,6 +62,7 @@ export const managers: Manager[] = [
   {
     id: 'antonio-conte-chelsea-2016-17',
     name: 'Antonio Conte',
+    overall: 86,
     clubHint: 'Chelsea 2016/17',
     style: 'defensive',
     temperament: 'intense',
@@ -68,6 +74,7 @@ export const managers: Manager[] = [
   {
     id: 'rafa-benitez-liverpool-2004-05',
     name: 'Rafa Benitez',
+    overall: 87,
     clubHint: 'Liverpool 2004/05',
     style: 'counter',
     temperament: 'pragmatic',
@@ -78,6 +85,7 @@ export const managers: Manager[] = [
   {
     id: 'brendan-rodgers-liverpool-2013-14',
     name: 'Brendan Rodgers',
+    overall: 84,
     clubHint: 'Liverpool 2013/14',
     style: 'attacking',
     temperament: 'romantic',
@@ -88,6 +96,7 @@ export const managers: Manager[] = [
   {
     id: 'jurgen-klopp-liverpool-2018-19',
     name: 'Jurgen Klopp',
+    overall: 90,
     clubHint: 'Liverpool 2018/19',
     style: 'pressing',
     temperament: 'intense',
@@ -98,6 +107,7 @@ export const managers: Manager[] = [
   {
     id: 'jurgen-klopp-liverpool-2019-20',
     name: 'Jurgen Klopp',
+    overall: 92,
     clubHint: 'Liverpool 2019/20',
     style: 'pressing',
     temperament: 'intense',
@@ -109,6 +119,7 @@ export const managers: Manager[] = [
   {
     id: 'pep-guardiola-man-city-2017-18',
     name: 'Pep Guardiola',
+    overall: 92,
     clubHint: 'Manchester City 2017/18',
     style: 'attacking',
     temperament: 'romantic',
@@ -119,6 +130,7 @@ export const managers: Manager[] = [
   {
     id: 'pep-guardiola-man-city-2022-23',
     name: 'Pep Guardiola',
+    overall: 93,
     clubHint: 'Manchester City 2022/23',
     style: 'attacking',
     temperament: 'calm',
@@ -130,6 +142,7 @@ export const managers: Manager[] = [
   {
     id: 'mauricio-pochettino-spurs-2018-19',
     name: 'Mauricio Pochettino',
+    overall: 86,
     clubHint: 'Tottenham 2018/19',
     style: 'pressing',
     temperament: 'intense',
@@ -141,6 +154,7 @@ export const managers: Manager[] = [
   {
     id: 'claudio-ranieri-leicester-2015-16',
     name: 'Claudio Ranieri',
+    overall: 86,
     clubHint: 'Leicester City 2015/16',
     style: 'counter',
     temperament: 'calm',
@@ -152,6 +166,7 @@ export const managers: Manager[] = [
   {
     id: 'kenny-dalglish-blackburn-1994-95',
     name: 'Kenny Dalglish',
+    overall: 85,
     clubHint: 'Blackburn Rovers 1994/95',
     style: 'balanced',
     temperament: 'intense',
@@ -163,6 +178,7 @@ export const managers: Manager[] = [
   {
     id: 'kevin-keegan-newcastle-1995-96',
     name: 'Kevin Keegan',
+    overall: 84,
     clubHint: 'Newcastle United 1995/96',
     style: 'attacking',
     temperament: 'romantic',
@@ -173,6 +189,7 @@ export const managers: Manager[] = [
   {
     id: 'sir-bobby-robson-newcastle',
     name: 'Sir Bobby Robson',
+    overall: 84,
     clubHint: 'Newcastle United',
     style: 'balanced',
     temperament: 'romantic',
@@ -184,6 +201,7 @@ export const managers: Manager[] = [
   {
     id: 'harry-redknapp-portsmouth-2007-08',
     name: 'Harry Redknapp',
+    overall: 82,
     clubHint: 'Portsmouth 2007/08',
     style: 'balanced',
     temperament: 'pragmatic',
@@ -195,6 +213,7 @@ export const managers: Manager[] = [
   {
     id: 'roberto-martinez-wigan-2012-13',
     name: 'Roberto Martinez',
+    overall: 81,
     clubHint: 'Wigan Athletic 2012/13',
     style: 'attacking',
     temperament: 'romantic',
@@ -206,6 +225,7 @@ export const managers: Manager[] = [
   {
     id: 'david-moyes-everton-2004-05',
     name: 'David Moyes',
+    overall: 83,
     clubHint: 'Everton 2004/05',
     style: 'defensive',
     temperament: 'pragmatic',
@@ -217,6 +237,7 @@ export const managers: Manager[] = [
   {
     id: 'sam-allardyce-bolton-2004-05',
     name: 'Sam Allardyce',
+    overall: 80,
     clubHint: 'Bolton Wanderers 2004/05',
     style: 'defensive',
     temperament: 'pragmatic',
@@ -228,6 +249,7 @@ export const managers: Manager[] = [
   {
     id: 'marcelo-bielsa-leeds-2020-21',
     name: 'Marcelo Bielsa',
+    overall: 84,
     clubHint: 'Leeds United 2020/21',
     style: 'pressing',
     temperament: 'romantic',
@@ -239,6 +261,7 @@ export const managers: Manager[] = [
   {
     id: 'martin-oneill-aston-villa',
     name: "Martin O'Neill",
+    overall: 82,
     clubHint: 'Aston Villa',
     style: 'balanced',
     temperament: 'intense',
@@ -250,6 +273,7 @@ export const managers: Manager[] = [
   {
     id: 'steve-coppell-reading-2006-07',
     name: 'Steve Coppell',
+    overall: 80,
     clubHint: 'Reading 2006/07',
     style: 'counter',
     temperament: 'calm',

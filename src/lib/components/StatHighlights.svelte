@@ -6,8 +6,13 @@
   const finishedOrdinal = $derived(ordinal(highlights.actualFinish));
   const expectedOrdinal = $derived(ordinal(highlights.expectedFinish));
   const delta = $derived(highlights.expectedFinish - highlights.actualFinish);
-  const verdict = $derived(delta >= 3 ? 'OVERPERFORMED' : delta <= -3 ? 'UNDERPERFORMED' : 'AS EXPECTED');
-  const verdictClass = $derived(delta >= 3 ? 'verdict-over' : delta <= -3 ? 'verdict-under' : 'verdict-met');
+  const titleWon = $derived(highlights.actualFinish === 1);
+  const verdict = $derived(
+    titleWon ? 'TITLE WON' : delta >= 3 ? 'OVERPERFORMED' : delta <= -3 ? 'UNDERPERFORMED' : 'AS EXPECTED',
+  );
+  const verdictClass = $derived(
+    titleWon || delta >= 3 ? 'verdict-over' : delta <= -3 ? 'verdict-under' : 'verdict-met',
+  );
 
   function ordinal(value: number): string {
     if (value <= 0) return '—';
@@ -31,6 +36,9 @@
     </article>
     <article class="finish-card finish-verdict {verdictClass}">
       <strong>{verdict}</strong>
+      {#if titleWon}
+        <span class="finish-next">Next: 38-0</span>
+      {/if}
     </article>
   </div>
 
