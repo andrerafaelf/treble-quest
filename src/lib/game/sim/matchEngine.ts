@@ -1,5 +1,5 @@
 import { weightedTeamPower } from '$lib/game/scoring';
-import type { TeamRatings, Venue } from '$lib/game/types';
+import type { Competition, TeamRatings, Venue } from '$lib/game/types';
 
 export type MatchInputs = {
   ratings: TeamRatings;
@@ -7,7 +7,7 @@ export type MatchInputs = {
   venue: Venue;
   managerLeagueBoost: number;
   managerCupBoost: number;
-  competition: 'PL' | 'FAC' | 'CL';
+  competition: Competition;
   roundPressure?: number;
   varianceMultiplier: number;
 };

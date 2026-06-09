@@ -100,6 +100,66 @@ export const CL_GROUP_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Benfica', rating: 79 }
 ];
 
+export const WORLD_CUP_GROUP_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'South Africa', rating: 66 },
+  { name: 'Saudi Arabia', rating: 67 },
+  { name: 'New Zealand', rating: 62 },
+  { name: 'Panama', rating: 68 },
+  { name: 'Qatar', rating: 66 },
+  { name: 'Tunisia', rating: 70 },
+  { name: 'Costa Rica', rating: 69 },
+  { name: 'Ghana', rating: 72 },
+  { name: 'Japan', rating: 76 },
+  { name: 'Morocco', rating: 78 }
+];
+
+export const WORLD_CUP_R32_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'USA', rating: 75 },
+  { name: 'Mexico', rating: 76 },
+  { name: 'Switzerland', rating: 78 },
+  { name: 'Serbia', rating: 77 },
+  { name: 'South Korea', rating: 75 },
+  { name: 'Senegal', rating: 77 },
+  { name: 'Denmark', rating: 79 },
+  { name: 'Uruguay', rating: 80 }
+];
+
+export const WORLD_CUP_R16_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'Croatia', rating: 81 },
+  { name: 'Netherlands', rating: 83 },
+  { name: 'Belgium', rating: 82 },
+  { name: 'Portugal', rating: 84 },
+  { name: 'Colombia', rating: 80 },
+  { name: 'Germany', rating: 84 }
+];
+
+export const WORLD_CUP_QF_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'England', rating: 86 },
+  { name: 'Spain', rating: 87 },
+  { name: 'Brazil', rating: 87 },
+  { name: 'Argentina', rating: 86 },
+  { name: 'France', rating: 88 },
+  { name: 'Portugal', rating: 84 }
+];
+
+export const WORLD_CUP_SF_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'Argentina', rating: 86 },
+  { name: 'Brazil', rating: 87 },
+  { name: 'Spain', rating: 87 },
+  { name: 'France', rating: 88 },
+  { name: 'England', rating: 86 },
+  { name: 'Germany', rating: 84 }
+];
+
+export const WORLD_CUP_FINAL_OPPONENTS: { name: string; rating: number }[] = [
+  { name: 'France', rating: 88 },
+  { name: 'Brazil', rating: 87 },
+  { name: 'Argentina', rating: 86 },
+  { name: 'Spain', rating: 87 },
+  { name: 'England', rating: 86 },
+  { name: 'Portugal', rating: 84 }
+];
+
 export const CL_R16_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'PSV', rating: 77 },
   { name: 'Porto', rating: 78 },

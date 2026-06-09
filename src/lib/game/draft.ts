@@ -1,5 +1,6 @@
 import { managers } from '$lib/game/data/managers';
 import { playerSeasons } from '$lib/game/data/players';
+import { worldCupManagers, worldCupPlayerSeasons } from '$lib/game/data/world-cup-2026';
 import type { ClassicFormation, DraftPick, DraftPrompt, DraftSlot, GameMode, PlayerSeason, Position, RunState } from '$lib/game/types';
 
 export const quickDraftSlots: DraftSlot[] = [
@@ -84,20 +85,22 @@ export const draftSlots = quickDraftSlots;
 
 export const modeLabels: Record<GameMode, string> = {
   quick: 'Quick Mode',
-  classic: 'Classic Mode'
+  classic: 'Classic Mode',
+  'world-cup': 'World Cup Mode'
 };
 
 export function createSeed(): number {
   return Math.floor(Date.now() % 2147483647) ^ Math.floor(Math.random() * 2147483647);
 }
 
-export function createRun(mode: GameMode, formation?: ClassicFormation): RunState {
+export function createRun(mode: GameMode, formation?: ClassicFormation, hideRatings = false): RunState {
   const seed = createSeed();
   const run: RunState = {
     id: `run-${seed}-${Date.now()}`,
     seed,
     mode,
     formation: mode === 'classic' ? (formation ?? '4-3-3') : undefined,
+    hideRatings: mode === 'classic' ? hideRatings : false,
     startedAt: Date.now(),
     currentPick: 0,
     picks: []
@@ -106,11 +109,13 @@ export function createRun(mode: GameMode, formation?: ClassicFormation): RunStat
 }
 
 export function replayRun(previous: RunState): RunState {
-  return createRun(previous.mode, previous.formation);
+  return createRun(previous.mode, previous.formation, previous.hideRatings);
 }
 
 export function getDraftSlots(mode: GameMode, formation?: ClassicFormation): DraftSlot[] {
-  return mode === 'classic' ? classicFormationSlots[formation ?? '4-3-3'] : quickDraftSlots;
+  if (mode === 'classic') return classicFormationSlots[formation ?? '4-3-3'];
+  if (mode === 'world-cup') return classicFormationSlots['4-3-3'];
+  return quickDraftSlots;
 }
 
 export function nextSlot(run: RunState): DraftSlot | undefined {
@@ -139,15 +144,17 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
   const rng = createRng(run.seed + run.currentPick * 9973 + run.picks.length * 17);
 
   if (slot.id === 'manager') {
+    const managerPool = run.mode === 'world-cup' ? worldCupManagers : managers;
     return {
       type: 'manager',
       seed: Math.floor(rng() * 100000),
-      options: chooseUnique(managers, 4, rng)
+      options: chooseUnique(managerPool, 4, rng)
     };
   }
 
+  const playerPool = run.mode === 'world-cup' ? worldCupPlayerSeasons : playerSeasons;
   const usedIds = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.id));
-  const fitPlayers = playerSeasons.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
+  const fitPlayers = playerPool.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
   const options = chooseDiversePlayers(fitPlayers, 4, rng);
 
   return {

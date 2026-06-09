@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onDestroy } from 'svelte';
   import AwardsPanel from '$lib/components/AwardsPanel.svelte';
   import Button from '$lib/components/Button.svelte';
   import CompetitionBreakdown from '$lib/components/CompetitionBreakdown.svelte';
@@ -26,6 +27,7 @@
   }
 
   let playbackDone = false;
+  let keepResultOnLeave = false;
   $: resultKey = result?.seed;
   $: if (resultKey !== undefined && lastSeedSeen !== resultKey) {
     playbackDone = false;
@@ -40,6 +42,7 @@
   function replay() {
     streak = null;
     playbackDone = false;
+    keepResultOnLeave = true;
     runStore.replay();
     goto('/play');
   }
@@ -47,9 +50,14 @@
   function newRun() {
     streak = null;
     playbackDone = false;
+    keepResultOnLeave = true;
     runStore.clear();
     goto('/play');
   }
+
+  onDestroy(() => {
+    if (!keepResultOnLeave && $runStore?.result) runStore.clear();
+  });
 </script>
 
 <svelte:head>
@@ -70,7 +78,7 @@
   </section>
 {:else}
   <section class="result-page">
-    <div class="result-card" class:treble={result.trophies === 3}>
+    <div class="result-card" class:treble={result.trophies === 3 || result.worldCup?.won}>
       {#if !playbackDone}
         <MatchPlayback matches={result.matches} onDone={finishPlayback} />
       {:else}
@@ -80,7 +88,9 @@
         <AwardsPanel awards={result.awards} />
         <PlayerStatsTable stats={result.playerStats} />
         <MatchFeed matches={result.matches} />
-        <LeagueTable rows={result.leagueTable} />
+        {#if result.leagueTable.length > 0}
+          <LeagueTable rows={result.leagueTable} />
+        {/if}
         <section class="insight-grid">
           <article>
             <span>Best pick</span>

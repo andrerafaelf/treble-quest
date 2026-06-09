@@ -10,6 +10,7 @@ export async function createShareLink(run: RunState): Promise<string> {
       seed: run.seed,
       mode: run.mode,
       formation: run.formation,
+      hideRatings: run.hideRatings,
       startedAt: run.startedAt,
       picks: run.picks.map((pick) => ({
         slotId: pick.slot.id,

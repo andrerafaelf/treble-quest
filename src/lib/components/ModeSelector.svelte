@@ -11,7 +11,8 @@
 
   const modes: { id: GameMode; label: string; hint: string }[] = [
     { id: 'quick', label: 'Quick Mode', hint: 'Manager, seven-a-side squad, and one super sub.' },
-    { id: 'classic', label: 'Classic Mode', hint: 'Manager plus a full XI, including exact RB, CB, CM and front-three slots.' }
+    { id: 'classic', label: 'Classic Mode', hint: 'Manager plus a full XI, including exact RB, CB, CM and front-three slots.' },
+    { id: 'world-cup', label: 'World Cup Mode', hint: 'A national-team run built around the 8-0 champion path.' }
   ];
 </script>
 

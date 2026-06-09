@@ -12,6 +12,8 @@
     disabled?: boolean;
     onSelect?: (id: string) => void;
   } = $props();
+
+  const managerOverall = $derived(Math.min(99, Math.round(78 + manager.boost * 1.2 + manager.cupBoost * 0.7 + manager.leagueBoost * 0.7)));
 </script>
 
 <button class="option-card manager-card" type="button" {disabled} onclick={() => onSelect?.(manager.id)}>
@@ -23,12 +25,11 @@
     <span>{manager.style}</span>
   </div>
   {#if showRatings}
-    <div class="rating-grid">
-      <div class="rating-stat"><span>Boost</span><strong>{manager.boost}</strong></div>
-      <div class="rating-stat"><span>Cups</span><strong>{manager.cupBoost}</strong></div>
-      <div class="rating-stat"><span>League</span><strong>{manager.leagueBoost}</strong></div>
+    <div class="overall-badge" aria-label={`${manager.name} overall rating`}>
+      <span>Overall</span>
+      <strong>{managerOverall}</strong>
     </div>
   {:else}
-    <div class="blind-strip">Impact hidden</div>
+    <div class="blind-strip">Overall hidden</div>
   {/if}
 </button>

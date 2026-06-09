@@ -5,17 +5,17 @@
   let { matches, onDone }: { matches: Match[]; onDone: () => void } = $props();
 
   const SPEEDS = [
-    { label: '0.5×', ms: 1200 },
-    { label: '1×', ms: 600 },
-    { label: '2×', ms: 300 },
-    { label: '4×', ms: 130 },
-    { label: '8×', ms: 55 }
+    { label: '0.5x', ms: 1200 },
+    { label: '1x', ms: 600 },
+    { label: '2x', ms: 300 },
+    { label: '4x', ms: 130 },
+    { label: '8x', ms: 55 }
   ];
   const DEFAULT_SPEED_INDEX = 1;
   const STORAGE_KEY = 'treble-quest-playback-speed';
 
   let currentIndex = $state(0);
-  let runningTotals = $state({ pl: { w: 0, d: 0, l: 0, pts: 0 }, fac: '', cl: '' });
+  let runningTotals = $state({ pl: { w: 0, d: 0, l: 0, pts: 0 }, fac: '', cl: '', wc: { w: 0, d: 0, l: 0 } });
   let timer: ReturnType<typeof setInterval> | undefined;
   let paused = $state(false);
   let speedIndex = $state(loadSpeed());
@@ -52,7 +52,11 @@
   }
 
   function accumulate(m: Match) {
-    if (m.competition === 'PL') {
+    if (m.competition === 'WC') {
+      if (m.result === 'W') runningTotals.wc.w += 1;
+      else if (m.result === 'D') runningTotals.wc.d += 1;
+      else runningTotals.wc.l += 1;
+    } else if (m.competition === 'PL') {
       if (m.result === 'W') {
         runningTotals.pl.w += 1;
         runningTotals.pl.pts += 3;
@@ -65,7 +69,7 @@
     } else if (m.competition === 'FAC') {
       runningTotals.fac = m.result === 'W' ? `${m.round} won` : `${m.round} out`;
     } else if (m.competition === 'CL') {
-      runningTotals.cl = m.result === 'W' ? `${m.round} win` : m.round ?? 'Group';
+      runningTotals.cl = m.result === 'W' ? `${m.round} win` : m.round ?? 'League phase';
     }
   }
 
@@ -98,11 +102,13 @@
 
   const current = $derived(matches[currentIndex]);
   const progress = $derived(((currentIndex + 1) / matches.length) * 100);
+  const hasWorldCup = $derived(matches.some((m) => m.competition === 'WC'));
 
   function compLabel(m: Match): string {
+    if (m.competition === 'WC') return `World Cup - ${m.round}`;
     if (m.competition === 'PL') return 'Premier League';
-    if (m.competition === 'FAC') return `FA Cup · ${m.round}`;
-    return `Champions League · ${m.round}`;
+    if (m.competition === 'FAC') return `FA Cup - ${m.round}`;
+    return `Champions League - ${m.round}`;
   }
 
   function scorerSummary(m: Match): string {
@@ -114,8 +120,8 @@
       counts.set(s.name, arr);
     }
     return Array.from(counts.entries())
-      .map(([name, mins]) => `${name} ${mins.sort((a, b) => a - b).map((m) => `${m}'`).join(' ')}`)
-      .join(' · ');
+      .map(([name, mins]) => `${name} ${mins.sort((a, b) => a - b).map((minute) => `${minute}'`).join(' ')}`)
+      .join(' / ');
   }
 </script>
 
@@ -136,9 +142,9 @@
         {/each}
       </div>
       <button type="button" class="pb-btn pb-pause" onclick={togglePause}>
-        {paused ? '▶ Resume' : '⏸ Pause'}
+        {paused ? 'Resume' : 'Pause'}
       </button>
-      <button type="button" class="pb-btn pb-skip" onclick={skip}>Skip to results →</button>
+      <button type="button" class="pb-btn pb-skip" onclick={skip}>Skip to results</button>
     </div>
   </div>
 
@@ -149,17 +155,17 @@
   {#if current}
     <article class="playback-match playback-{current.result.toLowerCase()}">
       <span class="pm-comp">{compLabel(current)}</span>
-      <span class="pm-date">{current.date} · {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span>
+      <span class="pm-date">{current.date} / {current.venue === 'H' ? 'Home' : current.venue === 'A' ? 'Away' : 'Neutral'}</span>
       <div class="pm-score-row">
         <span class="pm-opp">{current.venue === 'A' ? current.opponent : 'Your XI'}</span>
-        <span class="pm-score">{current.venue === 'A' ? current.ga : current.gf} — {current.venue === 'A' ? current.gf : current.ga}</span>
+        <span class="pm-score">{current.venue === 'A' ? current.ga : current.gf} - {current.venue === 'A' ? current.gf : current.ga}</span>
         <span class="pm-opp">{current.venue === 'A' ? 'Your XI' : current.opponent}</span>
       </div>
       <div class="pm-badge pm-badge-{current.result.toLowerCase()}">
         {current.result === 'W' ? 'WIN' : current.result === 'D' ? 'DRAW' : 'LOSS'}
       </div>
       {#if current.scorers.length > 0}
-        <p class="pm-scorers">⚽ {scorerSummary(current)}</p>
+        <p class="pm-scorers">{scorerSummary(current)}</p>
       {/if}
       {#if current.aggregate}
         <p class="pm-agg">Aggregate {current.aggregate.gf}-{current.aggregate.ga}</p>
@@ -168,21 +174,28 @@
   {/if}
 
   <div class="playback-tally">
-    <div class="tally-row">
-      <span>Premier League</span>
-      <strong>{runningTotals.pl.w}W-{runningTotals.pl.d}D-{runningTotals.pl.l}L · {runningTotals.pl.pts} pts</strong>
-    </div>
-    {#if runningTotals.fac}
+    {#if hasWorldCup}
       <div class="tally-row">
-        <span>FA Cup</span>
-        <strong>{runningTotals.fac}</strong>
+        <span>World Cup</span>
+        <strong>{runningTotals.wc.w}W-{runningTotals.wc.d}D-{runningTotals.wc.l}L / target 8-0</strong>
       </div>
-    {/if}
-    {#if runningTotals.cl}
+    {:else}
       <div class="tally-row">
-        <span>Champions League</span>
-        <strong>{runningTotals.cl}</strong>
+        <span>Premier League</span>
+        <strong>{runningTotals.pl.w}W-{runningTotals.pl.d}D-{runningTotals.pl.l}L / {runningTotals.pl.pts} pts</strong>
       </div>
+      {#if runningTotals.fac}
+        <div class="tally-row">
+          <span>FA Cup</span>
+          <strong>{runningTotals.fac}</strong>
+        </div>
+      {/if}
+      {#if runningTotals.cl}
+        <div class="tally-row">
+          <span>Champions League</span>
+          <strong>{runningTotals.cl}</strong>
+        </div>
+      {/if}
     {/if}
   </div>
 </section>

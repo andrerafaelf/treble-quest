@@ -7,6 +7,7 @@ export type SubmittedRun = {
   seed: number;
   mode: GameMode;
   formation?: ClassicFormation;
+  hideRatings?: boolean;
   startedAt: number;
   picks: Array<{ slotId: string; optionId: string }>;
 };
@@ -32,7 +33,7 @@ export type VerifyOk = {
 export type VerifyErr = { ok: false; reason: string };
 
 export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
-  if (submitted.mode !== 'quick' && submitted.mode !== 'classic') {
+  if (submitted.mode !== 'quick' && submitted.mode !== 'classic' && submitted.mode !== 'world-cup') {
     return { ok: false, reason: 'invalid mode' };
   }
   if (submitted.mode === 'classic' && !submitted.formation) {
@@ -58,6 +59,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     seed: submitted.seed,
     mode: submitted.mode,
     formation: submitted.formation,
+    hideRatings: submitted.mode === 'classic' && submitted.hideRatings === true,
     startedAt: submitted.startedAt,
     currentPick: 0,
     picks: []

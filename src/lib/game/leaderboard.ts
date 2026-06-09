@@ -41,6 +41,7 @@ export async function submitScore(name: string, run: RunState): Promise<{ score:
       seed: run.seed,
       mode: run.mode,
       formation: run.formation,
+      hideRatings: run.hideRatings,
       startedAt: run.startedAt,
       picks: run.picks.map((pick) => ({
         slotId: pick.slot.id,

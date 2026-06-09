@@ -42,7 +42,7 @@ await app.register(rateLimit, {
 app.get('/health', async () => ({ ok: true }));
 
 app.get<{ Querystring: { mode?: string; limit?: string } }>('/leaderboard', async (req, reply) => {
-  const mode = req.query.mode === 'classic' ? 'classic' : 'quick';
+  const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' ? req.query.mode : 'quick';
   const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
   const rows = topScores.all({ mode, limit }) as ScoreRow[];
   reply.header('Cache-Control', 'public, max-age=15');

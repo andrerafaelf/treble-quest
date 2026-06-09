@@ -96,7 +96,7 @@ const PL_MATCHDAYS: number[] = [
   26, 27, 29, 30, 31, 32, 34, 35, 37, 38, 42, 43, 44, 46, 47, 49, 50, 51, 53
 ];
 
-const CL_GROUP_MATCHDAYS = [5, 9, 12, 15, 25, 28];
+const CL_GROUP_MATCHDAYS = [5, 9, 12, 15, 25, 28, 33, 36];
 const FAC_MATCHDAYS = [33, 36, 40, 45, 48, 54];
 const CL_KO_MATCHDAYS: Record<string, [number, number]> = {
   'Round of 16': [41, 52],
@@ -147,29 +147,19 @@ export function buildChampionsLeagueGroupFixtures(rng: () => number): {
   fixtures: ScheduledFixture[];
   groupOpponents: { name: string; rating: number }[];
 } {
-  const groupOpponents = shuffle(CL_GROUP_OPPONENTS, rng).slice(0, 3);
-  const fixtures: ScheduledFixture[] = [];
-  const venues: Venue[][] = [
-    ['H', 'A'],
-    ['A', 'H'],
-    ['H', 'A']
-  ];
-  let idx = 0;
-  for (let leg = 0; leg < 2; leg += 1) {
-    for (let opp = 0; opp < 3; opp += 1) {
-      const matchday = CL_GROUP_MATCHDAYS[idx];
-      fixtures.push({
-        matchday,
-        date: dateFor(matchday),
-        competition: 'CL',
-        round: 'Group stage',
-        opponent: groupOpponents[opp].name,
-        opponentRating: groupOpponents[opp].rating,
-        venue: venues[opp][leg]
-      });
-      idx += 1;
-    }
-  }
+  const groupOpponents = shuffle(CL_GROUP_OPPONENTS, rng).slice(0, 8);
+  const fixtures = groupOpponents.map((opponent, index) => {
+    const matchday = CL_GROUP_MATCHDAYS[index];
+    return {
+      matchday,
+      date: dateFor(matchday),
+      competition: 'CL' as const,
+      round: 'League phase',
+      opponent: opponent.name,
+      opponentRating: opponent.rating,
+      venue: index % 2 === 0 ? 'H' as const : 'A' as const
+    };
+  });
   return { fixtures, groupOpponents };
 }
 
@@ -240,7 +230,7 @@ export function buildChampionsLeagueKnockoutTie(
 export function sortFixtures(fixtures: ScheduledFixture[]): ScheduledFixture[] {
   return [...fixtures].sort((a, b) => {
     if (a.matchday !== b.matchday) return a.matchday - b.matchday;
-    const compOrder: Record<Competition, number> = { CL: 0, FAC: 1, PL: 2 };
+    const compOrder: Record<Competition, number> = { WC: 0, CL: 1, FAC: 2, PL: 3 };
     return compOrder[a.competition] - compOrder[b.competition];
   });
 }

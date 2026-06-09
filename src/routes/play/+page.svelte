@@ -15,6 +15,7 @@
 
   let mode: GameMode = 'quick';
   let choosingClassic = false;
+  let noOverall = false;
   let selecting = false;
 
   $: run = $runStore;
@@ -22,8 +23,8 @@
   $: currentSlot = run ? slots[run.currentPick] : undefined;
   $: prompt = run?.lastPrompt;
 
-  function startRun(nextMode: GameMode = mode, formation?: ClassicFormation) {
-    runStore.start(nextMode, formation);
+  function startRun(nextMode: GameMode = mode, formation?: ClassicFormation, hideRatings = false) {
+    runStore.start(nextMode, formation, hideRatings);
   }
 
   function selectMode(nextMode: GameMode) {
@@ -33,11 +34,12 @@
       return;
     }
     choosingClassic = false;
-    startRun('quick');
+    noOverall = false;
+    startRun(nextMode);
   }
 
   function selectFormation(formation: ClassicFormation) {
-    startRun('classic', formation);
+    startRun('classic', formation, noOverall);
   }
 
   function clearRun() {
@@ -69,6 +71,11 @@
     <Card>
       <ModeSelector value={mode} onSelect={selectMode} />
       {#if choosingClassic}
+        <label class="toggle-row">
+          <input type="checkbox" bind:checked={noOverall} />
+          <span>No overall mode</span>
+          <strong>Hard</strong>
+        </label>
         <FormationSelector onSelect={selectFormation} />
       {/if}
       <div class="toolbar-row">
@@ -94,13 +101,14 @@
       <div class="options-grid" aria-live="polite">
         {#if prompt?.type === 'manager'}
           {#each prompt.options as manager}
-            <ManagerOptionCard {manager} disabled={selecting} onSelect={choose} />
+            <ManagerOptionCard {manager} showRatings={!run.hideRatings} disabled={selecting} onSelect={choose} />
           {/each}
         {:else if prompt?.type === 'player'}
           {#each prompt.options as player}
             <PlayerOptionCard
               {player}
               required={prompt.slot.required}
+              showRatings={!run.hideRatings}
               disabled={selecting}
               onSelect={choose}
             />
@@ -111,6 +119,6 @@
         <Button variant="ghost" onclick={clearRun}>Clear run</Button>
       </div>
     </div>
-    <SquadRail picks={run.picks} {slots} />
+    <SquadRail picks={run.picks} {slots} showRatings={!run.hideRatings} />
   </section>
 {/if}

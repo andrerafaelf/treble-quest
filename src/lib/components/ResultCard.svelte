@@ -5,6 +5,8 @@
 
   const record = $derived(`${result.league.wins}-${result.league.draws}-${result.league.losses}`);
   const playerPicks = $derived(run.picks.filter((p) => p.type === 'player'));
+  const modeLabel = $derived(run.mode === 'world-cup' ? 'World Cup' : run.mode === 'classic' ? run.formation : 'Quick');
+  const perfectWorldCup = $derived(Boolean(result.worldCup?.won && result.worldCup.wins === 8 && result.worldCup.draws === 0 && result.worldCup.losses === 0));
 
   function ordinal(n: number): string {
     const s = ['th', 'st', 'nd', 'rd'];
@@ -20,15 +22,19 @@
   }
 
   const trophyLabel = $derived(
-    result.trophies === 3
-      ? 'TREBLE'
-      : result.league.won
-        ? 'CHAMPIONS'
-        : result.trophies === 2
-          ? 'DOUBLE'
-          : result.trophies === 1
-            ? 'TROPHY WINNER'
-            : `Finished ${ordinal(result.league.position)}`,
+    perfectWorldCup
+      ? 'PERFECT 8-0'
+      : result.worldCup?.won
+        ? 'WORLD CUP'
+        : result.trophies === 3
+          ? 'TREBLE'
+          : result.league.won
+            ? 'CHAMPIONS'
+            : result.trophies === 2
+              ? 'DOUBLE'
+              : result.trophies === 1
+                ? 'TROPHY WINNER'
+                : `Finished ${ordinal(result.league.position)}`
   );
 </script>
 
@@ -36,24 +42,30 @@
   <div class="sc-header">
     <span class="sc-brand">38-0</span>
     <span class="sc-tags">
-      {run.mode === 'classic' ? run.formation : 'Quick'} · OVR {Math.round(
-        (result.ratings.attack + result.ratings.control + result.ratings.defence) / 3,
-      )}
+      {modeLabel} / OVR {Math.round((result.ratings.attack + result.ratings.control + result.ratings.defence) / 3)}
     </span>
   </div>
 
   <div class="sc-record">
     <div class="sc-record-line">{record}</div>
-    <div class="sc-record-sub">WON · DRAWN · LOST</div>
+    <div class="sc-record-sub">WON / DRAWN / LOST</div>
   </div>
 
-  <div class="sc-stats">
-    <span class="sc-stat"><strong>{result.league.points}</strong> pts</span>
-    <span class="sc-dot">·</span>
-    <span class="sc-stat">finished <strong>{ordinal(result.league.position)}</strong></span>
-  </div>
+  {#if result.worldCup}
+    <div class="sc-stats">
+      <span class="sc-stat"><strong>{result.worldCup.goalsFor}</strong> GF</span>
+      <span class="sc-dot">/</span>
+      <span class="sc-stat">target <strong>8-0</strong></span>
+    </div>
+  {:else}
+    <div class="sc-stats">
+      <span class="sc-stat"><strong>{result.league.points}</strong> pts</span>
+      <span class="sc-dot">/</span>
+      <span class="sc-stat">finished <strong>{ordinal(result.league.position)}</strong></span>
+    </div>
+  {/if}
 
-  {#if result.league.won || result.trophies > 0}
+  {#if result.league.won || result.trophies > 0 || result.worldCup?.won}
     <div class="sc-trophy">{trophyLabel}</div>
   {/if}
 
@@ -73,14 +85,14 @@
     <div class="sc-awards">
       {#if result.awards.goldenBoot.fromUser}
         <div class="sc-award">
-          <span class="sc-award-label">⚽ GOLDEN BOOT</span>
+          <span class="sc-award-label">GOLDEN BOOT</span>
           <span class="sc-award-name">{result.awards.goldenBoot.name}</span>
           <span class="sc-award-stat">{result.awards.goldenBoot.goals} goals</span>
         </div>
       {/if}
       {#if result.awards.playerOfSeason.fromUser}
         <div class="sc-award">
-          <span class="sc-award-label">🏅 PLAYER OF SEASON</span>
+          <span class="sc-award-label">PLAYER OF SEASON</span>
           <span class="sc-award-name">{result.awards.playerOfSeason.name}</span>
         </div>
       {/if}
@@ -88,8 +100,8 @@
   {/if}
 
   <div class="sc-footer">
-    <span class="sc-verified">✓ Verified result</span>
-    <span class="sc-cta">Think you can beat this? · 38-0.app</span>
+    <span class="sc-verified">Verified result</span>
+    <span class="sc-cta">{result.worldCup ? 'Can you go 8-0?' : 'Can you go 38-0?'} / 38-0.app</span>
   </div>
 </div>
 
@@ -98,7 +110,7 @@
     width: 390px;
     padding: 24px;
     background: #0f1923;
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid #2d3f50;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #e2e8f0;
@@ -111,6 +123,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 16px;
   }
 
@@ -126,6 +139,7 @@
     background: #1a2634;
     padding: 4px 8px;
     border-radius: 4px;
+    text-align: right;
   }
 
   .sc-record {
@@ -137,14 +151,12 @@
     font-size: 2.2rem;
     font-weight: 900;
     color: #f8fafc;
-    letter-spacing: -0.02em;
   }
 
   .sc-record-sub {
     font-size: 0.6rem;
     color: #64748b;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   .sc-stats {
@@ -166,16 +178,13 @@
   .sc-trophy {
     text-align: center;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     color: #10b981;
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.25);
     border-radius: 6px;
     padding: 6px 12px;
-    display: inline-block;
-    margin: 0 auto 14px;
-    width: 100%;
-    text-align: center;
+    margin-bottom: 14px;
   }
 
   .sc-squad {
@@ -234,7 +243,6 @@
   .sc-award-label {
     font-size: 0.55rem;
     color: #f59e0b;
-    text-transform: uppercase;
     letter-spacing: 0.03em;
   }
 

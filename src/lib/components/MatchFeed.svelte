@@ -6,12 +6,14 @@
   let expanded = $state(false);
 
   function compLabel(m: Match): string {
+    if (m.competition === 'WC') return `World Cup - ${m.round ?? ''}`.trim();
     if (m.competition === 'PL') return 'Premier League';
-    if (m.competition === 'FAC') return `FA Cup · ${m.round ?? ''}`.trim();
-    return `Champions League · ${m.round ?? ''}`.trim();
+    if (m.competition === 'FAC') return `FA Cup - ${m.round ?? ''}`.trim();
+    return `Champions League - ${m.round ?? ''}`.trim();
   }
 
   function compTag(m: Match): string {
+    if (m.competition === 'WC') return 'WC';
     if (m.competition === 'PL') return 'PL';
     if (m.competition === 'FAC') return 'FAC';
     return 'CL';
@@ -31,17 +33,17 @@
     }
     return Array.from(counts.entries())
       .map(([name, minutes]) => {
-        const ms = minutes.sort((a, b) => a - b).map((m) => `${m}'`).join(' ');
+        const ms = minutes.sort((a, b) => a - b).map((minute) => `${minute}'`).join(' ');
         return `${name} ${ms}`;
       })
-      .join(' · ');
+      .join(' / ');
   }
 </script>
 
 <section class="match-feed" aria-label="Season match feed">
   <button class="feed-toggle" type="button" onclick={() => (expanded = !expanded)} aria-expanded={expanded}>
     <span>{expanded ? 'Hide' : 'Show'} season results ({matches.length} matches)</span>
-    <span class="feed-chevron" class:open={expanded}>▾</span>
+    <span class="feed-chevron" class:open={expanded}>v</span>
   </button>
 
   {#if expanded}
@@ -53,7 +55,7 @@
             <div class="feed-top">
               <span class="feed-opponent">{m.opponent}</span>
               <span class="feed-comp-tag feed-comp-{m.competition.toLowerCase()}">{compTag(m)}</span>
-              <span class="feed-comp">{compLabel(m)} · {m.date} {m.venue !== 'N' ? `· ${m.venue}` : ''}</span>
+              <span class="feed-comp">{compLabel(m)} / {m.date} {m.venue !== 'N' ? `/ ${m.venue}` : ''}</span>
             </div>
             {#if m.scorers.length > 0}
               <div class="feed-scorers">{scorerText(m)}</div>

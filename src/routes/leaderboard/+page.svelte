@@ -22,7 +22,9 @@
     }
   }
 
-  $effect(() => { load('quick'); });
+  $effect(() => {
+    load('quick');
+  });
 
   function toggle(i: number) {
     const next = new Set(expanded);
@@ -35,10 +37,11 @@
     return new Date(ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  function trophyLabel(n: number): string {
-    if (n === 3) return '🏆🏆🏆 Treble';
-    if (n === 2) return '🏆🏆 Double';
-    if (n === 1) return '🏆 1 trophy';
+  function trophyLabel(n: number, entryMode: GameMode): string {
+    if (entryMode === 'world-cup') return n > 0 ? 'World Cup' : 'No trophy';
+    if (n === 3) return 'Treble';
+    if (n === 2) return 'Double';
+    if (n === 1) return '1 trophy';
     return 'No trophies';
   }
 
@@ -52,8 +55,8 @@
 </script>
 
 <svelte:head>
-  <title>Leaderboard – Treble Quest</title>
-  <meta name="description" content="Top Treble Quest scores from Quick and Classic mode runs." />
+  <title>Leaderboard - Treble Quest</title>
+  <meta name="description" content="Top Treble Quest scores from Quick, Classic, and World Cup mode runs." />
 </svelte:head>
 
 <section class="page-section">
@@ -63,10 +66,11 @@
   <div class="mode-tabs" role="tablist" aria-label="Game mode">
     <button role="tab" aria-selected={mode === 'quick'} class:active={mode === 'quick'} onclick={() => load('quick')}>Quick</button>
     <button role="tab" aria-selected={mode === 'classic'} class:active={mode === 'classic'} onclick={() => load('classic')}>Classic</button>
+    <button role="tab" aria-selected={mode === 'world-cup'} class:active={mode === 'world-cup'} onclick={() => load('world-cup')}>World Cup</button>
   </div>
 
   {#if status === 'loading'}
-    <p class="text-flow">Loading…</p>
+    <p class="text-flow">Loading...</p>
   {:else if status === 'error'}
     <p class="text-flow">Could not load the leaderboard. Try again later.</p>
     <Button variant="secondary" onclick={() => load(mode)}>Retry</Button>
@@ -78,26 +82,26 @@
       {#each entries as entry, i (entry.name + entry.createdAt)}
         {@const isOpen = expanded.has(i)}
         {@const hasSquad = entry.squad && entry.squad.length > 0}
-        <li class:top={i < 3} class:treble={entry.trophies === 3}>
+        <li class:top={i < 3} class:treble={entry.trophies === 3 || (mode === 'world-cup' && entry.trophies > 0)}>
           <button
             class="lb-main"
             onclick={() => { if (hasSquad) toggle(i); }}
             aria-expanded={isOpen}
             disabled={!hasSquad}
           >
-            <span class="lb-rank" class:gold={i < 3}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</span>
+            <span class="lb-rank" class:gold={i < 3}>{i + 1}</span>
             <span class="lb-info">
               <span class="lb-name">{entry.name}</span>
               <span class="lb-meta">
-                {trophyLabel(entry.trophies)}
-                {#if entry.formation} · {entry.formation}{/if}
-                · {formatDate(entry.createdAt)}
+                {trophyLabel(entry.trophies, mode)}
+                {#if entry.formation} / {entry.formation}{/if}
+                / {formatDate(entry.createdAt)}
               </span>
             </span>
             <span class="lb-right">
               <span class="lb-score">{entry.score.toLocaleString()}</span>
               {#if hasSquad}
-                <span class="lb-chevron" class:open={isOpen}>▾</span>
+                <span class="lb-chevron" class:open={isOpen}>v</span>
               {/if}
             </span>
           </button>

@@ -2,7 +2,15 @@
   import { draftSlots } from '$lib/game/draft';
   import type { DraftPick, DraftSlot, DraftSlotId } from '$lib/game/types';
 
-  let { picks = [], slots = draftSlots }: { picks?: DraftPick[]; slots?: DraftSlot[] } = $props();
+  let {
+    picks = [],
+    slots = draftSlots,
+    showRatings = true
+  }: {
+    picks?: DraftPick[];
+    slots?: DraftSlot[];
+    showRatings?: boolean;
+  } = $props();
 
   const slotById = $derived(new Map(slots.map((slot) => [slot.id, slot])));
   const managerPick = $derived(picks.find((pick) => pick.slot.id === 'manager'));
@@ -85,7 +93,7 @@
             <div class:filled={Boolean(pick)} class="pitch-player">
               <span>{slot.short}</span>
               <strong>{pickName(pick, slot)}</strong>
-              {#if pick?.type === 'player'}
+              {#if showRatings && pick?.type === 'player'}
                 <em>{pick.player.overall}</em>
               {/if}
             </div>

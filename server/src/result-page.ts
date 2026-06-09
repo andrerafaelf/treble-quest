@@ -37,7 +37,12 @@ function ordinal(n: number): string {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
+function isWorldCup(share: ShareRow): boolean {
+  return share.mode === 'world-cup';
+}
+
 function trophyLabel(share: ShareRow): string {
+  if (isWorldCup(share)) return share.trophies > 0 ? 'WORLD CUP WINNERS' : `Out in ${ordinal(share.league_position)}`;
   if (share.trophies === 3) return 'TREBLE WINNERS';
   if (share.trophies === 2) return 'DOUBLE WINNERS';
   if (share.league_position === 1) return 'CHAMPIONS';
@@ -46,21 +51,25 @@ function trophyLabel(share: ShareRow): string {
 }
 
 function ogTitle(share: ShareRow): string {
-  const emoji = share.league_position === 1 ? '🏆 ' : '';
   const record = `${share.league_wins}-${share.league_draws}-${share.league_losses}`;
-  return `${emoji}${share.league_points} pts (${record}) — ${ordinal(share.league_position)} place`;
+  if (isWorldCup(share)) {
+    return share.trophies > 0 ? `World Cup won (${record})` : `World Cup run: ${record}`;
+  }
+  return `${share.league_points} pts (${record}) - ${ordinal(share.league_position)} place`;
 }
 
 function ogDescription(share: ShareRow, awards: Awards): string {
   const parts: string[] = [];
-  if (awards.goldenBoot?.fromUser) {
-    parts.push(`${awards.goldenBoot.name} scored ${awards.goldenBoot.goals} goals`);
-  }
-  if (awards.playerOfSeason?.fromUser) {
-    parts.push(`${awards.playerOfSeason.name} won Player of the Season`);
-  }
-  parts.push('Can you beat this on 38-0?');
+  if (awards.goldenBoot?.fromUser) parts.push(`${awards.goldenBoot.name} scored ${awards.goldenBoot.goals} goals`);
+  if (awards.playerOfSeason?.fromUser) parts.push(`${awards.playerOfSeason.name} won Player of the Season`);
+  parts.push(isWorldCup(share) ? 'Can you go 8-0?' : 'Can you beat this on 38-0?');
   return parts.join('. ');
+}
+
+function modeLabel(share: ShareRow): string {
+  if (isWorldCup(share)) return 'World Cup';
+  if (share.mode === 'classic') return share.formation ? `Classic / ${share.formation}` : 'Classic';
+  return 'Quick';
 }
 
 export function renderResultPage(share: ShareRow, siteUrl: string): string {
@@ -72,6 +81,7 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   const description = ogDescription(share, awards);
   const pageUrl = `${siteUrl}/r/${share.id}`;
   const ogImage = `${siteUrl}/og-image.png`;
+  const worldCup = isWorldCup(share);
 
   const players = squad.filter((s) => !s.isManager);
   const manager = squad.find((s) => s.isManager);
@@ -108,9 +118,9 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0f1923;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
-    .card{max-width:440px;width:100%;background:#1a2634;border-radius:16px;padding:2rem;border:1px solid #2d3f50}
+    .card{max-width:440px;width:100%;background:#1a2634;border-radius:8px;padding:2rem;border:1px solid #2d3f50}
     .header{text-align:center;margin-bottom:1.5rem}
-    .badge{display:inline-block;background:#10b981;color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .6rem;border-radius:4px;margin-bottom:.75rem;letter-spacing:.02em}
+    .badge{display:inline-block;background:#10b981;color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .6rem;border-radius:4px;margin-bottom:.75rem}
     .label{font-size:1.4rem;font-weight:800;color:#f8fafc;margin-bottom:.25rem}
     .mode-tag{font-size:.75rem;color:#94a3b8;margin-bottom:1rem}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.5rem;text-align:center}
@@ -130,7 +140,7 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
     .award-stat{font-size:.7rem;color:#10b981}
     .verified{text-align:center;margin-bottom:1.5rem}
     .verified-badge{font-size:.75rem;color:#10b981}
-    .cta{display:block;text-align:center;background:#10b981;color:#fff;text-decoration:none;font-weight:700;font-size:1rem;padding:1rem;border-radius:10px;transition:background .2s}
+    .cta{display:block;text-align:center;background:#10b981;color:#fff;text-decoration:none;font-weight:700;font-size:1rem;padding:1rem;border-radius:8px}
     .cta:hover{background:#059669}
     .manager{text-align:center;font-size:.8rem;color:#94a3b8;margin-bottom:1rem}
     .footer{text-align:center;margin-top:1.5rem;font-size:.7rem;color:#64748b}
@@ -139,19 +149,19 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
 <body>
   <div class="card">
     <div class="header">
-      <div class="badge">✓ Verified result</div>
+      <div class="badge">Verified result</div>
       <div class="label">${escapeHtml(label)}</div>
-      <div class="mode-tag">${escapeHtml(share.mode)} ${share.formation ? `· ${escapeHtml(share.formation)}` : ''}</div>
+      <div class="mode-tag">${escapeHtml(modeLabel(share))}</div>
     </div>
 
     <div class="stats">
       <div class="stat">
-        <div class="stat-value">${share.league_points}</div>
-        <div class="stat-label">Points</div>
+        <div class="stat-value">${worldCup ? record : share.league_points}</div>
+        <div class="stat-label">${worldCup ? 'Record' : 'Points'}</div>
       </div>
       <div class="stat">
-        <div class="stat-value">${record}</div>
-        <div class="stat-label">W-D-L</div>
+        <div class="stat-value">${worldCup ? '8-0' : record}</div>
+        <div class="stat-label">${worldCup ? 'Target' : 'W-D-L'}</div>
       </div>
       <div class="stat">
         <div class="stat-value">${ordinal(share.league_position)}</div>
@@ -166,17 +176,17 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
     </div>
 
     <div class="awards">
-      ${awards.goldenBoot ? `<div class="award"><div class="award-label">⚽ Golden Boot</div><div class="award-name">${escapeHtml(awards.goldenBoot.name)}</div><div class="award-stat">${awards.goldenBoot.goals} goals</div></div>` : ''}
-      ${awards.playerOfSeason ? `<div class="award"><div class="award-label">🏅 Player of Season</div><div class="award-name">${escapeHtml(awards.playerOfSeason.name)}</div></div>` : ''}
+      ${awards.goldenBoot ? `<div class="award"><div class="award-label">Golden Boot</div><div class="award-name">${escapeHtml(awards.goldenBoot.name)}</div><div class="award-stat">${awards.goldenBoot.goals} goals</div></div>` : ''}
+      ${awards.playerOfSeason ? `<div class="award"><div class="award-label">Player of Season</div><div class="award-name">${escapeHtml(awards.playerOfSeason.name)}</div></div>` : ''}
     </div>
 
     <div class="verified">
-      <div class="verified-badge">✓ This result was re-simulated and signed on the server — it can't be faked.</div>
+      <div class="verified-badge">This result was re-simulated and signed on the server.</div>
     </div>
 
-    <a href="${escapeHtml(siteUrl)}" class="cta">Can you go unbeaten? Play 38-0 →</a>
+    <a href="${escapeHtml(siteUrl)}" class="cta">${worldCup ? 'Can you go 8-0?' : 'Can you go 38-0?'} Play now</a>
   </div>
-  <div class="footer">38-0 · The Premier League draft game</div>
+  <div class="footer">38-0 / The football draft game</div>
 </body>
 </html>`;
 }
@@ -200,7 +210,7 @@ export function render404Page(siteUrl: string): string {
 <body>
   <h1>Result not found</h1>
   <p>This link may be invalid or expired.</p>
-  <a href="${escapeHtml(siteUrl)}">Play 38-0 →</a>
+  <a href="${escapeHtml(siteUrl)}">Play 38-0</a>
 </body>
 </html>`;
 }

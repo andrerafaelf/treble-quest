@@ -10,10 +10,11 @@
   import type { ClassicFormation, GameMode } from '$lib/game/types';
 
   let choosingClassic = false;
+  let noOverall = false;
   const streak = browser ? getStreak() : null;
 
-  function startRun(mode: GameMode = 'quick', formation?: ClassicFormation) {
-    runStore.start(mode, formation);
+  function startRun(mode: GameMode = 'quick', formation?: ClassicFormation, hideRatings = false) {
+    runStore.start(mode, formation, hideRatings);
     goto('/play');
   }
 
@@ -23,11 +24,12 @@
       return;
     }
     choosingClassic = false;
-    startRun('quick');
+    noOverall = false;
+    startRun(mode);
   }
 
   function selectFormation(formation: ClassicFormation) {
-    startRun('classic', formation);
+    startRun('classic', formation, noOverall);
   }
 </script>
 
@@ -55,6 +57,11 @@
       <img class="home-crest" src={trebleQuestImage} alt="Treble Quest crest" />
       <ModeSelector value={choosingClassic ? 'classic' : 'quick'} onSelect={selectMode} />
       {#if choosingClassic}
+        <label class="toggle-row">
+          <input type="checkbox" bind:checked={noOverall} />
+          <span>No overall mode</span>
+          <strong>Hard</strong>
+        </label>
         <FormationSelector onSelect={selectFormation} />
       {/if}
       <div class="steps" aria-label="Game steps" style="margin-top: 18px;">

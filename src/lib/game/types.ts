@@ -29,7 +29,7 @@ export type Manager = {
   leagueBoost: number;
 };
 
-export type GameMode = 'quick' | 'classic';
+export type GameMode = 'quick' | 'classic' | 'world-cup';
 
 export type ClassicFormation = '4-3-3' | '4-4-2' | '4-2-3-1' | '3-4-3';
 
@@ -99,6 +99,7 @@ export type RunState = {
   seed: number;
   mode: GameMode;
   formation?: ClassicFormation;
+  hideRatings?: boolean;
   startedAt: number;
   currentPick: number;
   picks: DraftPick[];
@@ -143,9 +144,27 @@ export type ChampionsLeagueResult = {
   roundsWon: number;
   won: boolean;
   opponent?: string;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
 };
 
-export type Competition = 'PL' | 'FAC' | 'CL';
+export type WorldCupResult = {
+  group: string;
+  exitRound: string;
+  roundsWon: number;
+  won: boolean;
+  opponent?: string;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+};
+
+export type Competition = 'PL' | 'FAC' | 'CL' | 'WC';
 export type Venue = 'H' | 'A' | 'N';
 export type MatchResultLetter = 'W' | 'D' | 'L';
 
@@ -224,6 +243,7 @@ export type SimulationResult = {
   league: LeagueResult;
   faCup: CupResult;
   championsLeague: ChampionsLeagueResult;
+  worldCup?: WorldCupResult;
   bestPick: PlayerPick | ManagerPick;
   weakLink: PlayerPick | ManagerPick;
   managerImpact: string;

@@ -60,8 +60,8 @@ function createRunStore() {
 
   return {
     subscribe,
-    start(mode: GameMode, formation?: ClassicFormation) {
-      const run = createRun(mode, formation);
+    start(mode: GameMode, formation?: ClassicFormation, hideRatings = false) {
+      const run = createRun(mode, formation, hideRatings);
       set(run);
       persist(run);
       return run;
@@ -109,7 +109,7 @@ function loadRun(): RunState | undefined {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return undefined;
     const run = JSON.parse(raw) as RunState;
-    if (hasRemovedQuickWildcard(run) || hasInvalidClassicFormation(run)) {
+    if (hasInvalidMode(run) || hasRemovedQuickWildcard(run) || hasInvalidClassicFormation(run)) {
       localStorage.removeItem(STORAGE_KEY);
       return undefined;
     }
@@ -125,6 +125,10 @@ function hasRemovedQuickWildcard(run: RunState): boolean {
   const pickedWildcard = run.picks.some((pick) => String(pick.slot.id) === 'wildcard');
   const promptWildcard = run.lastPrompt?.type === 'player' && String(run.lastPrompt.slot.id) === 'wildcard';
   return pickedWildcard || promptWildcard;
+}
+
+function hasInvalidMode(run: RunState): boolean {
+  return run.mode !== 'quick' && run.mode !== 'classic' && run.mode !== 'world-cup';
 }
 
 function hasInvalidClassicFormation(run: RunState): boolean {
