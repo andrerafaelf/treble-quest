@@ -1,14 +1,22 @@
 <script lang="ts">
   import type { StatHighlights } from '$lib/game/types';
 
-  let { highlights }: { highlights: StatHighlights } = $props();
+  let { highlights, achievements = [] }: { highlights: StatHighlights; achievements?: string[] } = $props();
 
   const finishedOrdinal = $derived(ordinal(highlights.actualFinish));
   const expectedOrdinal = $derived(ordinal(highlights.expectedFinish));
   const delta = $derived(highlights.expectedFinish - highlights.actualFinish);
   const titleWon = $derived(highlights.actualFinish === 1);
   const verdict = $derived(
-    titleWon ? (highlights.isWorldCup ? 'WC WINNERS' : 'TITLE WON') : delta >= 3 ? 'OVERPERFORMED' : delta <= -3 ? 'UNDERPERFORMED' : 'AS EXPECTED',
+    titleWon
+      ? highlights.isWorldCup
+        ? 'WC WINNERS'
+        : 'TITLE WON'
+      : delta >= 3
+        ? 'OVERPERFORMED'
+        : delta <= -3
+          ? 'UNDERPERFORMED'
+          : 'AS EXPECTED',
   );
   const verdictClass = $derived(
     titleWon || delta >= 3 ? 'verdict-over' : delta <= -3 ? 'verdict-under' : 'verdict-met',
@@ -61,6 +69,14 @@
     <p>{highlights.narrativeBody}</p>
   </article>
 
+  {#if achievements.length > 0}
+    <div class="achievements-row">
+      {#each achievements as ach}
+        <span class="ach-pill">{ach}</span>
+      {/each}
+    </div>
+  {/if}
+
   <div class="mini-stats">
     <article class="mini-stat">
       <span>Clean Sheets</span>
@@ -78,3 +94,24 @@
     {/if}
   </div>
 </section>
+
+<style>
+  .achievements-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .ach-pill {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 5px;
+    background: rgba(255, 215, 0, 0.12);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+</style>

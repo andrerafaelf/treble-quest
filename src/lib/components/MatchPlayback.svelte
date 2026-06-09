@@ -2,7 +2,13 @@
   import type { LeagueTableRow, Match, SimulationResult } from '$lib/game/types';
   import { onDestroy, onMount } from 'svelte';
 
-  let { matches, leagueTable = [], result, teamName = 'Your XI', onDone }: {
+  let {
+    matches,
+    leagueTable = [],
+    result,
+    teamName = 'Your XI',
+    onDone,
+  }: {
     matches: Match[];
     leagueTable?: LeagueTableRow[];
     result?: SimulationResult;
@@ -23,7 +29,12 @@
   const STORAGE_KEY = 'treble-quest-playback-speed';
 
   let currentIndex = $state(0);
-  let runningTotals = $state({ pl: { w: 0, d: 0, l: 0, pts: 0, gf: 0, ga: 0 }, fac: '', cl: '', wc: { w: 0, d: 0, l: 0 } });
+  let runningTotals = $state({
+    pl: { w: 0, d: 0, l: 0, pts: 0, gf: 0, ga: 0 },
+    fac: '',
+    cl: '',
+    wc: { w: 0, d: 0, l: 0 },
+  });
   let timer: ReturnType<typeof setInterval> | undefined;
   let paused = $state(false);
   let speedIndex = $state(loadSpeed());
@@ -171,6 +182,53 @@
   // Last 5 PL results
   const plLast5 = $derived(plHistory.slice(-5));
 
+  // Live table: user row uses running totals; others show their final standings
+  const liveTable = $derived(
+    (() => {
+      if (!leagueTable.length) return leagueTable;
+      const rows: LeagueTableRow[] = leagueTable.map((row) => {
+        if (!row.isUser) return row;
+        const gd = runningTotals.pl.gf - runningTotals.pl.ga;
+        return {
+          ...row,
+          played: plPlayed,
+          wins: runningTotals.pl.w,
+          draws: runningTotals.pl.d,
+          losses: runningTotals.pl.l,
+          goalsFor: runningTotals.pl.gf,
+          goalsAgainst: runningTotals.pl.ga,
+          goalDifference: gd,
+          points: runningTotals.pl.pts,
+        };
+      });
+      rows.sort(
+        (a, b) =>
+          b.points - a.points ||
+          b.goalDifference - a.goalDifference ||
+          b.goalsFor - a.goalsFor ||
+          a.club.localeCompare(b.club),
+      );
+      return rows;
+    })(),
+  );
+
+  function computeAchievements(r: SimulationResult): string[] {
+    const a: string[] = [];
+    if (r.worldCup) {
+      if (r.worldCup.won) a.push(r.worldCup.losses === 0 ? 'WORLD CONQUERORS' : 'WORLD CHAMPIONS');
+      return a;
+    }
+    if (r.league.wins === 38) a.push('PERFECTOS');
+    else if (r.league.losses === 0) a.push('INVINCIBLES');
+    else if (r.league.points >= 100) a.push('CENTURIONS');
+    if (r.championsLeague.won) a.push(r.championsLeague.losses === 0 ? 'PERFECT EUROPEANS' : 'EUROPEAN CHAMPIONS');
+    if (r.faCup.won) {
+      const facConceded = r.matches.filter((m) => m.competition === 'FAC').reduce((s, m) => s + m.ga, 0);
+      a.push(facConceded === 0 ? 'CUP KINGS' : 'FA CUP WINNERS');
+    }
+    return a;
+  }
+
   // CL status
   type ClPhase = { round: string; won: boolean; opponent: string; agg?: string };
   const clPhases = $derived<ClPhase[]>(
@@ -192,10 +250,15 @@
         if (legs.length === 0) continue;
         const last = legs[legs.length - 1];
         const agg = last.aggregate ? `${last.aggregate.gf}–${last.aggregate.ga} agg` : undefined;
-        phases.push({ round: r, won: last.result === 'W' && (!last.aggregate || last.aggregate.gf > last.aggregate.ga), opponent: last.opponent, agg });
+        phases.push({
+          round: r,
+          won: last.result === 'W' && (!last.aggregate || last.aggregate.gf > last.aggregate.ga),
+          opponent: last.opponent,
+          agg,
+        });
       }
       return phases;
-    })()
+    })(),
   );
 
   // FA Cup rounds (always single-match, no aggregates)
@@ -206,7 +269,7 @@
       opponent: m.opponent,
       result: m.result,
       score: `${m.gf}–${m.ga}`,
-    }))
+    })),
   );
 
   // WC rounds
@@ -216,7 +279,7 @@
       opponent: m.opponent,
       result: m.result,
       score: `${m.gf}–${m.ga}`,
-    }))
+    })),
   );
 </script>
 
@@ -227,12 +290,32 @@
       <div class="sim-done-outcome">
         {#if result}
           <span class="sim-done-label">
-            {result.trophies === 3 ? '🏆 Treble!' : result.worldCup?.won ? '🏆 World Cup!' : result.league.won ? '🏆 Champions!' : result.trophies > 0 ? '🏆 Trophy winner!' : `Finished ${result.league.position === 1 ? '1st' : result.league.position + 'th'}`}
+            {result.trophies === 3
+              ? '🏆 Treble!'
+              : result.worldCup?.won
+                ? '🏆 World Cup!'
+                : result.league.won
+                  ? '🏆 Champions!'
+                  : result.trophies > 0
+                    ? '🏆 Trophy winner!'
+                    : `Finished ${result.league.position === 1 ? '1st' : result.league.position + 'th'}`}
           </span>
           {#if !result.worldCup}
-            <span class="sim-done-pts">{result.league.points} pts · {result.league.wins}-{result.league.draws}-{result.league.losses}</span>
+            <span class="sim-done-pts"
+              >{result.league.points} pts · {result.league.wins}-{result.league.draws}-{result.league.losses}</span
+            >
           {:else}
-            <span class="sim-done-pts">{result.worldCup.wins}-{result.worldCup.draws}-{result.worldCup.losses} in World Cup</span>
+            <span class="sim-done-pts"
+              >{result.worldCup.wins}-{result.worldCup.draws}-{result.worldCup.losses} in World Cup</span
+            >
+          {/if}
+          {@const achievements = computeAchievements(result)}
+          {#if achievements.length > 0}
+            <div class="sim-achievements">
+              {#each achievements as ach}
+                <span class="sim-ach-pill">{ach}</span>
+              {/each}
+            </div>
           {/if}
         {/if}
       </div>
@@ -323,7 +406,12 @@
               <span class="st-num st-pts">Pts</span>
             </div>
             {#each leagueTable as row, idx}
-              <div class="st-row" class:st-user={row.isUser} class:st-cl-spot={idx < 4 && !row.isUser} class:st-rel={idx >= 17 && !row.isUser}>
+              <div
+                class="st-row"
+                class:st-user={row.isUser}
+                class:st-cl-spot={idx < 4 && !row.isUser}
+                class:st-rel={idx >= 17 && !row.isUser}
+              >
                 <span class="st-rank">{idx + 1}</span>
                 <span class="st-club-col" class:st-user-name={row.isUser}>{row.club}</span>
                 <span class="st-num">{row.played}</span>
@@ -336,7 +424,7 @@
             {/each}
           </div>
         {:else}
-          <!-- Live: full table with user row updating, others as placeholders -->
+          <!-- Live: full table with user row updating live, others show their final standings -->
           <div class="st-full-table">
             <div class="st-row st-head">
               <span class="st-rank">#</span>
@@ -348,26 +436,23 @@
               <span class="st-num st-gd">GD</span>
               <span class="st-num st-pts">Pts</span>
             </div>
-            {#each leagueTable as row, idx}
-              {@const isUser = row.isUser}
-              <div class="st-row" class:st-user={isUser}>
+            {#each liveTable as row, idx}
+              <div
+                class="st-row"
+                class:st-user={row.isUser}
+                class:st-cl-spot={idx < 4 && !row.isUser}
+                class:st-rel={idx >= 17 && !row.isUser}
+              >
                 <span class="st-rank">{idx + 1}</span>
-                <span class="st-club-col" class:st-user-name={isUser}>{row.club}</span>
-                {#if isUser}
-                  <span class="st-num">{plPlayed}</span>
-                  <span class="st-num">{runningTotals.pl.w}</span>
-                  <span class="st-num">{runningTotals.pl.d}</span>
-                  <span class="st-num">{runningTotals.pl.l}</span>
-                  <span class="st-num st-gd">{plGd > 0 ? '+' : ''}{plGd}</span>
-                  <span class="st-num st-pts">{runningTotals.pl.pts}</span>
-                {:else}
-                  <span class="st-num st-dim">–</span>
-                  <span class="st-num st-dim">–</span>
-                  <span class="st-num st-dim">–</span>
-                  <span class="st-num st-dim">–</span>
-                  <span class="st-num st-dim st-gd">–</span>
-                  <span class="st-num st-dim st-pts">–</span>
-                {/if}
+                <span class="st-club-col" class:st-user-name={row.isUser}>{row.club}</span>
+                <span class="st-num" class:st-dim={!row.isUser}>{row.played}</span>
+                <span class="st-num" class:st-dim={!row.isUser}>{row.wins}</span>
+                <span class="st-num" class:st-dim={!row.isUser}>{row.draws}</span>
+                <span class="st-num" class:st-dim={!row.isUser}>{row.losses}</span>
+                <span class="st-num st-gd" class:st-dim={!row.isUser}
+                  >{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}</span
+                >
+                <span class="st-num st-pts" class:st-dim={!row.isUser}>{row.points}</span>
               </div>
             {/each}
             {#if plLast5.length > 0}
@@ -382,14 +467,17 @@
             {/if}
           </div>
         {/if}
-
       {:else if activeTab === 'cl'}
         <div class="st-bracket">
           {#if clPhases.length === 0}
             <p class="st-empty">Champions League starts soon</p>
           {:else}
             {#each clPhases as phase}
-              <div class="st-bracket-row" class:won={phase.won} class:lost={!phase.won && clPhases[clPhases.length - 1] === phase}>
+              <div
+                class="st-bracket-row"
+                class:won={phase.won}
+                class:lost={!phase.won && clPhases[clPhases.length - 1] === phase}
+              >
                 <span class="st-bracket-round">{phase.round}</span>
                 <span class="st-bracket-opp">{phase.opponent}</span>
                 {#if phase.agg}
@@ -402,7 +490,6 @@
             {/each}
           {/if}
         </div>
-
       {:else if activeTab === 'fac'}
         <div class="st-bracket">
           {#if facRounds.length === 0}
@@ -413,14 +500,18 @@
                 <span class="st-bracket-round">{r.round}</span>
                 <span class="st-bracket-opp">{r.opponent}</span>
                 <span class="st-bracket-score">{r.score}</span>
-                <span class="st-bracket-badge" class:win={r.result === 'W'} class:draw={r.result === 'D'} class:loss={r.result === 'L'}>
+                <span
+                  class="st-bracket-badge"
+                  class:win={r.result === 'W'}
+                  class:draw={r.result === 'D'}
+                  class:loss={r.result === 'L'}
+                >
                   {r.result}
                 </span>
               </div>
             {/each}
           {/if}
         </div>
-
       {:else if activeTab === 'wc'}
         <div class="st-bracket">
           {#if wcRounds.length === 0}
@@ -431,7 +522,12 @@
                 <span class="st-bracket-round">{r.round}</span>
                 <span class="st-bracket-opp">{r.opponent}</span>
                 <span class="st-bracket-score">{r.score}</span>
-                <span class="st-bracket-badge" class:win={r.result === 'W'} class:draw={r.result === 'D'} class:loss={r.result === 'L'}>
+                <span
+                  class="st-bracket-badge"
+                  class:win={r.result === 'W'}
+                  class:draw={r.result === 'D'}
+                  class:loss={r.result === 'L'}
+                >
                   {r.result}
                 </span>
               </div>
@@ -478,6 +574,25 @@
     color: var(--muted);
   }
 
+  .sim-achievements {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .sim-ach-pill {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 215, 0, 0.15);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+
   .sim-done-cta {
     background: var(--accent);
     color: #fff;
@@ -520,7 +635,9 @@
     padding: 0.5rem 0.25rem;
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
   }
 
   .standings-tabs button:hover {
@@ -650,9 +767,18 @@
     justify-content: center;
   }
 
-  .st-form-w { background: rgba(16, 185, 129, 0.25); color: #10b981; }
-  .st-form-d { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
-  .st-form-l { background: rgba(230, 57, 70, 0.22); color: var(--accent); }
+  .st-form-w {
+    background: rgba(16, 185, 129, 0.25);
+    color: #10b981;
+  }
+  .st-form-d {
+    background: rgba(148, 163, 184, 0.18);
+    color: #94a3b8;
+  }
+  .st-form-l {
+    background: rgba(230, 57, 70, 0.22);
+    color: var(--accent);
+  }
 
   /* Bracket (CL / FAC / WC) */
   .st-bracket {
@@ -718,9 +844,18 @@
     flex-shrink: 0;
   }
 
-  .st-bracket-badge.win { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-  .st-bracket-badge.draw { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
-  .st-bracket-badge.loss { background: rgba(230, 57, 70, 0.18); color: var(--accent); }
+  .st-bracket-badge.win {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+  }
+  .st-bracket-badge.draw {
+    background: rgba(148, 163, 184, 0.18);
+    color: #94a3b8;
+  }
+  .st-bracket-badge.loss {
+    background: rgba(230, 57, 70, 0.18);
+    color: var(--accent);
+  }
 
   .st-wc-target {
     display: flex;

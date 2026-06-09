@@ -22,6 +22,27 @@
   const slots = $derived(run ? getDraftSlots(run.mode, run.formation) : []);
   const replayLabel = $derived(result?.worldCup ? 'Run it back for 8-0' : 'Run it back for 38-0 + 15-0');
 
+  const achievements = $derived(
+    (() => {
+      if (!result) return [];
+      const a: string[] = [];
+      if (result.worldCup) {
+        if (result.worldCup.won) a.push(result.worldCup.losses === 0 ? 'WORLD CONQUERORS' : 'WORLD CHAMPIONS');
+        return a;
+      }
+      if (result.league.wins === 38) a.push('PERFECTOS');
+      else if (result.league.losses === 0) a.push('INVINCIBLES');
+      else if (result.league.points >= 100) a.push('CENTURIONS');
+      if (result.championsLeague.won)
+        a.push(result.championsLeague.losses === 0 ? 'PERFECT EUROPEANS' : 'EUROPEAN CHAMPIONS');
+      if (result.faCup.won) {
+        const facConceded = result.matches.filter((m) => m.competition === 'FAC').reduce((s, m) => s + m.ga, 0);
+        a.push(facConceded === 0 ? 'CUP KINGS' : 'FA CUP WINNERS');
+      }
+      return a;
+    })(),
+  );
+
   let streak = $state<StreakState | null>(null);
   let playbackDone = $state(false);
   let keepResultOnLeave = $state(false);
@@ -86,10 +107,16 @@
   <section class="result-page">
     <div class="result-card" class:treble={result.trophies === 3 || result.worldCup?.won}>
       {#if !playbackDone}
-        <MatchPlayback matches={result.matches} leagueTable={result.leagueTable} {result} teamName={run.teamName} onDone={finishPlayback} />
+        <MatchPlayback
+          matches={result.matches}
+          leagueTable={result.leagueTable}
+          {result}
+          teamName={run.teamName}
+          onDone={finishPlayback}
+        />
       {:else}
         <ResultHero {result} />
-        <StatHighlights highlights={result.highlights} />
+        <StatHighlights highlights={result.highlights} {achievements} />
         <CompetitionBreakdown {result} />
         <AwardsPanel awards={result.awards} />
         <PlayerStatsTable stats={result.playerStats} />
