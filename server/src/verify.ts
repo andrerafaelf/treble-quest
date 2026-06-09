@@ -34,10 +34,10 @@ export type VerifyOk = {
 export type VerifyErr = { ok: false; reason: string };
 
 export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
-  if (submitted.mode !== 'quick' && submitted.mode !== 'classic' && submitted.mode !== 'world-cup') {
+  if (submitted.mode !== 'classic' && submitted.mode !== 'world-cup' && submitted.mode !== 'global') {
     return { ok: false, reason: 'invalid mode' };
   }
-  if (submitted.mode === 'classic' && !submitted.formation) {
+  if ((submitted.mode === 'classic' || submitted.mode === 'global') && !submitted.formation) {
     return { ok: false, reason: 'missing formation' };
   }
   if (!Number.isFinite(submitted.seed) || submitted.seed <= 0 || submitted.seed > 2147483647) {
@@ -60,7 +60,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     seed: submitted.seed,
     mode: submitted.mode,
     formation: submitted.formation,
-    hideRatings: submitted.mode === 'classic' && submitted.hideRatings === true,
+    hideRatings: (submitted.mode === 'classic' || submitted.mode === 'global') && submitted.hideRatings === true,
     startedAt: submitted.startedAt,
     currentPick: 0,
     picks: [],
