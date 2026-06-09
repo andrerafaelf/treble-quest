@@ -27,7 +27,7 @@ function shortPosition(positions: string[]): string {
   for (const p of priority) {
     if (positions.includes(p)) return p;
   }
-  return positions[0] ?? '—';
+  return positions[0] ?? '-';
 }
 
 export function buildCandidates(run: RunState): ScorerCandidate[] {

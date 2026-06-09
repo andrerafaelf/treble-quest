@@ -19,7 +19,7 @@ export function deriveAwards(playerStats: PlayerSeasonStats[], teamName?: string
   return {
     goldenBoot: boot
       ? { name: boot.name, nationality: boot.nationality, club: clubName, goals: boot.goals, fromUser: true }
-      : { name: '—', nationality: '', club: clubName, goals: 0, fromUser: true },
+      : { name: '-', nationality: '', club: clubName, goals: 0, fromUser: true },
     goldenGlove: glove
       ? {
           name: glove.name,
@@ -28,7 +28,7 @@ export function deriveAwards(playerStats: PlayerSeasonStats[], teamName?: string
           cleanSheets: glove.cleanSheets,
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: clubName, cleanSheets: 0, fromUser: true },
+      : { name: '-', nationality: '', club: clubName, cleanSheets: 0, fromUser: true },
     playmaker: playmaker
       ? {
           name: playmaker.name,
@@ -37,7 +37,7 @@ export function deriveAwards(playerStats: PlayerSeasonStats[], teamName?: string
           assists: playmaker.assists,
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: clubName, assists: 0, fromUser: true },
+      : { name: '-', nationality: '', club: clubName, assists: 0, fromUser: true },
     playerOfSeason: pots
       ? {
           name: pots.name,
@@ -46,6 +46,6 @@ export function deriveAwards(playerStats: PlayerSeasonStats[], teamName?: string
           rating: Math.round(composite(pots)),
           fromUser: true,
         }
-      : { name: '—', nationality: '', club: clubName, rating: 0, fromUser: true },
+      : { name: '-', nationality: '', club: clubName, rating: 0, fromUser: true },
   };
 }

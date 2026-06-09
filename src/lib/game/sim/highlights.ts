@@ -42,7 +42,8 @@ export function deriveHighlights(
   const delta = actualPts - expectedPoints;
 
   const clMatches = matches.filter((m) => m.competition === 'CL');
-  const clWon = clMatches.length > 0 && matches.some((m) => m.competition === 'CL' && m.round === 'Final' && m.result === 'W');
+  const clWon =
+    clMatches.length > 0 && matches.some((m) => m.competition === 'CL' && m.round === 'Final' && m.result === 'W');
   const clWins = clMatches.filter((m) => m.result === 'W').length;
   const clDraws = clMatches.filter((m) => m.result === 'D').length;
   const perfectCl = clWon && clWins === 15 && clDraws === 0;
@@ -108,7 +109,7 @@ function expectedFinishFromPower(power: number): number {
 }
 
 function ordinal(value: number): string {
-  if (value <= 0) return '—';
+  if (value <= 0) return '-';
   const tens = value % 100;
   if (tens >= 11 && tens <= 13) return `${value}th`;
   const ones = value % 10;

@@ -59,7 +59,7 @@
         addiction.
       </p>
       <div class="cta-row">
-        <Button onclick={() => startRun('classic')}>Start Classic Run</Button>
+        <Button onclick={() => selectMode('classic')}>Start Classic Run</Button>
         <Button href="/how-to-play" variant="secondary">How it works</Button>
         <Button href="/support" variant="ghost">Support the game</Button>
         {#if $runStore}
