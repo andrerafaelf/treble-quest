@@ -17,7 +17,7 @@
 
 <section class="player-stats" aria-label="Squad statistics">
   <header class="ps-header">
-    <span class="ps-title">Your Squad — Season Stats</span>
+    <span class="ps-title">Your Squad, Season Stats</span>
   </header>
   <div class="ps-grid ps-row ps-head">
     <span class="ps-pos">PL</span>

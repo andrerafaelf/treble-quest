@@ -119,7 +119,7 @@
               <h2>{streak.current === 0 ? 'Broken' : `${streak.current} ${streak.current === 1 ? 'run' : 'runs'}`}</h2>
               <p>
                 {streak.current === 0
-                  ? 'No trophies — streak reset'
+                  ? 'No trophies, streak reset'
                   : streak.current >= streak.best
                     ? `Best streak: ${streak.best}`
                     : `Personal best: ${streak.best}`}

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import '../lib/styles/app.css';
   import { env } from '$env/dynamic/public';
   import AppShell from '$lib/components/AppShell.svelte';
   import appleTouchIcon from '$lib/icons/apple-touch-icon.png';
   import favicon16 from '$lib/icons/favicon-16x16.png';
   import favicon32 from '$lib/icons/favicon-32x32.png';
   import faviconIco from '$lib/icons/favicon.ico';
+  import '../lib/styles/app.css';
 
   let { children } = $props();
 
@@ -34,7 +34,7 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:alt" content="Treble Quest — Draft. Simulate. Conquer." />
+  <meta property="og:image:alt" content="Treble Quest, Draft. Simulate. Conquer." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Treble Quest - Draft Seven Picks. Chase Three Trophies." />
   <meta
@@ -42,7 +42,7 @@
     content="Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase."
   />
   <meta name="twitter:image" content={ogImage} />
-  <meta name="twitter:image:alt" content="Treble Quest — Draft. Simulate. Conquer." />
+  <meta name="twitter:image:alt" content="Treble Quest, Draft. Simulate. Conquer." />
   <link rel="canonical" href={siteUrl} />
   <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon} />
   <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />

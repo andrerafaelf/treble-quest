@@ -27,7 +27,7 @@
     }
   }
 
-  // Load initial tab once on mount — not inside $effect to avoid re-triggering on state changes.
+  // Load initial tab once on mount, not inside $effect to avoid re-triggering on state changes.
   load('quick');
 
   function toggle(i: number) {

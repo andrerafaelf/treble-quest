@@ -28,24 +28,30 @@
   const plNextLine = $derived(() => {
     if (perfectLeague) return null;
     if (!result.league.won) {
-      if (result.league.position <= 2) return `${result.league.position === 2 ? 'Runners-up' : ordinal(result.league.position)}. One stronger XI wins this. Go again.`;
-      if (result.league.position <= 4) return `Top four, but the title is what counts. Upgrade your weakest slot and push for 1st.`;
-      return `Outside the top four. The gap to the title can be closed — start with a better draft.`;
+      if (result.league.position <= 2)
+        return `${result.league.position === 2 ? 'Runners-up' : ordinal(result.league.position)}. One stronger XI wins this. Go again.`;
+      if (result.league.position <= 4)
+        return `Top four, but the title is what counts. Upgrade your weakest slot and push for 1st.`;
+      return `Outside the top four. The gap to the title can be closed, start with a better draft.`;
     }
-    return `38-0 is ${leagueResultsOffPerfect} result${leagueResultsOffPerfect === 1 ? '' : 's'} away. Convert ${result.league.draws} draw${result.league.draws === 1 ? '' : 's'} and ${result.league.losses} loss${result.league.losses === 1 ? '' : 'es'} — ${plDroppedPoints} points dropped from a perfect 114.`;
+    return `38-0 is ${leagueResultsOffPerfect} result${leagueResultsOffPerfect === 1 ? '' : 's'} away. Convert ${result.league.draws} draw${result.league.draws === 1 ? '' : 's'} and ${result.league.losses} loss${result.league.losses === 1 ? '' : 'es'}, ${plDroppedPoints} points dropped from a perfect 114.`;
   });
 
   // CL lure copy
   const clNextLine = $derived(() => {
     if (perfectCl) return null;
     if (!result.championsLeague.won) {
-      if (result.championsLeague.exitRound === 'Final') return `Final beaten. One more match to be European champion. Come back and finish it.`;
-      if (result.championsLeague.exitRound === 'Semi-final') return `Semi-final exit. Four rounds from glory — a better squad gets through.`;
-      if (result.championsLeague.exitRound === 'Quarter-final') return `Quarter-final exit. Six rounds from the top. Build a side that lasts the distance.`;
-      if (result.championsLeague.exitRound === 'Round of 16') return `Round of 16 exit. The knockout rounds demand elite players at every slot.`;
+      if (result.championsLeague.exitRound === 'Final')
+        return `Final beaten. One more match to be European champion. Come back and finish it.`;
+      if (result.championsLeague.exitRound === 'Semi-final')
+        return `Semi-final exit. Four rounds from glory, a better squad gets through.`;
+      if (result.championsLeague.exitRound === 'Quarter-final')
+        return `Quarter-final exit. Six rounds from the top. Build a side that lasts the distance.`;
+      if (result.championsLeague.exitRound === 'Round of 16')
+        return `Round of 16 exit. The knockout rounds demand elite players at every slot.`;
       return `Dropped in the league phase. Make the knockouts first, then chase the trophy.`;
     }
-    return `15-0 is ${clResultsOffPerfect} result${clResultsOffPerfect === 1 ? '' : 's'} away. ${clSlips} slip${clSlips === 1 ? '' : 's'} cost you — the perfect run allows zero.`;
+    return `15-0 is ${clResultsOffPerfect} result${clResultsOffPerfect === 1 ? '' : 's'} away. ${clSlips} slip${clSlips === 1 ? '' : 's'} cost you, the perfect run allows zero.`;
   });
 
   function ordinal(n: number): string {
@@ -74,15 +80,27 @@
         <p>Flawless. 8 wins from 8. The perfect tournament.</p>
       {:else if worldCup.won}
         <p>{worldCup.group}</p>
-        <p>8-0 is {8 - worldCup.wins} result{8 - worldCup.wins === 1 ? '' : 's'} away. {worldCup.draws + worldCup.losses} slip{worldCup.draws + worldCup.losses === 1 ? '' : 's'} cost you — the perfect run allows none.</p>
+        <p>
+          8-0 is {8 - worldCup.wins} result{8 - worldCup.wins === 1 ? '' : 's'} away. {worldCup.draws + worldCup.losses}
+          slip{worldCup.draws + worldCup.losses === 1 ? '' : 's'} cost you, the perfect run allows none.
+        </p>
       {:else if worldCup.exitRound === 'Final'}
         <p>Final exit. One match from the trophy. Draft a stronger XI and go back.</p>
       {:else if worldCup.exitRound === 'Semi-final'}
-        <p>Semi-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Three wins from the title — build the squad that gets there.</p>
+        <p>
+          Semi-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Three wins from the title, build the
+          squad that gets there.
+        </p>
       {:else if worldCup.exitRound === 'Quarter-final'}
-        <p>Quarter-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} The trophy needs four more rounds of wins.</p>
+        <p>
+          Quarter-final exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} The trophy needs four more rounds
+          of wins.
+        </p>
       {:else if worldCup.exitRound === 'Round of 16' || worldCup.exitRound === 'Round of 32'}
-        <p>Early exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Elite-rated players survive the knockout rounds — upgrade your squad.</p>
+        <p>
+          Early exit. {worldCup.opponent ? `Lost to ${worldCup.opponent}.` : ''} Elite-rated players survive the knockout
+          rounds, upgrade your squad.
+        </p>
       {:else}
         <p>Group stage exit. The dream starts by getting out of the group.</p>
       {/if}
@@ -93,7 +111,8 @@
       <h2>38-0 + 15-0</h2>
       <p class="hunt-summary">
         Combined chase progress: <strong>{combinedProgress}%</strong>
-        {#if combinedProgress === 100}— flawless.{:else if combinedProgress >= 80} — elite territory.{:else if combinedProgress >= 60} — pushing for it.{:else} — room to grow.{/if}
+        {#if combinedProgress === 100}— flawless.{:else if combinedProgress >= 80}, elite territory.{:else if combinedProgress >= 60},
+          pushing for it.{:else}, room to grow.{/if}
       </p>
       <div class="hunt-grid">
         <section class="hunt-track" class:track-complete={perfectLeague}>
@@ -107,9 +126,12 @@
           {#if perfectLeague}
             <p>Perfect. 114/114 points. Nothing left to prove in the league.</p>
           {:else if result.league.won}
-            <p>{leagueResultsOffPerfect} result{leagueResultsOffPerfect === 1 ? '' : 's'} short of 38-0. {plDroppedPoints} points dropped from perfect 114.</p>
+            <p>
+              {leagueResultsOffPerfect} result{leagueResultsOffPerfect === 1 ? '' : 's'} short of 38-0. {plDroppedPoints}
+              points dropped from perfect 114.
+            </p>
           {:else}
-            <p>Win the title first — then chase 38-0.</p>
+            <p>Win the title first, then chase 38-0.</p>
           {/if}
         </section>
 
@@ -124,9 +146,14 @@
           {#if perfectCl}
             <p>Perfect. 15 wins from 15. Europe conquered without a slip.</p>
           {:else if result.championsLeague.won}
-            <p>{clResultsOffPerfect} result{clResultsOffPerfect === 1 ? '' : 's'} short of 15-0. {clSlips} slip{clSlips === 1 ? '' : 's'} — the perfect run allows zero.</p>
+            <p>
+              {clResultsOffPerfect} result{clResultsOffPerfect === 1 ? '' : 's'} short of 15-0. {clSlips} slip{clSlips ===
+              1
+                ? ''
+                : 's'}, the perfect run allows zero.
+            </p>
           {:else}
-            <p>Lift the trophy first — then hunt the perfect 15-0.</p>
+            <p>Lift the trophy first, then hunt the perfect 15-0.</p>
           {/if}
         </section>
       </div>
@@ -176,7 +203,7 @@
         {#if result.championsLeague.won}
           {result.championsLeague.group}
         {:else if result.championsLeague.exitRound === 'League phase'}
-          Dropped in league phase{result.championsLeague.opponent ? ` — vs ${result.championsLeague.opponent}` : ''}.
+          Dropped in league phase{result.championsLeague.opponent ? `, vs ${result.championsLeague.opponent}` : ''}.
         {:else if result.championsLeague.opponent}
           Lost to {result.championsLeague.opponent}.
         {:else}
