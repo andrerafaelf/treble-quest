@@ -13,20 +13,15 @@
   let loading = $state(false);
   let copied = $state(false);
   let open = $state(false);
+  let xHint = $state(false);
 
   $effect(() => {
     if (run && !shareUrl && !loading && !shareError) {
       loading = true;
       createShareLink(run)
-        .then((url) => {
-          shareUrl = url;
-        })
-        .catch(() => {
-          shareError = true;
-        })
-        .finally(() => {
-          loading = false;
-        });
+        .then((url) => { shareUrl = url; })
+        .catch(() => { shareError = true; })
+        .finally(() => { loading = false; });
     }
   });
 
@@ -34,6 +29,29 @@
 
   function toggle() {
     open = !open;
+    xHint = false;
+  }
+
+  async function captureCard(): Promise<File | null> {
+    const el = document.getElementById('share-card-capture');
+    if (!el) return null;
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      const canvas = await html2canvas(el, { backgroundColor: '#0f1923', scale: 2, useCORS: true });
+      const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
+      if (!blob) return null;
+      return new File([blob], 'treble-quest-result.png', { type: 'image/png' });
+    } catch {
+      return null;
+    }
+  }
+
+  function downloadFile(file: File) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file);
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   async function copyLink() {
@@ -42,68 +60,53 @@
       await navigator.clipboard.writeText(url);
       copied = true;
       setTimeout(() => (copied = false), 1600);
-    } catch {
-      /* fallback: do nothing */
-    }
+    } catch { /* ignore */ }
   }
 
-  function shareOnX() {
+  async function shareOnX() {
+    xHint = false;
+    const file = await captureCard();
     const intent = new URL('https://x.com/intent/post');
     intent.searchParams.set('text', shareText);
+    if (file) {
+      downloadFile(file);
+      xHint = true;
+    }
     window.open(intent.toString(), '_blank', 'noopener,noreferrer');
   }
 
-  function shareOnWhatsApp() {
+  async function shareOnWhatsApp() {
+    const file = await captureCard();
+    // On mobile: try native share with image attached
+    if (file && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ text: shareText, files: [file] });
+        return;
+      } catch { /* fall through to plain link */ }
+    }
+    // Desktop fallback: open WhatsApp web with text
     const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   async function saveImage() {
-    const el = document.getElementById('share-card-capture');
-    if (!el) return;
-    try {
-      const { default: html2canvas } = await import('html2canvas');
-      const canvas = await html2canvas(el, {
-        backgroundColor: '#0f1923',
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = '38-0-season.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch {
-      /* html2canvas not available */
-    }
+    const file = await captureCard();
+    if (file) downloadFile(file);
   }
 
   async function nativeShare() {
-    const el = document.getElementById('share-card-capture');
-    if (!el || !navigator.canShare) {
-      shareOnX();
-      return;
-    }
-    try {
-      const { default: html2canvas } = await import('html2canvas');
-      const canvas = await html2canvas(el, {
-        backgroundColor: '#0f1923',
-        scale: 2,
-        useCORS: true,
-      });
-      const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
-      if (!blob) {
-        shareOnX();
-        return;
-      }
-      const file = new File([blob], '38-0-season.png', { type: 'image/png' });
-      if (navigator.canShare({ files: [file] })) {
+    const file = await captureCard();
+    if (file && navigator.canShare?.({ files: [file] })) {
+      try {
         await navigator.share({ text: shareText, files: [file] });
-      } else {
-        shareOnX();
-      }
-    } catch {
-      shareOnX();
+        return;
+      } catch { /* fall through */ }
     }
+    // Fallback: share text only
+    if (navigator.share) {
+      try { await navigator.share({ text: shareText, url: shareUrl ?? siteUrl }); return; } catch { /* ignore */ }
+    }
+    shareOnX();
   }
 </script>
 
@@ -123,9 +126,11 @@
         <button class="share-btn share-btn--image" onclick={saveImage}>📷 Save image</button>
         <button class="share-btn share-btn--native" onclick={nativeShare}>📤 Share</button>
       </div>
-      {#if shareUrl}
+      {#if xHint}
+        <p class="share-note share-note--hint">Image downloaded — attach it to your post on 𝕏.</p>
+      {:else if shareUrl}
         <p class="share-note">
-          The verified link opens a server-checked result page — proof it's real, not a faked screenshot.
+          Verified link opens a server-checked result page — proof it's real.
         </p>
       {:else if shareError}
         <p class="share-note share-note--error">Could not create verified link. You can still share text.</p>
@@ -160,9 +165,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition:
-      background 0.15s,
-      border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s;
   }
 
   .share-btn:hover {
@@ -170,28 +173,11 @@
     border-color: rgba(255, 255, 255, 0.15);
   }
 
-  .share-btn--whatsapp {
-    color: #25d366;
-    border-color: rgba(37, 211, 102, 0.3);
-  }
-
-  .share-btn--x {
-    color: #f8fafc;
-  }
-
-  .share-btn--copy {
-    color: #94a3b8;
-  }
-
-  .share-btn--image {
-    color: #f59e0b;
-    border-color: rgba(245, 158, 11, 0.2);
-  }
-
-  .share-btn--native {
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.3);
-  }
+  .share-btn--whatsapp { color: #25d366; border-color: rgba(37, 211, 102, 0.3); }
+  .share-btn--x { color: #f8fafc; }
+  .share-btn--copy { color: #94a3b8; }
+  .share-btn--image { color: #f59e0b; border-color: rgba(245, 158, 11, 0.2); }
+  .share-btn--native { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
 
   .share-note {
     font-size: 0.72rem;
@@ -199,9 +185,14 @@
     text-align: center;
   }
 
-  .share-note--error {
-    color: #f87171;
+  .share-note--hint {
+    color: #f8fafc;
+    background: rgba(248, 250, 252, 0.06);
+    border-radius: 6px;
+    padding: 6px 10px;
   }
+
+  .share-note--error { color: #f87171; }
 
   .share-close {
     background: none;
@@ -213,7 +204,5 @@
     padding: 6px;
   }
 
-  .share-close:hover {
-    color: #e2e8f0;
-  }
+  .share-close:hover { color: #e2e8f0; }
 </style>

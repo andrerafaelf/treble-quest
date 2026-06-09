@@ -108,13 +108,16 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   <meta property="og:type" content="website">
   <meta property="og:url" content="${escapeHtml(pageUrl)}">
   <meta property="og:image" content="${escapeHtml(ogImage)}">
-  <meta property="og:image:width" content="1254">
-  <meta property="og:image:height" content="1254">
-  <meta property="og:site_name" content="38-0">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="Treble Quest — Draft. Simulate. Conquer.">
+  <meta property="og:site_name" content="Treble Quest">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(ogImage)}">
+  <meta name="twitter:image:alt" content="Treble Quest — Draft. Simulate. Conquer.">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0f1923;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
