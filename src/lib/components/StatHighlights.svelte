@@ -8,11 +8,25 @@
   const delta = $derived(highlights.expectedFinish - highlights.actualFinish);
   const titleWon = $derived(highlights.actualFinish === 1);
   const verdict = $derived(
-    titleWon ? 'TITLE WON' : delta >= 3 ? 'OVERPERFORMED' : delta <= -3 ? 'UNDERPERFORMED' : 'AS EXPECTED',
+    titleWon ? (highlights.isWorldCup ? 'WC WINNERS' : 'TITLE WON') : delta >= 3 ? 'OVERPERFORMED' : delta <= -3 ? 'UNDERPERFORMED' : 'AS EXPECTED',
   );
   const verdictClass = $derived(
     titleWon || delta >= 3 ? 'verdict-over' : delta <= -3 ? 'verdict-under' : 'verdict-met',
   );
+
+  const finishNext = $derived((): string | null => {
+    if (highlights.isWorldCup) {
+      if (highlights.actualFinish === 1) return 'Next: perfect 8-0';
+      if (highlights.actualFinish === 2) return 'Next: reach the Final';
+      if (highlights.actualFinish <= 4) return 'Next: Final';
+      if (highlights.actualFinish <= 8) return 'Next: semi-final';
+      return 'Next: make the knockouts';
+    }
+    if (highlights.actualFinish === 1) return 'Next: 38-0';
+    if (highlights.actualFinish === 2) return 'Next: win the title';
+    if (highlights.actualFinish <= 4) return 'Next: top two';
+    return null;
+  });
 
   function ordinal(value: number): string {
     if (value <= 0) return '—';
@@ -36,8 +50,8 @@
     </article>
     <article class="finish-card finish-verdict {verdictClass}">
       <strong>{verdict}</strong>
-      {#if titleWon}
-        <span class="finish-next">Next: 38-0</span>
+      {#if finishNext()}
+        <span class="finish-next">{finishNext()}</span>
       {/if}
     </article>
   </div>

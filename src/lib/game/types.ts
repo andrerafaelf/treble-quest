@@ -248,6 +248,7 @@ export type StatHighlights = {
   narrativeBody: string;
   expectedFinish: number;
   actualFinish: number;
+  isWorldCup?: boolean;
 };
 
 export type SimulationResult = {

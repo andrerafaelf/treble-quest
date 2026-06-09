@@ -985,6 +985,13 @@ p {
   font-weight: 700;
   font-size: 1.1rem;
 }
+.result-next-challenge {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
 .trophy-strip {
   display: grid;
   gap: 8px;
@@ -1228,7 +1235,8 @@ p {
   background: rgba(6, 9, 8, 0.5);
 }
 
-.final-squad-pitch .squad-pitch {
+.final-squad-pitch .squad-pitch,
+.final-squad-pitch .jersey-pitch {
   min-height: 500px;
 }
 
@@ -1441,10 +1449,11 @@ p {
   font-size: 1.4rem;
   text-align: center;
   line-height: 1;
+  min-width: 2rem;
 }
 
 .lb-rank.gold {
-  color: var(--gold);
+  font-size: 1.6rem;
 }
 
 .lb-info {

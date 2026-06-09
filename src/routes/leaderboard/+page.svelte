@@ -113,7 +113,9 @@
             aria-expanded={isOpen}
             disabled={!hasSquad}
           >
-            <span class="lb-rank" class:gold={i < 3}>{i + 1}</span>
+            <span class="lb-rank" class:gold={i < 3}>
+              {#if i === 0}🥇{:else if i === 1}🥈{:else if i === 2}🥉{:else}{i + 1}{/if}
+            </span>
             <span class="lb-info">
               <span class="lb-name">{entry.name}</span>
               <span class="lb-meta">

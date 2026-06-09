@@ -517,7 +517,8 @@ function deriveWorldCupHighlights(
     narrativeHeadline,
     narrativeBody,
     expectedFinish: expectedWorldCupFinish(ratings, playerStats),
-    actualFinish: worldCupFinishPosition(worldCup)
+    actualFinish: worldCupFinishPosition(worldCup),
+    isWorldCup: true
   };
 }
 
