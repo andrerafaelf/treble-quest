@@ -204,7 +204,7 @@ export function render404Page(siteUrl: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Result not found | 38-0</title>
+  <title>Result not found | Treble Quest</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0f1923;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;text-align:center}
