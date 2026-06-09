@@ -10,6 +10,7 @@ export const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('synchronous = NORMAL');
 
+// Create table without hide_ratings so this is safe on fresh DBs and pre-migration DBs alike.
 db.exec(`
   CREATE TABLE IF NOT EXISTS scores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,13 +19,11 @@ db.exec(`
     score INTEGER NOT NULL,
     trophies INTEGER NOT NULL,
     mode TEXT NOT NULL,
-    hide_ratings INTEGER NOT NULL DEFAULT 0,
     formation TEXT,
     seed INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
     ip_hash TEXT
   );
-  CREATE INDEX IF NOT EXISTS idx_scores_mode_hide_score ON scores(mode, hide_ratings, score DESC, created_at ASC);
   CREATE INDEX IF NOT EXISTS idx_scores_created ON scores(created_at);
 `);
 
@@ -35,14 +34,15 @@ try {
   // Column already exists
 }
 
-// Add hide_ratings column if it doesn't exist yet (safe migration)
+// Add hide_ratings column if it doesn't exist yet (safe migration).
+// Must run BEFORE any index that references this column.
 try {
   db.exec(`ALTER TABLE scores ADD COLUMN hide_ratings INTEGER NOT NULL DEFAULT 0`);
 } catch {
   // Column already exists
 }
 
-// Ensure new composite index exists in migrated environments.
+// Create composite index only after hide_ratings is guaranteed to exist.
 db.exec(
   `CREATE INDEX IF NOT EXISTS idx_scores_mode_hide_score ON scores(mode, hide_ratings, score DESC, created_at ASC)`,
 );
