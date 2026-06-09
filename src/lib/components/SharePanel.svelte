@@ -70,21 +70,17 @@
   async function shareOnX() {
     xHint = false;
     if (xHintTimer) clearTimeout(xHintTimer);
-    const captured = await captureCard();
     const intent = new URL('https://x.com/intent/post');
     intent.searchParams.set('text', shareText);
 
-    // Mobile: try native share sheet (routes to X with image attached on iOS/Android)
-    if (captured && navigator.canShare?.({ files: [captured.file] })) {
-      try {
-        await navigator.share({ text: shareText, files: [captured.file] });
-        return;
-      } catch {
-        /* user cancelled or not supported — fall through */
-      }
+    if (navigator.maxTouchPoints > 0) {
+      // Mobile: open immediately to avoid popup blocker (no async before window.open)
+      window.open(intent.toString(), '_blank', 'noopener,noreferrer');
+      return;
     }
 
-    // Desktop: download image + open tweet composer; user attaches manually
+    // Desktop: capture image, download, then open tweet composer
+    const captured = await captureCard();
     if (captured) {
       downloadFile(captured.file);
       xHint = true;
@@ -94,31 +90,24 @@
   }
 
   async function shareOnWhatsApp() {
-    const captured = await captureCard();
+    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
-    // Mobile: native share sheet with image attached
-    if (captured && navigator.canShare?.({ files: [captured.file] })) {
-      try {
-        await navigator.share({ text: shareText, files: [captured.file] });
-        return;
-      } catch {
-        /* fall through */
-      }
+    if (navigator.maxTouchPoints > 0) {
+      // Mobile: open immediately to avoid popup blocker (no async before window.open)
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
     }
 
     // Desktop: copy image to clipboard, then open WhatsApp Web so user can paste
+    const captured = await captureCard();
     if (captured) {
       try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': captured.blob })
-        ]);
-        // Small delay so clipboard is flushed before WhatsApp Web opens
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': captured.blob })]);
         await new Promise((r) => setTimeout(r, 120));
       } catch {
         /* clipboard write not supported — just open WhatsApp with text */
       }
     }
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
@@ -242,5 +231,4 @@
   .share-note--error {
     color: #f87171;
   }
-
 </style>
