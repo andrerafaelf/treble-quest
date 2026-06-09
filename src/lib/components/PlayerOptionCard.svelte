@@ -31,7 +31,9 @@
 
 <button class="option-card player-card" type="button" {disabled} onclick={() => onSelect?.(player.id)}>
   <div class="card-top-row">
-    <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
+    {#if showRatings}
+      <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
+    {/if}
     {#if nationalityFlagUrl}
       <img
         class="player-flag"
