@@ -1,12 +1,21 @@
 <script lang="ts">
+  import { replaceState } from '$app/navigation';
+  import { page } from '$app/state';
   import Button from '$lib/components/Button.svelte';
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
   type LeaderboardTab = 'quick' | 'classic' | 'classic-no-overall' | 'world-cup';
 
+  const VALID_TABS: LeaderboardTab[] = ['quick', 'classic', 'classic-no-overall', 'world-cup'];
+
+  function initialTab(): LeaderboardTab {
+    const t = page.url.searchParams.get('tab');
+    return VALID_TABS.includes(t as LeaderboardTab) ? (t as LeaderboardTab) : 'quick';
+  }
+
   let mode = $state<GameMode>('quick');
-  let tab = $state<LeaderboardTab>('quick');
+  let tab = $state<LeaderboardTab>(initialTab());
   let entries = $state<LeaderboardEntry[]>([]);
   let status = $state<'loading' | 'ready' | 'error'>('loading');
   let expanded = $state<Set<number>>(new Set());
@@ -17,6 +26,9 @@
     const hideRatings = next === 'classic-no-overall';
     status = 'loading';
     expanded = new Set();
+    const url = new URL(page.url);
+    url.searchParams.set('tab', next);
+    replaceState(url, {});
     try {
       const data = await fetchLeaderboard(mode, 50, hideRatings);
       entries = data.entries;
@@ -28,7 +40,7 @@
   }
 
   // Load initial tab once on mount, not inside $effect to avoid re-triggering on state changes.
-  load('quick');
+  load(initialTab());
 
   function toggle(i: number) {
     const next = new Set(expanded);
@@ -135,7 +147,7 @@
             <span class="lb-right">
               <span class="lb-score">{entry.score.toLocaleString()}</span>
               {#if hasSquad}
-                <span class="lb-chevron" class:open={isOpen}>›</span>
+                <span class="lb-chevron" class:open={isOpen}>▾</span>
               {/if}
             </span>
           </button>

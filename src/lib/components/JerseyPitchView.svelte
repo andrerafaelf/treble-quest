@@ -108,13 +108,13 @@
               aria-hidden="true"
             >
               <!-- sleeve left -->
-              <polygon points="0,10 14,4 18,22 4,26" fill={filled ? kit.primary : '#2a2a2a'} />
+              <polygon points="0,10 14,4 18,22 4,26" fill={filled ? kit.primary : '#2c2020'} />
               <!-- sleeve right -->
-              <polygon points="60,10 46,4 42,22 56,26" fill={filled ? kit.primary : '#2a2a2a'} />
+              <polygon points="60,10 46,4 42,22 56,26" fill={filled ? kit.primary : '#2c2020'} />
               <!-- body -->
-              <path d="M14,4 Q30,0 46,4 L50,56 L10,56 Z" fill={filled ? kit.primary : '#2a2a2a'} />
+              <path d="M14,4 Q30,0 46,4 L50,56 L10,56 Z" fill={filled ? kit.primary : '#2c2020'} />
               <!-- collar accent -->
-              <path d="M22,4 Q30,8 38,4 Q36,14 30,16 Q24,14 22,4 Z" fill={filled ? kit.secondary : '#3a3a3a'} />
+              <path d="M22,4 Q30,8 38,4 Q36,14 30,16 Q24,14 22,4 Z" fill={filled ? kit.secondary : '#3a2828'} />
               <!-- initials -->
               <text
                 x="30"
@@ -151,19 +151,19 @@
     gap: 6px;
     min-height: 420px;
     padding: 14px 10px;
-    border: 1px solid rgba(68, 224, 208, 0.2);
+    border: 1px solid rgba(230, 57, 70, 0.18);
     border-radius: 8px;
     background:
       linear-gradient(
         90deg,
         transparent 49.5%,
-        rgba(255, 255, 255, 0.1) 49.5%,
-        rgba(255, 255, 255, 0.1) 50.5%,
+        rgba(255, 255, 255, 0.08) 49.5%,
+        rgba(255, 255, 255, 0.08) 50.5%,
         transparent 50.5%
       ),
-      radial-gradient(ellipse at center, transparent 0 16%, rgba(255, 255, 255, 0.1) 16.5% 17.5%, transparent 18%),
-      repeating-linear-gradient(90deg, rgba(45, 160, 90, 0.12) 0 20%, rgba(45, 140, 70, 0.06) 20% 40%),
-      rgba(6, 28, 16, 0.82);
+      radial-gradient(ellipse at center, transparent 0 16%, rgba(255, 255, 255, 0.08) 16.5% 17.5%, transparent 18%),
+      repeating-linear-gradient(90deg, rgba(34, 120, 60, 0.14) 0 20%, rgba(28, 100, 50, 0.07) 20% 40%),
+      rgba(10, 24, 14, 0.88);
   }
 
   .jersey-row {
@@ -199,8 +199,8 @@
     min-width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #f5c518;
-    color: #111;
+    background: #e63946;
+    color: #f1f0ee;
     font-size: 0.6rem;
     font-weight: 900;
     display: grid;
