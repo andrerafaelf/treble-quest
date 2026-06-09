@@ -1248,6 +1248,43 @@ p {
   margin-bottom: 10px;
 }
 
+.lb-spot {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lb-spot strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.lb-spot span {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.lb-spot-top {
+  border-color: rgba(45, 224, 200, 0.55);
+  background: linear-gradient(140deg, rgba(45, 224, 200, 0.16), rgba(45, 224, 200, 0.04));
+}
+
+.lb-spot-top strong {
+  color: var(--accent);
+}
+
+.lb-spot-muted {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 .lb-row {
   display: flex;
   gap: 10px;
@@ -1286,6 +1323,24 @@ p {
 .lb-success strong {
   color: var(--accent);
 }
+
+.lb-confirmed-rank {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.lb-confirmed-rank span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.lb-confirmed-rank.lb-confirmed-top {
+  color: var(--accent);
+}
+
 .lb-success a {
   color: var(--text);
   text-decoration: underline;

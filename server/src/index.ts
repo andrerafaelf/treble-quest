@@ -8,6 +8,10 @@ import {
   findShareByRunId,
   insertScore,
   insertShare,
+  scoreCount,
+  scoreSpot,
+  submittedScoreCount,
+  submittedScoreRank,
   topScores,
   type ScoreRow,
   type ShareRow,
@@ -64,6 +68,29 @@ app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }
   },
 );
 
+app.get<{ Querystring: { mode?: string; hideRatings?: string; score?: string } }>(
+  '/leaderboard/spot',
+  async (req, reply) => {
+    const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' ? req.query.mode : 'quick';
+    const hideRatings = mode === 'classic' && req.query.hideRatings === '1';
+    const score = Number(req.query.score ?? NaN);
+    if (!Number.isFinite(score)) {
+      return reply.code(400).send({ error: 'invalid_score' });
+    }
+
+    const rankRow = scoreSpot.get({ mode, hide_ratings: hideRatings ? 1 : 0, score }) as { rank: number };
+    const countRow = scoreCount.get({ mode, hide_ratings: hideRatings ? 1 : 0 }) as { count: number };
+
+    return {
+      mode,
+      hideRatings,
+      score,
+      rank: rankRow.rank,
+      totalEntries: countRow.count,
+    };
+  },
+);
+
 type SubmitBody = {
   name?: unknown;
   run?: SubmittedRun;
@@ -115,12 +142,17 @@ app.post<{ Body: SubmitBody }>(
       ip_hash: ipHash,
     });
 
+    const rankRow = submittedScoreRank.get({ run_id: verified.runId }) as { rank: number };
+    const countRow = submittedScoreCount.get({ run_id: verified.runId }) as { count: number };
+
     return {
       ok: true,
       name,
       score: verified.result.score,
       trophies: verified.result.trophies,
       mode: verified.mode,
+      rank: rankRow.rank,
+      totalEntries: countRow.count,
     };
   },
 );

@@ -16,16 +16,16 @@
   import { runStore } from '$lib/game/storage';
   import type { ClassicFormation, GameMode } from '$lib/game/types';
 
-  let mode: GameMode = 'quick';
-  let choosingClassic = false;
-  let noOverall = false;
-  let selecting = false;
-  let deepLinkApplied = false;
+  let mode = $state<GameMode>('quick');
+  let choosingClassic = $state(false);
+  let noOverall = $state(false);
+  let selecting = $state(false);
+  let deepLinkApplied = $state(false);
 
-  $: run = $runStore;
-  $: slots = run ? getDraftSlots(run.mode, run.formation) : getDraftSlots(mode);
-  $: currentSlot = run ? slots[run.currentPick] : undefined;
-  $: prompt = run?.lastPrompt;
+  const run = $derived($runStore);
+  const slots = $derived(run ? getDraftSlots(run.mode, run.formation) : getDraftSlots(mode));
+  const currentSlot = $derived(run ? slots[run.currentPick] : undefined);
+  const prompt = $derived(run?.lastPrompt);
 
   function startRun(nextMode: GameMode = mode, formation?: ClassicFormation, hideRatings = false) {
     runStore.start(nextMode, formation, hideRatings);

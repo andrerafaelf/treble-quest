@@ -28,6 +28,14 @@ export type LeaderboardResponse = {
   entries: LeaderboardEntry[];
 };
 
+export type LeaderboardSpotResponse = {
+  mode: GameMode;
+  hideRatings: boolean;
+  score: number;
+  rank: number;
+  totalEntries: number;
+};
+
 export async function fetchLeaderboard(mode: GameMode, limit = 50, hideRatings = false): Promise<LeaderboardResponse> {
   const params = new URLSearchParams({ mode, limit: String(limit) });
   if (mode === 'classic' && hideRatings) params.set('hideRatings', '1');
@@ -36,7 +44,22 @@ export async function fetchLeaderboard(mode: GameMode, limit = 50, hideRatings =
   return res.json();
 }
 
-export async function submitScore(name: string, run: RunState): Promise<{ score: number }> {
+export async function fetchLeaderboardSpot(
+  mode: GameMode,
+  score: number,
+  hideRatings = false,
+): Promise<LeaderboardSpotResponse> {
+  const params = new URLSearchParams({ mode, score: String(score) });
+  if (mode === 'classic' && hideRatings) params.set('hideRatings', '1');
+  const res = await fetch(`${API_BASE}/leaderboard/spot?${params.toString()}`);
+  if (!res.ok) throw new Error(`leaderboard_spot ${res.status}`);
+  return res.json();
+}
+
+export async function submitScore(
+  name: string,
+  run: RunState,
+): Promise<{ score: number; rank?: number; totalEntries?: number }> {
   const body = {
     name,
     run: {
@@ -65,7 +88,11 @@ export async function submitScore(name: string, run: RunState): Promise<{ score:
     throw new Error(error);
   }
   markSubmitted(run.id);
-  return { score: data.score };
+  return {
+    score: data.score,
+    rank: typeof data?.rank === 'number' ? data.rank : undefined,
+    totalEntries: typeof data?.totalEntries === 'number' ? data.totalEntries : undefined,
+  };
 }
 
 export function hasSubmitted(runId: string): boolean {

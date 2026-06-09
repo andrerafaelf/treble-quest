@@ -98,6 +98,42 @@ export const topScores = db.prepare(`
   LIMIT @limit
 `);
 
+export const scoreSpot = db.prepare(`
+  SELECT COUNT(*) + 1 AS rank
+  FROM scores
+  WHERE mode = @mode AND hide_ratings = @hide_ratings AND score >= @score
+`);
+
+export const scoreCount = db.prepare(`
+  SELECT COUNT(*) AS count
+  FROM scores
+  WHERE mode = @mode AND hide_ratings = @hide_ratings
+`);
+
+export const submittedScoreRank = db.prepare(`
+  WITH target AS (
+    SELECT id, mode, hide_ratings, score, created_at
+    FROM scores
+    WHERE run_id = @run_id
+  )
+  SELECT COUNT(*) + 1 AS rank
+  FROM scores s
+  JOIN target t ON s.mode = t.mode AND s.hide_ratings = t.hide_ratings
+  WHERE s.score > t.score
+     OR (s.score = t.score AND (s.created_at < t.created_at OR (s.created_at = t.created_at AND s.id < t.id)))
+`);
+
+export const submittedScoreCount = db.prepare(`
+  WITH target AS (
+    SELECT mode, hide_ratings
+    FROM scores
+    WHERE run_id = @run_id
+  )
+  SELECT COUNT(*) AS count
+  FROM scores s
+  JOIN target t ON s.mode = t.mode AND s.hide_ratings = t.hide_ratings
+`);
+
 export const findByRunId = db.prepare(`SELECT id FROM scores WHERE run_id = ?`);
 
 export type ShareRow = {
