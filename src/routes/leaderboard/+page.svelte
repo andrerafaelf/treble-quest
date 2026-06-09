@@ -6,17 +6,17 @@
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
-  type LeaderboardTab = 'quick' | 'classic' | 'classic-no-overall' | 'world-cup';
+  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global';
 
-  const VALID_TABS: LeaderboardTab[] = ['quick', 'classic', 'classic-no-overall', 'world-cup'];
+  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global'];
 
   function initialTab(): LeaderboardTab {
-    if (!browser) return 'quick';
+    if (!browser) return 'classic';
     const t = page.url.searchParams.get('tab');
-    return VALID_TABS.includes(t as LeaderboardTab) ? (t as LeaderboardTab) : 'quick';
+    return VALID_TABS.includes(t as LeaderboardTab) ? (t as LeaderboardTab) : 'classic';
   }
 
-  let mode = $state<GameMode>('quick');
+  let mode = $state<GameMode>('classic');
   let tab = $state<LeaderboardTab>(initialTab());
   let entries = $state<LeaderboardEntry[]>([]);
   let status = $state<'loading' | 'ready' | 'error'>('loading');
@@ -24,7 +24,7 @@
 
   async function load(next: LeaderboardTab) {
     tab = next;
-    mode = next === 'world-cup' ? 'world-cup' : next === 'quick' ? 'quick' : 'classic';
+    mode = next === 'world-cup' ? 'world-cup' : next === 'global' ? 'global' : 'classic';
     const hideRatings = next === 'classic-no-overall';
     status = 'loading';
     expanded = new Set();
@@ -83,7 +83,7 @@
 
 <svelte:head>
   <title>Leaderboard - Treble Quest</title>
-  <meta name="description" content="Top Treble Quest scores from Quick, Classic, and World Cup mode runs." />
+  <meta name="description" content="Top Treble Quest scores from Classic, Global, and World Cup mode runs." />
 </svelte:head>
 
 <section class="page-section">
@@ -91,9 +91,6 @@
   <h1 class="page-title">High Scores</h1>
 
   <div class="mode-tabs" role="tablist" aria-label="Game mode">
-    <button role="tab" aria-selected={tab === 'quick'} class:active={tab === 'quick'} onclick={() => load('quick')}
-      >Quick</button
-    >
     <button
       role="tab"
       aria-selected={tab === 'classic'}
@@ -105,6 +102,12 @@
       aria-selected={tab === 'classic-no-overall'}
       class:active={tab === 'classic-no-overall'}
       onclick={() => load('classic-no-overall')}>Classic No Overall</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'global'}
+      class:active={tab === 'global'}
+      onclick={() => load('global')}>Global</button
     >
     <button
       role="tab"

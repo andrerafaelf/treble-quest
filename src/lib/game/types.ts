@@ -12,7 +12,8 @@ export type Position =
   | 'DEF'
   | 'MID'
   | 'FWD'
-  | 'ANY';
+  | 'ANY'
+  | 'NOGK';
 
 export type PlayerSeason = {
   id: string;
@@ -44,7 +45,7 @@ export type Manager = {
   leagueBoost: number;
 };
 
-export type GameMode = 'quick' | 'classic' | 'world-cup';
+export type GameMode = 'classic' | 'world-cup' | 'global';
 
 export type ClassicFormation = '4-3-3' | '4-4-2' | '4-2-3-1' | '3-4-3';
 

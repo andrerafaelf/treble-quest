@@ -2,7 +2,7 @@
   import type { GameMode } from '$lib/game/types';
 
   let {
-    value = 'quick',
+    value = 'classic',
     onSelect
   }: {
     value?: GameMode;
@@ -10,8 +10,8 @@
   } = $props();
 
   const modes: { id: GameMode; label: string; hint: string }[] = [
-    { id: 'quick', label: 'Quick Mode', hint: 'Manager, seven-a-side squad, and one super sub.' },
-    { id: 'classic', label: 'Classic Mode', hint: 'Manager plus a full XI, including exact RB, CB, CM and front-three slots.' },
+    { id: 'classic', label: 'Classic Mode', hint: 'Manager plus a full XI, including exact RB, CB, CM and front-three slots. English football.' },
+    { id: 'global', label: 'Global Mode', hint: 'Legendary teams from all eras and all leagues — Porto 2004, Nacional 2008/09, Barcelona 2010/11, Real Madrid 2013/14, and more.' },
     { id: 'world-cup', label: 'World Cup Mode', hint: 'A national-team run built around the 8-0 champion path.' }
   ];
 </script>

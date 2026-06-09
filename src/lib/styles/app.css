@@ -2469,8 +2469,8 @@ p {
   }
 }
 .playback-w {
-  border-color: rgba(230, 57, 70, 0.4);
-  background: linear-gradient(150deg, rgba(230, 57, 70, 0.12), rgba(230, 57, 70, 0.02));
+  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(150deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.02));
 }
 .playback-l {
   border-color: rgba(255, 120, 120, 0.45);

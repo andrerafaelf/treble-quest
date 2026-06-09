@@ -17,13 +17,16 @@
   let deepLinkApplied = $state(false);
   const run = $derived($runStore);
 
-  function startRun(mode: GameMode = 'quick', formation?: ClassicFormation, hideRatings = false) {
+  let selectedMode = $state<GameMode>('classic');
+
+  function startRun(mode: GameMode = 'classic', formation?: ClassicFormation, hideRatings = false) {
     runStore.start(mode, formation, hideRatings);
     goto('/play');
   }
 
   function selectMode(mode: GameMode) {
-    if (mode === 'classic') {
+    selectedMode = mode;
+    if (mode === 'classic' || mode === 'global') {
       choosingClassic = true;
       return;
     }
@@ -33,7 +36,7 @@
   }
 
   function selectFormation(formation: ClassicFormation) {
-    startRun('classic', formation, noOverall);
+    startRun(selectedMode, formation, noOverall);
   }
 
   $effect(() => {
@@ -56,7 +59,7 @@
         addiction.
       </p>
       <div class="cta-row">
-        <Button onclick={() => startRun('quick')}>Start Quick Run</Button>
+        <Button onclick={() => startRun('classic')}>Start Classic Run</Button>
         <Button href="/how-to-play" variant="secondary">How it works</Button>
         <Button href="/support" variant="ghost">Support the game</Button>
         {#if $runStore}
@@ -68,7 +71,7 @@
     </div>
     <Card tone="accent">
       <img class="home-crest" src={trebleQuestImage} alt="Treble Quest crest" />
-      <ModeSelector value={choosingClassic ? 'classic' : 'quick'} onSelect={selectMode} />
+      <ModeSelector value={choosingClassic ? selectedMode : 'classic'} onSelect={selectMode} />
       {#if choosingClassic}
         <label class="toggle-row">
           <input type="checkbox" bind:checked={noOverall} />

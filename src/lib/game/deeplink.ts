@@ -11,9 +11,9 @@ const FORMATIONS: ClassicFormation[] = ['4-3-3', '4-4-2', '4-2-3-1', '3-4-3'];
 function parseMode(raw: string | null): GameMode | null {
   if (!raw) return null;
   const normalized = raw.trim().toLowerCase();
-  if (normalized === 'quick') return 'quick';
   if (normalized === 'classic') return 'classic';
   if (normalized === 'world-cup' || normalized === 'worldcup' || normalized === 'wc') return 'world-cup';
+  if (normalized === 'global') return 'global';
   return null;
 }
 
@@ -33,7 +33,7 @@ export function parseRunConfigFromUrl(url: URL): DeepLinkRunConfig | null {
   const mode = parseMode(url.searchParams.get('mode'));
   if (!mode) return null;
 
-  if (mode !== 'classic') {
+  if (mode !== 'classic' && mode !== 'global') {
     return { mode, hideRatings: false };
   }
 

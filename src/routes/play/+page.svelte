@@ -16,7 +16,7 @@
   import { runStore } from '$lib/game/storage';
   import type { ClassicFormation, GameMode } from '$lib/game/types';
 
-  let mode = $state<GameMode>('quick');
+  let mode = $state<GameMode>('classic');
   let choosingClassic = $state(false);
   let noOverall = $state(false);
   let selecting = $state(false);
@@ -33,7 +33,7 @@
 
   function selectMode(nextMode: GameMode) {
     mode = nextMode;
-    if (nextMode === 'classic') {
+    if (nextMode === 'classic' || nextMode === 'global') {
       choosingClassic = true;
       return;
     }
@@ -43,7 +43,7 @@
   }
 
   function selectFormation(formation: ClassicFormation) {
-    startRun('classic', formation, noOverall);
+    startRun(mode, formation, noOverall);
   }
 
   function clearRun() {
@@ -69,6 +69,17 @@
     if (!config) return;
     deepLinkApplied = true;
     startRun(config.mode, config.formation, config.hideRatings);
+  });
+
+  $effect(() => {
+    if (!browser || !prompt) return;
+    const el = document.querySelector('.options-grid');
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < 0 || rect.top > window.innerHeight * 0.75) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   });
 </script>
 

@@ -89,7 +89,7 @@ function createRunStore() {
     replay() {
       let next: RunState | undefined;
       update((run) => {
-        next = run ? replayRun(run) : createRun('quick');
+        next = run ? replayRun(run) : createRun('classic');
         persist(next);
         return next;
       });
@@ -121,14 +121,12 @@ function loadRun(): RunState | undefined {
 }
 
 function hasRemovedQuickWildcard(run: RunState): boolean {
-  if (run.mode !== 'quick') return false;
-  const pickedWildcard = run.picks.some((pick) => String(pick.slot.id) === 'wildcard');
-  const promptWildcard = run.lastPrompt?.type === 'player' && String(run.lastPrompt.slot.id) === 'wildcard';
-  return pickedWildcard || promptWildcard;
+  // Legacy check: invalidate any saved runs from the removed quick mode
+  return (run.mode as string) === 'quick';
 }
 
 function hasInvalidMode(run: RunState): boolean {
-  return run.mode !== 'quick' && run.mode !== 'classic' && run.mode !== 'world-cup';
+  return run.mode !== 'classic' && run.mode !== 'world-cup' && run.mode !== 'global';
 }
 
 function hasInvalidClassicFormation(run: RunState): boolean {

@@ -12,7 +12,8 @@
   let shareError = $state(false);
   let loading = $state(false);
   let copied = $state(false);
-  let open = $state(false);
+  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  let open = $state(isMobile);
   let xHint = $state(false);
 
   $effect(() => {

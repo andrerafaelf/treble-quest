@@ -59,6 +59,7 @@
     if (currentIndex >= matches.length - 1) {
       stop();
       simDone = true;
+      activeTab = hasWorldCup ? 'wc' : 'pl';
       return;
     }
     currentIndex += 1;
@@ -113,7 +114,13 @@
 
   function skip() {
     stop();
+    // Play through remaining matches to ensure all history is accumulated
+    for (let i = currentIndex + 1; i < matches.length; i++) {
+      currentIndex = i;
+      accumulate(matches[i]);
+    }
     simDone = true;
+    activeTab = hasWorldCup ? 'wc' : 'pl';
   }
 
   function togglePause() {

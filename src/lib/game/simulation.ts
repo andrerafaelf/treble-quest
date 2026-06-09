@@ -49,7 +49,7 @@ export function simulateRun(run: RunState): SimulationResult {
   const manager = run.picks.find((pick): pick is ManagerPick => pick.type === 'manager')?.manager;
   const managerLeagueBoost = manager?.leagueBoost ?? 0;
   const managerCupBoost = manager?.cupBoost ?? 0;
-  const varianceMultiplier = run.mode === 'quick' ? 1.05 : run.mode === 'world-cup' ? 0.94 : 0.88;
+  const varianceMultiplier = run.mode === 'world-cup' ? 0.94 : 0.88;
   const candidates = buildCandidates(run);
 
   if (run.mode === 'world-cup') {
@@ -211,7 +211,7 @@ export function simulateRun(run: RunState): SimulationResult {
   const highlights = deriveHighlights(sortedMatches, plMatches, ratings, table, playerStats);
 
   const trophies = [leagueResult.won, faCupResult.won, championsLeagueResult.won].filter(Boolean).length;
-  const score = scoreTreble(leagueResult, faCupResult, championsLeagueResult, trophies, ratings, run.mode === 'classic' ? 'classic' : 'quick');
+  const score = scoreTreble(leagueResult, faCupResult, championsLeagueResult, trophies, ratings, run.mode === 'global' ? 'global' : 'classic');
   const ordered = [...run.picks].sort((a, b) => pickScore(b) - pickScore(a));
 
   const result: SimulationResult = {
@@ -620,7 +620,7 @@ function scoreTreble(
   championsLeague: ChampionsLeagueResult,
   trophies: number,
   ratings: TeamRatings,
-  mode: 'quick' | 'classic'
+  mode: 'classic' | 'global'
 ): number {
   const leagueScore = (league.points - 38) * 32 + (league.won ? 1200 : 0) + (league.position === 2 ? 380 : league.position === 3 ? 160 : 0);
   const perfectLeagueBonus = league.wins === 38 && league.draws === 0 && league.losses === 0 ? 4200 : league.won && league.losses === 0 ? 900 : 0;
@@ -643,7 +643,7 @@ function scoreTreble(
   const trebleBonus = trophies === 3 ? 2500 : trophies === 2 ? 450 : trophies === 1 ? 120 : 0;
   const trebleMultiplier = trophies === 3 ? 1.35 : 1;
 
-  const modeMultiplier = mode === 'classic' ? 1.22 : 1;
+  const modeMultiplier = (mode === 'classic' || mode === 'global') ? 1.22 : 1;
 
   const raw = (leagueScore + perfectLeagueBonus + cupScore + clScore + qualityScore + trebleBonus) * modeMultiplier * trebleMultiplier;
   return Math.max(0, Math.round(raw));

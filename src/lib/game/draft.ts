@@ -1,4 +1,5 @@
 import { managers } from '$lib/game/data/managers';
+import { globalManagers, globalPlayerSeasons } from '$lib/game/data/global';
 import { playerSeasons } from '$lib/game/data/players';
 import { worldCupManagers, worldCupPlayerSeasons } from '$lib/game/data/world-cup-2026';
 import type { ClassicFormation, DraftPick, DraftPrompt, DraftSlot, GameMode, PlayerSeason, Position, RunState } from '$lib/game/types';
@@ -12,7 +13,7 @@ export const quickDraftSlots: DraftSlot[] = [
   { id: 'second-midfielder', label: 'Second Midfielder', short: 'MID', required: 'MID' },
   { id: 'forward', label: 'Forward', short: 'FWD', required: 'FWD' },
   { id: 'second-forward', label: 'Second Forward', short: 'FWD', required: 'FWD' },
-  { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'ANY' }
+  { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'NOGK' }
 ];
 
 const classicBaseSlots: DraftSlot[] = [
@@ -33,7 +34,7 @@ export const classicFormationSlots: Record<ClassicFormation, DraftSlot[]> = {
     { id: 'right-wing', label: 'Right Wing', short: 'RW', required: 'RW' },
     { id: 'striker', label: 'Striker', short: 'ST', required: 'ST' },
     { id: 'left-wing', label: 'Left Wing', short: 'LW', required: 'LW' },
-    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'ANY' }
+    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'NOGK' }
   ],
   '4-4-2': [
     ...classicBaseSlots,
@@ -47,7 +48,7 @@ export const classicFormationSlots: Record<ClassicFormation, DraftSlot[]> = {
     { id: 'left-wing', label: 'Left Midfielder', short: 'LM', required: 'LM' },
     { id: 'striker', label: 'Striker', short: 'ST', required: 'ST' },
     { id: 'second-forward', label: 'Second Striker', short: 'ST', required: 'ST' },
-    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'ANY' }
+    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'NOGK' }
   ],
   '4-2-3-1': [
     ...classicBaseSlots,
@@ -61,7 +62,7 @@ export const classicFormationSlots: Record<ClassicFormation, DraftSlot[]> = {
     { id: 'attacking-midfielder', label: 'Attacking Midfielder', short: 'AM', required: 'CM' },
     { id: 'left-wing', label: 'Left Wing', short: 'LW', required: 'LW' },
     { id: 'striker', label: 'Striker', short: 'ST', required: 'ST' },
-    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'ANY' }
+    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'NOGK' }
   ],
   '3-4-3': [
     ...classicBaseSlots,
@@ -75,18 +76,16 @@ export const classicFormationSlots: Record<ClassicFormation, DraftSlot[]> = {
     { id: 'right-wing', label: 'Right Forward', short: 'RW', required: 'RW' },
     { id: 'striker', label: 'Striker', short: 'ST', required: 'ST' },
     { id: 'left-wing', label: 'Left Forward', short: 'LW', required: 'LW' },
-    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'ANY' }
+    { id: 'super-sub', label: 'Super Sub', short: 'SUB', required: 'NOGK' }
   ]
 };
 
 export const classicDraftSlots = classicFormationSlots['4-3-3'];
 
-export const draftSlots = quickDraftSlots;
-
 export const modeLabels: Record<GameMode, string> = {
-  quick: 'Quick Mode',
   classic: 'Classic Mode',
-  'world-cup': 'World Cup Mode'
+  'world-cup': 'World Cup Mode',
+  global: 'Global Mode'
 };
 
 export function createSeed(): number {
@@ -99,8 +98,8 @@ export function createRun(mode: GameMode, formation?: ClassicFormation, hideRati
     id: `run-${seed}-${Date.now()}`,
     seed,
     mode,
-    formation: mode === 'classic' ? (formation ?? '4-3-3') : undefined,
-    hideRatings: mode === 'classic' ? hideRatings : false,
+    formation: (mode === 'classic' || mode === 'global') ? (formation ?? '4-3-3') : undefined,
+    hideRatings: (mode === 'classic' || mode === 'global') ? hideRatings : false,
     startedAt: Date.now(),
     currentPick: 0,
     picks: []
@@ -115,7 +114,8 @@ export function replayRun(previous: RunState): RunState {
 export function getDraftSlots(mode: GameMode, formation?: ClassicFormation): DraftSlot[] {
   if (mode === 'classic') return classicFormationSlots[formation ?? '4-3-3'];
   if (mode === 'world-cup') return classicFormationSlots['4-3-3'];
-  return quickDraftSlots;
+  if (mode === 'global') return classicFormationSlots[formation ?? '4-3-3'];
+  return classicFormationSlots['4-3-3'];
 }
 
 export function nextSlot(run: RunState): DraftSlot | undefined {
@@ -123,7 +123,9 @@ export function nextSlot(run: RunState): DraftSlot | undefined {
 }
 
 export function isSlotFit(player: PlayerSeason, required: Position): boolean {
-  if (required === 'ANY' || player.positions.includes(required)) return true;
+  if (required === 'ANY') return true;
+  if (required === 'NOGK') return !player.positions.includes('GK');
+  if (player.positions.includes(required)) return true;
   if (required === 'DEF') return player.positions.some((position) => ['RB', 'CB', 'LB'].includes(position));
   if (required === 'MID') return player.positions.includes('CM');
   if (required === 'FWD') return player.positions.some((position) => ['RW', 'ST', 'LW'].includes(position));
@@ -144,7 +146,7 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
   const rng = createRng(run.seed + run.currentPick * 9973 + run.picks.length * 17);
 
   if (slot.id === 'manager') {
-    const managerPool = run.mode === 'world-cup' ? worldCupManagers : managers;
+    const managerPool = run.mode === 'world-cup' ? worldCupManagers : run.mode === 'global' ? globalManagers : managers;
     return {
       type: 'manager',
       seed: Math.floor(rng() * 100000),
@@ -152,7 +154,7 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
     };
   }
 
-  const playerPool = run.mode === 'world-cup' ? worldCupPlayerSeasons : playerSeasons;
+  const playerPool = run.mode === 'world-cup' ? worldCupPlayerSeasons : run.mode === 'global' ? globalPlayerSeasons : playerSeasons;
   const usedIds = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.id));
   const fitPlayers = playerPool.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
   const options = chooseDiversePlayers(fitPlayers, 4, rng);
