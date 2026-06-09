@@ -56,30 +56,30 @@ export function deriveHighlights(
       narrativeBody = `38-0 in the league. 15-0 in Europe. Maximum pressure, maximum output. The legend is complete.`;
     } else if (perfectLeague) {
       narrativeHeadline = 'PERFECT 38-0';
-      narrativeBody = `Maximum pressure, maximum output: 38 wins from 38. ${actualPts} points and a flawless title run. Now go do the same in Europe — 15-0 is waiting.`;
+      narrativeBody = `Maximum pressure, maximum output: 38 wins from 38. ${actualPts} points and a flawless title run. Now go do the same in Europe, 15-0 is waiting.`;
     } else {
       const matchesOffPerfect = 38 - leagueWins;
       narrativeHeadline = 'CHAMPIONS OF ENGLAND';
-      narrativeBody = `Title delivered with ${actualPts} points. Next target: 38-0. Flip ${leagueDraws} draw${leagueDraws === 1 ? '' : 's'} and ${leagueLosses} loss${leagueLosses === 1 ? '' : 'es'} into wins — ${matchesOffPerfect} results stand between you and perfection.`;
+      narrativeBody = `Title delivered with ${actualPts} points. Next target: 38-0. Flip ${leagueDraws} draw${leagueDraws === 1 ? '' : 's'} and ${leagueLosses} loss${leagueLosses === 1 ? '' : 'es'} into wins, ${matchesOffPerfect} results stand between you and perfection.`;
     }
   } else if (delta >= 10) {
     narrativeHeadline = 'NOBODY SAW THAT COMING';
-    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Projected ${ordinal(expectedFinish)}. Now prove it wasn't a fluke — go win the title.`;
+    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Projected ${ordinal(expectedFinish)}. Now prove it wasn't a fluke, go win the title.`;
   } else if (delta <= -10) {
     narrativeHeadline = 'A SEASON TO FORGET';
-    narrativeBody = `${actualPts} points and ${ordinal(actualFinish)}. Projected for ${ordinal(expectedFinish)} — never clicked. Build a stronger XI and come back harder.`;
+    narrativeBody = `${actualPts} points and ${ordinal(actualFinish)}. Projected for ${ordinal(expectedFinish)}, never clicked. Build a stronger XI and come back harder.`;
   } else if (actualFinish === 2) {
     const gap = expectedPoints - actualPts;
     narrativeHeadline = 'SO CLOSE';
     narrativeBody = `${actualPts} points, runners-up. ${gap > 0 ? `${gap} more points` : 'A single result'} and this is a title. Swap out the weak link and go again.`;
   } else if (actualFinish <= 4) {
     narrativeHeadline = 'TOP FOUR';
-    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Champions League secured — but the title is right there. Push for it.`;
+    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Champions League secured, but the title is right there. Push for it.`;
   } else if (actualFinish >= 18) {
     narrativeHeadline = 'RELEGATED';
     narrativeBody = `Only ${actualPts} points. ${ordinal(actualFinish)} place and the drop. Brutal. Rebuild your XI and get back up.`;
   } else {
-    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Projected ${ordinal(expectedFinish)}. Top four is the next milestone — strengthen the squad and push.`;
+    narrativeBody = `${actualPts} points, ${ordinal(actualFinish)} place. Projected ${ordinal(expectedFinish)}. Top four is the next milestone, strengthen the squad and push.`;
   }
 
   return {

@@ -111,7 +111,7 @@
       <h2>38-0 + 15-0</h2>
       <p class="hunt-summary">
         Combined chase progress: <strong>{combinedProgress}%</strong>
-        {#if combinedProgress === 100}— flawless.{:else if combinedProgress >= 80}, elite territory.{:else if combinedProgress >= 60},
+        {#if combinedProgress === 100}, flawless.{:else if combinedProgress >= 80}, elite territory.{:else if combinedProgress >= 60},
           pushing for it.{:else}, room to grow.{/if}
       </p>
       <div class="hunt-grid">

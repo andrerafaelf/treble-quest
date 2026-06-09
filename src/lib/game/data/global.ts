@@ -24,11 +24,20 @@ export const globalManagers: Manager[] = [
   { id: 'luis-enrique-barcelona-2014-15', name: 'Luis Enrique', overall: 91, clubHint: 'Barcelona 2014/15', style: 'attacking', temperament: 'intense', boost: 9, cupBoost: 10, leagueBoost: 9 },
   { id: 'jupp-heynckes-bayern-2012-13', name: 'Jupp Heynckes', overall: 93, clubHint: 'Bayern 2012/13', style: 'balanced', temperament: 'calm', boost: 10, cupBoost: 10, leagueBoost: 9 },
   { id: 'bela-guttmann-benfica-1961-62', name: 'Béla Guttmann', overall: 91, clubHint: 'Benfica 1961/62', style: 'attacking', temperament: 'romantic', boost: 9, cupBoost: 10, leagueBoost: 9 },
-  { id: 'giovanni-trapattoni-juve-1984-85', name: 'Giovanni Trapattoni', overall: 89, clubHint: 'Juventus 1984/85', style: 'defensive', temperament: 'pragmatic', boost: 8, cupBoost: 9, leagueBoost: 9 },
+  { id: 'giovanni-trapattoni-juve-1985-86', name: 'Giovanni Trapattoni', overall: 89, clubHint: 'Juventus 1985/86', style: 'defensive', temperament: 'pragmatic', boost: 8, cupBoost: 9, leagueBoost: 9 },
   { id: 'jorge-jesus-benfica-2009-10', name: 'Jorge Jesus', overall: 87, clubHint: 'Benfica 2009/10', style: 'pressing', temperament: 'intense', boost: 8, cupBoost: 8, leagueBoost: 9 },
-  { id: 'nelo-vingada-nacional-2008-09', name: 'Nelo Vingada', overall: 82, clubHint: 'Nacional 2008/09', style: 'balanced', temperament: 'pragmatic', boost: 8, cupBoost: 7, leagueBoost: 8 },
+  { id: 'manuel-machado-nacional-2008-09', name: 'Manuel Machado', overall: 82, clubHint: 'Nacional 2008/09', style: 'balanced', temperament: 'pragmatic', boost: 8, cupBoost: 7, leagueBoost: 8 },
   { id: 'carlos-bianchi-boca-2000-01', name: 'Carlos Bianchi', overall: 90, clubHint: 'Boca Juniors 2000/01', style: 'counter', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 8 },
   { id: 'sven-goran-eriksson-lazio-1999-00', name: 'Sven-Göran Eriksson', overall: 88, clubHint: 'Lazio 1999/00', style: 'attacking', temperament: 'calm', boost: 8, cupBoost: 8, leagueBoost: 9 },
+  { id: 'jose-mourinho-sporting-2001-02', name: 'José Mourinho', overall: 88, clubHint: 'Sporting CP 2001/02', style: 'counter', temperament: 'intense', boost: 9, cupBoost: 9, leagueBoost: 9 },
+  { id: 'rinus-michels-ajax-1971-72', name: 'Rinus Michels', overall: 93, clubHint: 'Ajax 1971/72', style: 'pressing', temperament: 'romantic', boost: 10, cupBoost: 10, leagueBoost: 9 },
+  { id: 'daniel-passarella-river-1996', name: 'Daniel Passarella', overall: 88, clubHint: 'River Plate 1996', style: 'attacking', temperament: 'intense', boost: 9, cupBoost: 9, leagueBoost: 9 },
+  { id: 'carlos-bilardo-argentina-1986', name: 'Carlos Bilardo', overall: 91, clubHint: 'Argentina 1986', style: 'counter', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 8 },
+  { id: 'rafael-benitez-liverpool-2004-05', name: 'Rafael Benítez', overall: 90, clubHint: 'Liverpool 2004/05', style: 'defensive', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 8 },
+  { id: 'raymond-goethals-marseille-1992-93', name: 'Raymond Goethals', overall: 87, clubHint: 'Marseille 1992/93', style: 'counter', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 8 },
+  { id: 'fabio-capello-roma-2000-01', name: 'Fabio Capello', overall: 91, clubHint: 'Roma 2000/01', style: 'defensive', temperament: 'intense', boost: 9, cupBoost: 8, leagueBoost: 10 },
+  { id: 'aime-jacquet-france-1998', name: 'Aimé Jacquet', overall: 90, clubHint: 'France 1998', style: 'balanced', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 8 },
+  { id: 'giovanni-trapattoni-juve-1984-85', name: 'Giovanni Trapattoni', overall: 90, clubHint: 'Juventus 1984/85', style: 'defensive', temperament: 'pragmatic', boost: 9, cupBoost: 10, leagueBoost: 9 },
 ];
 
 // ─── TEAMS ──────────────────────────────────────────────────────────────────
@@ -51,18 +60,18 @@ const porto2003_04: PlayerSeason[] = [
 
 // Nacional 2008/09 — Primeira Liga champions, Madeira's finest
 const nacional2008_09: PlayerSeason[] = [
-  p('jose-moreira-nacional-2008-09', 'José Moreira', 'Nacional', '2008/09', 'Portugal', ['GK'], 'Agile shot-stopper', 82, 18, 56, 84, 80, 84, 42, 'solid'),
-  p('marcos-paulo-nacional-2008-09', 'Marcos Paulo', 'Nacional', '2008/09', 'Portugal', ['LB', 'DEF'], 'Overlapping left-back', 77, 62, 68, 76, 74, 76, 38, 'solid'),
-  p('anselmo-nacional-2008-09', 'Anselmo', 'Nacional', '2008/09', 'Portugal', ['CB', 'DEF'], 'Commanding centre-back', 80, 34, 62, 84, 78, 82, 36, 'solid'),
-  p('ruben-micael-nacional-2008-09', 'Rúben Micael', 'Nacional', '2008/09', 'Portugal', ['CB', 'DEF'], 'Composed in possession', 79, 36, 64, 80, 76, 80, 32, 'solid'),
-  p('miguel-garcia-nacional-2008-09', 'Miguel Garcia', 'Nacional', '2008/09', 'Portugal', ['RB', 'DEF'], 'Steady right-back', 77, 56, 68, 78, 74, 78, 34, 'solid'),
-  p('fabio-nacional-2008-09', 'Fábio', 'Nacional', '2008/09', 'Portugal', ['CM', 'MID'], 'Hard-working central mid', 78, 60, 75, 72, 76, 80, 44, 'solid'),
-  p('julio-nacional-2008-09', 'Júlio', 'Nacional', '2008/09', 'Portugal', ['CM', 'MID'], 'Box-to-box runner', 78, 66, 74, 70, 76, 78, 46, 'solid'),
-  p('nene-nacional-2008-09', 'Nené', 'Nacional', '2008/09', 'Portugal', ['CM', 'RW', 'MID'], 'Madeiran magician, the island\'s best', 91, 88, 92, 54, 90, 88, 66, 'legend'),
-  p('evandro-nacional-2008-09', 'Evandro', 'Nacional', '2008/09', 'Brazil', ['RW', 'MID'], 'Direct winger', 81, 78, 74, 52, 78, 76, 54, 'solid'),
-  p('tarantini-nacional-2008-09', 'Tarantini', 'Nacional', '2008/09', 'Brazil', ['LW', 'MID'], 'Tricky left-winger', 80, 77, 73, 50, 76, 75, 56, 'solid'),
-  p('hugo-nacional-2008-09', 'Hugo', 'Nacional', '2008/09', 'Portugal', ['ST', 'FWD'], 'Clinical finisher', 82, 82, 68, 38, 80, 78, 52, 'solid'),
-  p('gustavo-nacional-2008-09', 'Gustavo', 'Nacional', '2008/09', 'Brazil', ['ST', 'FWD'], 'Powerful target man', 79, 80, 62, 40, 76, 74, 50, 'solid'),
+  p('rafael-bracali-nacional-2008-09', 'Rafael Bracali', 'Nacional', '2008/09', 'Brazil', ['GK'], 'Shot-stopper, 40 appearances', 83, 18, 56, 85, 82, 84, 40, 'solid'),
+  p('maicon-nacional-2008-09', 'Maicon', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Commanding stopper, 39 appearances', 79, 62, 70, 78, 76, 78, 39, 'solid'),
+  p('alonso-nacional-2008-09', 'Alonso', 'Nacional', '2008/09', 'Brazil', ['LB', 'DEF'], 'Athletic left-back, 38 appearances', 81, 36, 62, 84, 80, 82, 38, 'solid'),
+  p('felipe-lopes-nacional-2008-09', 'Felipe Lopes', 'Nacional', '2008/09', 'Brazil', ['CB', 'DEF'], 'Composed Brazilian defender', 79, 34, 60, 82, 78, 80, 32, 'solid'),
+  p('patacas-nacional-2008-09', 'Patacas', 'Nacional', '2008/09', 'Portugal', ['RB', 'DEF'], 'Experienced right-back', 78, 54, 66, 78, 76, 78, 36, 'solid'),
+  p('cleber-monteiro-nacional-2008-09', 'Cléber Monteiro', 'Nacional', '2008/09', 'Brazil', ['CM', 'MID'], 'Driving central midfielder, 39 appearances', 80, 62, 76, 72, 78, 80, 44, 'solid'),
+  p('ruben-micael-nacional-2008-09', 'Rúben Micael', 'Nacional', '2008/09', 'Portugal', ['CM', 'RW', 'MID'], 'Energetic midfielder, 5 goals', 80, 72, 76, 64, 78, 80, 46, 'solid'),
+  p('nene-nacional-2008-09', 'Nenê', 'Nacional', '2008/09', 'Brazil', ['ST', 'FWD'], 'Madeira magician, League top goalscorer', 91, 88, 92, 54, 90, 88, 66, 'legend'),
+  p('bruno-amaro-nacional-2008-09', 'Bruno Amaro', 'Nacional', '2008/09', 'Portugal', ['CM', 'LW', 'MID'], 'Creative midfielder, 3 goals', 78, 68, 74, 60, 76, 78, 48, 'solid'),
+  p('mateus-nacional-2008-09', 'Mateus', 'Nacional', '2008/09', 'Angola', ['RW', 'ST', 'FWD'], 'Angolan winger, 9 goals', 82, 82, 72, 46, 80, 78, 54, 'solid'),
+  p('miguel-fidalgo-nacional-2008-09', 'Miguel Fidalgo', 'Nacional', '2008/09', 'Portugal', ['ST', 'FWD'], 'Top scorer, 7 league goals', 82, 84, 68, 38, 80, 78, 52, 'solid'),
+  p('juninho-arcanjo-nacional-2008-09', 'Juninho Arcanjo', 'Nacional', '2008/09', 'Brazil', ['LW', 'ST', 'FWD'], 'Brazilian wide forward', 79, 78, 68, 42, 76, 74, 50, 'solid'),
 ];
 
 // Benfica 2004/05 — knocked out Liverpool, reached CL final
@@ -88,7 +97,7 @@ const benfica1961_62: PlayerSeason[] = [
   p('germano-benfica-1961-62', 'Germano', 'Benfica', '1961/62', 'Portugal', ['CB', 'DEF'], 'Dominant stopper', 84, 36, 60, 88, 82, 86, 38, 'solid'),
   p('angelo-benfica-1961-62', 'Ângelo', 'Benfica', '1961/62', 'Portugal', ['CB', 'DEF'], 'Composed defender', 80, 34, 58, 84, 78, 82, 34, 'solid'),
   p('cruz-benfica-1961-62', 'Cruz', 'Benfica', '1961/62', 'Portugal', ['LB', 'DEF'], 'Tough full-back', 78, 50, 60, 80, 76, 80, 36, 'solid'),
-  p('mario-coluna-benfica-1961-62', 'Mário Coluna', 'Benfica', '1961/62', 'Mozambique', ['CM', 'MID'], 'The Monster — powerful midfield general', 90, 76, 86, 78, 88, 88, 56, 'legend'),
+  p('mario-coluna-benfica-1961-62', 'Mário Coluna', 'Benfica', '1961/62', 'Mozambique', ['CM', 'MID'], 'The Monster, powerful midfield general', 90, 76, 86, 78, 88, 88, 56, 'legend'),
   p('jose-augusto-benfica-1961-62', 'José Augusto', 'Benfica', '1961/62', 'Portugal', ['RW', 'MID'], 'Quick right-winger', 84, 84, 78, 52, 82, 82, 56, 'solid'),
   p('cavem-benfica-1961-62', 'Cavém', 'Benfica', '1961/62', 'Portugal', ['CM', 'MID'], 'Reliable midfielder', 80, 66, 74, 66, 78, 80, 44, 'solid'),
   p('domiciano-cavem-benfica-1961-62', 'Domiciano Cavém Jr.', 'Benfica', '1961/62', 'Portugal', ['LW', 'MID'], 'Tricky wide player', 80, 78, 72, 50, 76, 78, 50, 'solid'),
@@ -363,6 +372,144 @@ const manUtd1998_99_global: PlayerSeason[] = [
   p('ole-gunnar-solskjaer-man-utd-1998-99-g', 'Ole Gunnar Solskjær', 'Manchester United', '1998/99', 'Norway', ['ST', 'FWD'], 'Late-box finisher', 85, 87, 76, 42, 95, 79, 74, 'solid'),
 ];
 
+// Sporting CP 2001/02 — Primeira Liga title, Mourinho connection
+const sporting2001_02: PlayerSeason[] = [
+  p('pedro-espinha-sporting-2001-02', 'Pedro Espinha', 'Sporting CP', '2001/02', 'Portugal', ['GK'], 'Commanding keeper', 83, 18, 58, 86, 82, 84, 36, 'solid'),
+  p('carlos-secretario-sporting-2001-02', 'Carlos Secretário', 'Sporting CP', '2001/02', 'Portugal', ['RB', 'DEF'], 'Dependable right-back', 80, 60, 68, 80, 78, 80, 36, 'solid'),
+  p('beto-sporting-2001-02', 'Beto', 'Sporting CP', '2001/02', 'Portugal', ['CB', 'DEF'], 'Solid centre-back', 82, 36, 62, 84, 80, 82, 36, 'solid'),
+  p('carlos-martins-sporting-2001-02', 'Ronaldo (Sporting)', 'Sporting CP', '2001/02', 'Portugal', ['RW', 'FWD'], 'Teenage sensation debut season', 87, 88, 82, 52, 88, 84, 66, 'elite'),
+  p('mario-jardel-sporting-2001-02', 'Mário Jardel', 'Sporting CP', '2001/02', 'Brazil', ['ST', 'FWD'], 'Prolific Brazilian goal machine', 90, 92, 72, 44, 90, 84, 62, 'legend'),
+  p('joao-pinto-sporting-2001-02', 'João Pinto', 'Sporting CP', '2001/02', 'Portugal', ['ST', 'RW', 'FWD'], 'Powerful forward', 84, 86, 72, 46, 82, 80, 56, 'solid'),
+  p('capucho-sporting-2001-02', 'Capucho', 'Sporting CP', '2001/02', 'Portugal', ['LW', 'MID'], 'Direct Portuguese winger', 84, 84, 76, 52, 82, 80, 58, 'solid'),
+  p('hugo-viana-sporting-2001-02', 'Hugo Viana', 'Sporting CP', '2001/02', 'Portugal', ['CM', 'MID'], 'Talented young playmaker', 81, 72, 80, 62, 78, 82, 44, 'solid'),
+  p('beto-2-sporting-2001-02', 'Liedson', 'Sporting CP', '2001/02', 'Brazil', ['ST', 'FWD'], 'Sharp Brazilian striker', 85, 88, 72, 44, 84, 80, 58, 'elite'),
+  p('paulo-bento-sporting-2001-02', 'Paulo Bento', 'Sporting CP', '2001/02', 'Portugal', ['CM', 'MID'], 'Tenacious midfield anchor', 82, 58, 76, 76, 80, 84, 46, 'solid'),
+  p('rui-jorge-sporting-2001-02', 'Rui Jorge', 'Sporting CP', '2001/02', 'Portugal', ['LB', 'DEF'], 'Reliable attacking left-back', 80, 64, 68, 78, 78, 80, 38, 'solid'),
+  p('niculae-sporting-2001-02', 'Niculae', 'Sporting CP', '2001/02', 'Romania', ['RW', 'ST', 'FWD'], 'Romanian fast attacker', 80, 80, 70, 46, 78, 76, 52, 'solid'),
+];
+
+// Ajax 1971/72 — Rinus Michels, Cruyff's Total Football
+const ajax1971_72: PlayerSeason[] = [
+  p('heinz-stuy-ajax-1971-72', 'Heinz Stuy', 'Ajax', '1971/72', 'Netherlands', ['GK'], 'Reliable keeper', 83, 16, 54, 84, 80, 84, 36, 'solid'),
+  p('wim-suurbier-ajax-1971-72', 'Wim Suurbier', 'Ajax', '1971/72', 'Netherlands', ['RB', 'DEF'], 'Athletic right-back', 83, 64, 70, 82, 80, 82, 44, 'solid'),
+  p('barry-hulshoff-ajax-1971-72', 'Barry Hulshoff', 'Ajax', '1971/72', 'Netherlands', ['CB', 'DEF'], 'Commanding sweeper', 84, 38, 66, 86, 82, 84, 38, 'solid'),
+  p('velibor-vasovic-ajax-1971-72', 'Velibor Vasović', 'Ajax', '1971/72', 'Yugoslavia', ['CB', 'DEF'], 'Libero captain', 86, 44, 72, 88, 84, 88, 36, 'elite'),
+  p('ruud-krol-ajax-1971-72', 'Ruud Krol', 'Ajax', '1971/72', 'Netherlands', ['LB', 'CB', 'DEF'], 'Intelligent overlapping defender', 87, 66, 76, 86, 84, 86, 46, 'elite'),
+  p('gerrie-muhren-ajax-1971-72', 'Gerrie Mühren', 'Ajax', '1971/72', 'Netherlands', ['CM', 'MID'], 'Technical midfielder', 84, 72, 82, 64, 82, 82, 48, 'solid'),
+  p('arie-haan-ajax-1971-72', 'Arie Haan', 'Ajax', '1971/72', 'Netherlands', ['CM', 'MID'], 'Box-to-box dynamo', 86, 74, 82, 72, 84, 84, 52, 'elite'),
+  p('johan-neeskens-ajax-1971-72', 'Johan Neeskens', 'Ajax', '1971/72', 'Netherlands', ['CM', 'MID'], 'Ferocious engine', 92, 78, 86, 80, 90, 88, 64, 'legend'),
+  p('piet-keizer-ajax-1971-72', 'Piet Keizer', 'Ajax', '1971/72', 'Netherlands', ['LW', 'FWD'], 'Inventive left-winger', 88, 88, 82, 50, 86, 82, 62, 'elite'),
+  p('john-rep-ajax-1971-72', 'John Rep', 'Ajax', '1971/72', 'Netherlands', ['RW', 'FWD'], 'Dangerous right-winger', 85, 84, 78, 50, 82, 80, 58, 'elite'),
+  p('johan-cruyff-ajax-1971-72', 'Johan Cruyff', 'Ajax', '1971/72', 'Netherlands', ['ST', 'CM', 'FWD'], 'Total football architect', 97, 95, 96, 56, 96, 92, 68, 'legend'),
+];
+
+// River Plate 1996 — Marcelo Gallardo era, Apertura champions
+const riverPlate1996: PlayerSeason[] = [
+  p('german-burgos-river-1996', 'Germán Burgos', 'River Plate', '1996', 'Argentina', ['GK'], 'El Mono — commanding keeper', 84, 18, 54, 86, 82, 84, 44, 'solid'),
+  p('hernan-diaz-river-1996', 'Hernán Díaz', 'River Plate', '1996', 'Argentina', ['RB', 'DEF'], 'Solid right-back', 79, 56, 64, 80, 78, 80, 36, 'solid'),
+  p('oscar-ruggeri-river-1996', 'Óscar Ruggeri', 'River Plate', '1996', 'Argentina', ['CB', 'DEF'], 'El Cabezón — veteran stopper', 87, 44, 68, 90, 84, 88, 48, 'elite'),
+  p('jose-chamot-river-1996', 'José Chamot', 'River Plate', '1996', 'Argentina', ['CB', 'LB', 'DEF'], 'Composed ball-playing defender', 84, 56, 70, 84, 82, 84, 42, 'solid'),
+  p('juan-pablo-sorin-river-1996', 'Juan Pablo Sorín', 'River Plate', '1996', 'Argentina', ['LB', 'DEF'], 'Attack-minded left-back', 83, 66, 70, 80, 80, 82, 48, 'solid'),
+  p('marcelo-gallardo-river-1996', 'Marcelo Gallardo', 'River Plate', '1996', 'Argentina', ['CM', 'MID'], 'El Muñeco — visionary playmaker', 90, 82, 92, 62, 88, 88, 54, 'legend'),
+  p('leonardo-astrada-river-1996', 'Leonardo Astrada', 'River Plate', '1996', 'Argentina', ['CM', 'MID'], 'Midfield enforcer', 83, 58, 76, 78, 82, 84, 48, 'solid'),
+  p('ariel-ortega-river-1996', 'Ariel Ortega', 'River Plate', '1996', 'Argentina', ['RW', 'CM', 'MID'], 'El Burrito — dribbling genius', 88, 86, 84, 54, 86, 82, 66, 'elite'),
+  p('hernan-crespo-river-1996', 'Hernán Crespo', 'River Plate', '1996', 'Argentina', ['ST', 'FWD'], 'Young prolific striker', 86, 88, 74, 48, 84, 82, 58, 'elite'),
+  p('enzo-francescoli-river-1996', 'Enzo Francescoli', 'River Plate', '1996', 'Uruguay', ['ST', 'CM', 'FWD'], 'El Príncipe — elegant attacker', 92, 88, 92, 54, 90, 88, 56, 'legend'),
+  p('ramiro-funes-river-1996', 'Ramiro Funes Mori', 'River Plate', '1996', 'Argentina', ['LW', 'FWD'], 'Pacey wide forward', 80, 80, 70, 48, 78, 76, 52, 'solid'),
+];
+
+// Argentina 1986 — Bilardo's World Cup winners
+const argentina1986: PlayerSeason[] = [
+  p('nery-pumpido-arg-1986', 'Nery Pumpido', 'Argentina', '1986', 'Argentina', ['GK'], 'World Cup winner', 84, 16, 52, 86, 82, 82, 38, 'solid'),
+  p('hector-enrique-arg-1986', 'Héctor Enrique', 'Argentina', '1986', 'Argentina', ['RB', 'CM', 'DEF'], 'Reliable full-back midfielder', 80, 62, 70, 78, 78, 80, 42, 'solid'),
+  p('jose-luis-brown-arg-1986', 'José Luis Brown', 'Argentina', '1986', 'Argentina', ['CB', 'DEF'], 'Final goal scorer', 83, 40, 62, 84, 80, 82, 42, 'solid'),
+  p('oscar-ruggeri-arg-1986', 'Óscar Ruggeri', 'Argentina', '1986', 'Argentina', ['CB', 'DEF'], 'Dominant stopper', 86, 42, 64, 88, 84, 86, 44, 'elite'),
+  p('julio-olarticoechea-arg-1986', 'Julio Olarticoechea', 'Argentina', '1986', 'Argentina', ['LB', 'DEF'], 'Solid left-back', 79, 58, 64, 80, 78, 80, 36, 'solid'),
+  p('sergio-batista-arg-1986', 'Sergio Batista', 'Argentina', '1986', 'Argentina', ['CM', 'MID'], 'Defensive anchor', 82, 54, 74, 78, 82, 82, 42, 'solid'),
+  p('hector-zelada-arg-1986-mid', 'Ricardo Giusti', 'Argentina', '1986', 'Argentina', ['CM', 'MID'], 'Combative midfielder', 80, 60, 72, 76, 78, 80, 42, 'solid'),
+  p('jorge-valdano-arg-1986', 'Jorge Valdano', 'Argentina', '1986', 'Argentina', ['ST', 'LW', 'FWD'], 'Philosopher striker', 88, 88, 80, 50, 86, 82, 58, 'elite'),
+  p('jorge-burruchaga-arg-1986', 'Jorge Burruchaga', 'Argentina', '1986', 'Argentina', ['CM', 'RW', 'MID'], 'Final winning goal scorer', 87, 82, 84, 58, 84, 82, 58, 'elite'),
+  p('claudio-caniggia-arg-1986', 'Claudio Caniggia', 'Argentina', '1986', 'Argentina', ['RW', 'ST', 'FWD'], 'Electric wide forward', 89, 88, 80, 56, 90, 84, 70, 'elite'),
+  p('diego-maradona-arg-1986', 'Diego Maradona', 'Argentina', '1986', 'Argentina', ['ST', 'CM', 'FWD'], 'Hand of God, Goal of the Century', 99, 97, 97, 56, 98, 92, 72, 'legend'),
+];
+
+// Liverpool 2004/05 — Benitez's Istanbul miracle
+const liverpool2004_05: PlayerSeason[] = [
+  p('jerzy-dudek-liverpool-2004-05', 'Jerzy Dudek', 'Liverpool', '2004/05', 'Poland', ['GK'], 'Istanbul hero', 83, 18, 56, 86, 82, 82, 44, 'solid'),
+  p('jamie-carragher-liverpool-2004-05', 'Jamie Carragher', 'Liverpool', '2004/05', 'England', ['CB', 'RB', 'DEF'], 'Defensive rock', 86, 42, 68, 88, 86, 90, 38, 'elite'),
+  p('sami-hyypia-liverpool-2004-05', 'Sami Hyypiä', 'Liverpool', '2004/05', 'Finland', ['CB', 'DEF'], 'Composed Scandinavian', 85, 38, 68, 88, 82, 88, 36, 'elite'),
+  p('djimi-traore-liverpool-2004-05', 'Djimi Traoré', 'Liverpool', '2004/05', 'France', ['LB', 'DEF'], 'Versatile defender', 79, 54, 62, 80, 76, 78, 36, 'solid'),
+  p('steve-finnan-liverpool-2004-05', 'Steve Finnan', 'Liverpool', '2004/05', 'Ireland', ['RB', 'DEF'], 'Dependable right-back', 81, 60, 68, 80, 78, 82, 36, 'solid'),
+  p('xabi-alonso-liverpool-2004-05', 'Xabi Alonso', 'Liverpool', '2004/05', 'Spain', ['CM', 'MID'], 'Range passing maestro', 88, 70, 88, 74, 86, 90, 40, 'elite'),
+  p('didi-hamann-liverpool-2004-05', 'Didi Hamann', 'Liverpool', '2004/05', 'Germany', ['CM', 'MID'], 'Half-time hero Istanbul', 84, 58, 78, 78, 82, 84, 40, 'solid'),
+  p('steven-gerrard-liverpool-2004-05', 'Steven Gerrard', 'Liverpool', '2004/05', 'England', ['CM', 'MID'], 'Iconic comeback captain', 92, 84, 88, 82, 90, 90, 68, 'legend'),
+  p('luis-garcia-liverpool-2004-05', 'Luis García', 'Liverpool', '2004/05', 'Spain', ['RW', 'CM', 'MID'], 'The ghost goal scorer', 84, 80, 80, 58, 82, 80, 56, 'solid'),
+  p('harry-kewell-liverpool-2004-05', 'Harry Kewell', 'Liverpool', '2004/05', 'Australia', ['LW', 'FWD'], 'Talented wide attacker', 82, 80, 76, 52, 82, 78, 58, 'solid'),
+  p('milan-baros-liverpool-2004-05', 'Milan Baroš', 'Liverpool', '2004/05', 'Czech Republic', ['ST', 'FWD'], 'Golden Boot winner', 84, 86, 72, 46, 84, 78, 60, 'solid'),
+  p('john-arne-riise-liverpool-2004-05', 'John Arne Riise', 'Liverpool', '2004/05', 'Norway', ['LB', 'LW', 'DEF'], 'Powerful left foot', 82, 72, 68, 78, 78, 80, 50, 'solid'),
+];
+
+// Marseille 1992/93 — Tapie's champions, first French CL winners
+const marseille1992_93: PlayerSeason[] = [
+  p('fabien-barthez-marseille-1992-93', 'Fabien Barthez', 'Marseille', '1992/93', 'France', ['GK'], 'Future World Cup winner', 86, 20, 62, 88, 84, 86, 40, 'elite'),
+  p('jocelyn-angloma-marseille-1992-93', 'Jocelyn Angloma', 'Marseille', '1992/93', 'France', ['RB', 'DEF'], 'Quick right-back', 82, 64, 70, 82, 80, 82, 40, 'solid'),
+  p('basile-boli-marseille-1992-93', 'Basile Boli', 'Marseille', '1992/93', 'France', ['CB', 'DEF'], 'Final scorer, dominant CB', 86, 44, 64, 88, 84, 86, 44, 'elite'),
+  p('marcel-desailly-marseille-1992-93', 'Marcel Desailly', 'Marseille', '1992/93', 'France', ['CB', 'CM', 'DEF'], 'Rock-solid anchor', 87, 58, 74, 88, 84, 84, 46, 'elite'),
+  p('eric-di-meco-marseille-1992-93', 'Éric Di Meco', 'Marseille', '1992/93', 'France', ['LB', 'DEF'], 'Attack-minded left-back', 82, 62, 68, 80, 80, 82, 42, 'solid'),
+  p('alen-boksic-marseille-1992-93', 'Alén Boksič', 'Marseille', '1992/93', 'Croatia', ['ST', 'RW', 'FWD'], 'Explosive forward', 88, 90, 76, 50, 88, 82, 64, 'elite'),
+  p('rudi-voller-marseille-1992-93', 'Rudi Völler', 'Marseille', '1992/93', 'Germany', ['ST', 'FWD'], 'Intelligent target striker', 87, 86, 74, 48, 86, 82, 54, 'elite'),
+  p('jean-pierre-papin-marseille-1992-93', 'Jean-Pierre Papin', 'Marseille', '1992/93', 'France', ['ST', 'FWD'], 'Ballon d\'Or predator', 90, 92, 76, 46, 90, 84, 62, 'legend'),
+  p('didier-deschamps-marseille-1992-93', 'Didier Deschamps', 'Marseille', '1992/93', 'France', ['CM', 'MID'], 'Midfield organiser', 85, 58, 80, 78, 84, 88, 36, 'elite'),
+  p('chris-waddle-marseille-1992-93', 'Chris Waddle', 'Marseille', '1992/93', 'England', ['RW', 'CM', 'MID'], 'English wizard in France', 87, 84, 84, 56, 86, 82, 62, 'elite'),
+  p('roque-junior-marseille-1992-93', 'Eric Cantona', 'Marseille', '1992/93', 'France', ['ST', 'CM', 'FWD'], 'Powerful creative forward', 88, 86, 82, 60, 88, 84, 62, 'elite'),
+];
+
+// Roma 2000/01 — Capello's Serie A champions
+const roma2000_01: PlayerSeason[] = [
+  p('ivan-pelizzoli-roma-2000-01', 'Ivan Pelizzoli', 'Roma', '2000/01', 'Italy', ['GK'], 'Steady backup keeper', 79, 14, 50, 80, 76, 78, 28, 'solid'),
+  p('antonioli-roma-2000-01', 'Francesco Antonioli', 'Roma', '2000/01', 'Italy', ['GK'], 'Commanding first-choice keeper', 84, 18, 58, 86, 82, 84, 38, 'solid'),
+  p('cafu-roma-2000-01', 'Cafu', 'Roma', '2000/01', 'Brazil', ['RB', 'DEF'], 'Best right-back in the world', 93, 82, 84, 86, 88, 90, 58, 'legend'),
+  p('aldair-roma-2000-01', 'Aldair', 'Roma', '2000/01', 'Brazil', ['CB', 'DEF'], 'Commanding Brazilian', 86, 36, 64, 88, 84, 86, 38, 'elite'),
+  p('walter-samuel-roma-2000-01', 'Walter Samuel', 'Roma', '2000/01', 'Argentina', ['CB', 'DEF'], 'Argentine wall', 86, 38, 64, 90, 84, 86, 40, 'elite'),
+  p('vincent-candela-roma-2000-01', 'Vincent Candela', 'Roma', '2000/01', 'France', ['LB', 'DEF'], 'Energetic left-back', 83, 66, 70, 80, 80, 82, 46, 'solid'),
+  p('damiano-tommasi-roma-2000-01', 'Damiano Tommasi', 'Roma', '2000/01', 'Italy', ['CM', 'MID'], 'Midfield dynamo', 84, 64, 78, 78, 82, 84, 50, 'solid'),
+  p('marcos-assuncao-roma-2000-01', 'Emerson', 'Roma', '2000/01', 'Brazil', ['CM', 'MID'], 'Powerful Brazilian enforcer', 88, 68, 82, 82, 86, 86, 52, 'elite'),
+  p('francisco-lima-roma-2000-01', 'Marcos Assunção', 'Roma', '2000/01', 'Brazil', ['CM', 'MID'], 'Silky Brazilian playmaker', 83, 72, 80, 64, 80, 82, 46, 'solid'),
+  p('vincenzo-montella-roma-2000-01', 'Vincenzo Montella', 'Roma', '2000/01', 'Italy', ['ST', 'FWD'], 'L\'Aeroplanino — nimble finisher', 87, 88, 78, 46, 88, 82, 58, 'elite'),
+  p('gabriel-batistuta-roma-2000-01', 'Gabriel Batistuta', 'Roma', '2000/01', 'Argentina', ['ST', 'FWD'], 'BatigolPeak — devastating striker', 93, 94, 76, 52, 92, 86, 60, 'legend'),
+  p('marco-delvecchio-roma-2000-01', 'Marco Delvecchio', 'Roma', '2000/01', 'Italy', ['ST', 'RW', 'FWD'], 'Clever supporting forward', 83, 82, 72, 46, 82, 78, 52, 'solid'),
+];
+
+// France 1998 — Aimé Jacquet's World Cup winners on home soil
+const france1998: PlayerSeason[] = [
+  p('fabien-barthez-france-1998', 'Fabien Barthez', 'France', '1998', 'France', ['GK'], 'World Cup winning keeper', 90, 20, 66, 92, 88, 88, 46, 'elite'),
+  p('lilian-thuram-france-1998', 'Lilian Thuram', 'France', '1998', 'France', ['RB', 'CB', 'DEF'], 'Semi-final two-goal defender', 90, 56, 74, 92, 88, 90, 42, 'legend'),
+  p('marcel-desailly-france-1998', 'Marcel Desailly', 'France', '1998', 'France', ['CB', 'DEF'], 'Warrior centre-back', 90, 48, 76, 90, 88, 88, 52, 'elite'),
+  p('frank-leboeuf-france-1998', 'Frank Lebœuf', 'France', '1998', 'France', ['CB', 'DEF'], 'Penalty scorer, composed CB', 83, 42, 68, 84, 80, 82, 38, 'solid'),
+  p('bixente-lizarazu-france-1998', 'Bixente Lizarazu', 'France', '1998', 'France', ['LB', 'DEF'], 'Attack-minded left-back', 87, 70, 72, 84, 84, 84, 46, 'elite'),
+  p('didier-deschamps-france-1998', 'Didier Deschamps', 'France', '1998', 'France', ['CM', 'MID'], 'Captain of champions', 88, 58, 82, 80, 86, 90, 36, 'elite'),
+  p('emmanuel-petit-france-1998', 'Emmanuel Petit', 'France', '1998', 'France', ['CM', 'MID'], 'Final goal scorer', 87, 66, 82, 78, 86, 84, 48, 'elite'),
+  p('youri-djorkaeff-france-1998', 'Youri Djorkaeff', 'France', '1998', 'France', ['CM', 'RW', 'MID'], 'The Snake — technical attacker', 88, 82, 84, 62, 86, 84, 58, 'elite'),
+  p('robert-pires-france-1998', 'Robert Pirès', 'France', '1998', 'France', ['LW', 'MID'], 'Creative left attacker', 88, 84, 84, 58, 86, 82, 62, 'elite'),
+  p('thierry-henry-france-1998', 'Thierry Henry', 'France', '1998', 'France', ['LW', 'ST', 'FWD'], 'Explosive young forward', 90, 90, 82, 58, 90, 84, 68, 'legend'),
+  p('zinedine-zidane-france-1998', 'Zinedine Zidane', 'France', '1998', 'France', ['ST', 'CM', 'FWD'], 'Two-header final hero', 97, 88, 97, 66, 94, 92, 60, 'legend'),
+];
+
+// Juventus 1984/85 — Trapattoni's European Cup winners
+const juventus1984_85: PlayerSeason[] = [
+  p('dino-zoff-juventus-1984-85', 'Dino Zoff', 'Juventus', '1984/85', 'Italy', ['GK'], 'Legendary last great season', 90, 18, 60, 93, 90, 90, 58, 'legend'),
+  p('claudio-gentile-juventus-1984-85', 'Claudio Gentile', 'Juventus', '1984/85', 'Italy', ['RB', 'CB', 'DEF'], 'Ruthless marker', 87, 48, 64, 88, 86, 88, 44, 'elite'),
+  p('gaetano-scirea-juventus-1984-85', 'Gaetano Scirea', 'Juventus', '1984/85', 'Italy', ['CB', 'DEF'], 'Elegant sweeper', 92, 48, 80, 94, 90, 92, 40, 'legend'),
+  p('antonio-cabrini-juventus-1984-85', 'Antonio Cabrini', 'Juventus', '1984/85', 'Italy', ['LB', 'DEF'], 'Attacking left-back', 87, 68, 74, 84, 84, 86, 48, 'elite'),
+  p('sergio-brio-juventus-1984-85', 'Sergio Brio', 'Juventus', '1984/85', 'Italy', ['CB', 'DEF'], 'Solid stopper', 83, 36, 62, 86, 80, 84, 38, 'solid'),
+  p('marco-tardelli-juventus-1984-85', 'Marco Tardelli', 'Juventus', '1984/85', 'Italy', ['CM', 'MID'], 'World Cup scream midfielder', 88, 70, 82, 78, 86, 86, 58, 'elite'),
+  p('massimo-bonini-juventus-1984-85', 'Massimo Bonini', 'Juventus', '1984/85', 'Italy', ['CM', 'MID'], 'Tireless midfield worker', 82, 56, 74, 76, 80, 82, 44, 'solid'),
+  p('zbigniew-boniek-juventus-1984-85', 'Zbigniew Boniek', 'Juventus', '1984/85', 'Poland', ['RW', 'ST', 'FWD'], 'Beautiful Night — brilliant attacker', 91, 90, 84, 52, 90, 84, 64, 'legend'),
+  p('michel-platini-juventus-1984-85', 'Michel Platini', 'Juventus', '1984/85', 'France', ['CM', 'ST', 'MID'], 'Three-time Ballon d\'Or', 96, 92, 96, 60, 94, 92, 60, 'legend'),
+  p('paolo-rossi-juventus-1984-85', 'Paolo Rossi', 'Juventus', '1984/85', 'Italy', ['ST', 'FWD'], 'World Cup hero in finale', 87, 86, 76, 48, 86, 82, 56, 'elite'),
+  p('ian-rush-juventus-1984-85', 'Alessandro Altobelli', 'Juventus', '1984/85', 'Italy', ['ST', 'FWD'], 'Spillo — clinical finisher', 85, 84, 72, 46, 84, 80, 54, 'elite'),
+];
+
 // ─── EXPORT ──────────────────────────────────────────────────────────────────
 
 export const globalPlayerSeasons: PlayerSeason[] = [
@@ -373,9 +520,11 @@ export const globalPlayerSeasons: PlayerSeason[] = [
   ...acMilan1993_94,
   ...acMilan1988_89,
   ...ajax1994_95,
+  ...ajax1971_72,
   ...bayernMunich2012_13,
   ...bayernMunich2000_01,
   ...juventus1995_96,
+  ...juventus1984_85,
   ...interMilan1964_65,
   ...inter2009_10,
   ...realMadrid1959_60,
@@ -384,7 +533,14 @@ export const globalPlayerSeasons: PlayerSeason[] = [
   ...barcelona2010_11,
   ...barcelona2014_15,
   ...bocaJuniors2000_01,
+  ...riverPlate1996,
+  ...argentina1986,
   ...lazio1999_00,
+  ...roma2000_01,
   ...celtic1966_67,
+  ...marseille1992_93,
+  ...france1998,
+  ...sporting2001_02,
+  ...liverpool2004_05,
   ...manUtd1998_99_global,
 ];
