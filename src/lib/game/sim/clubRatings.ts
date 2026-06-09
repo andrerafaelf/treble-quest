@@ -17,7 +17,7 @@ export const PL_CLUBS: { name: string; rating: number }[] = [
   { name: 'Bournemouth', rating: 63 },
   { name: 'Nottingham Forest', rating: 62 },
   { name: 'Leicester City', rating: 61 },
-  { name: 'Southampton', rating: 58 }
+  { name: 'Southampton', rating: 58 },
 ];
 
 export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: number }[] }[] = [
@@ -29,8 +29,8 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Stockport County', rating: 44 },
       { name: 'Plymouth Argyle', rating: 50 },
       { name: 'Luton Town', rating: 56 },
-      { name: 'Coventry City', rating: 54 }
-    ]
+      { name: 'Coventry City', rating: 54 },
+    ],
   },
   {
     round: 'Fourth Round',
@@ -40,8 +40,8 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Middlesbrough', rating: 58 },
       { name: 'Preston North End', rating: 53 },
       { name: 'QPR', rating: 54 },
-      { name: 'Millwall', rating: 55 }
-    ]
+      { name: 'Millwall', rating: 55 },
+    ],
   },
   {
     round: 'Fifth Round',
@@ -51,8 +51,8 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Derby County', rating: 56 },
       { name: 'Blackburn Rovers', rating: 58 },
       { name: 'Cardiff City', rating: 56 },
-      { name: 'Stoke City', rating: 58 }
-    ]
+      { name: 'Stoke City', rating: 58 },
+    ],
   },
   {
     round: 'Quarter-final',
@@ -62,8 +62,8 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Leicester City', rating: 61 },
       { name: 'Nottingham Forest', rating: 62 },
       { name: 'Southampton', rating: 58 },
-      { name: 'Leeds United', rating: 63 }
-    ]
+      { name: 'Leeds United', rating: 63 },
+    ],
   },
   {
     round: 'Semi-final',
@@ -73,8 +73,8 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Tottenham', rating: 80 },
       { name: 'Aston Villa', rating: 76 },
       { name: 'Newcastle', rating: 78 },
-      { name: 'Brighton', rating: 74 }
-    ]
+      { name: 'Brighton', rating: 74 },
+    ],
   },
   {
     round: 'Final',
@@ -84,9 +84,9 @@ export const FA_CUP_OPPONENTS: { round: string; pool: { name: string; rating: nu
       { name: 'Manchester City', rating: 88 },
       { name: 'Chelsea', rating: 82 },
       { name: 'Manchester United', rating: 81 },
-      { name: 'Tottenham', rating: 80 }
-    ]
-  }
+      { name: 'Tottenham', rating: 80 },
+    ],
+  },
 ];
 
 export const CL_GROUP_OPPONENTS: { name: string; rating: number }[] = [
@@ -97,7 +97,7 @@ export const CL_GROUP_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Braga', rating: 70 },
   { name: 'Salzburg', rating: 73 },
   { name: 'Celtic', rating: 71 },
-  { name: 'Benfica', rating: 79 }
+  { name: 'Benfica', rating: 79 },
 ];
 
 export const WORLD_CUP_GROUP_OPPONENTS: { name: string; rating: number }[] = [
@@ -110,7 +110,11 @@ export const WORLD_CUP_GROUP_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Costa Rica', rating: 69 },
   { name: 'Ghana', rating: 72 },
   { name: 'Japan', rating: 76 },
-  { name: 'Morocco', rating: 78 }
+  { name: 'Morocco', rating: 78 },
+  { name: 'Ecuador', rating: 74 },
+  { name: 'Algeria', rating: 73 },
+  { name: 'Egypt', rating: 74 },
+  { name: 'Cameroon', rating: 73 },
 ];
 
 export const WORLD_CUP_R32_OPPONENTS: { name: string; rating: number }[] = [
@@ -121,7 +125,9 @@ export const WORLD_CUP_R32_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'South Korea', rating: 75 },
   { name: 'Senegal', rating: 77 },
   { name: 'Denmark', rating: 79 },
-  { name: 'Uruguay', rating: 80 }
+  { name: 'Uruguay', rating: 80 },
+  { name: 'Belgium', rating: 82 },
+  { name: 'Italy', rating: 83 },
 ];
 
 export const WORLD_CUP_R16_OPPONENTS: { name: string; rating: number }[] = [
@@ -130,7 +136,9 @@ export const WORLD_CUP_R16_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Belgium', rating: 82 },
   { name: 'Portugal', rating: 84 },
   { name: 'Colombia', rating: 80 },
-  { name: 'Germany', rating: 84 }
+  { name: 'Germany', rating: 84 },
+  { name: 'Italy', rating: 83 },
+  { name: 'Uruguay', rating: 80 },
 ];
 
 export const WORLD_CUP_QF_OPPONENTS: { name: string; rating: number }[] = [
@@ -139,7 +147,9 @@ export const WORLD_CUP_QF_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Brazil', rating: 87 },
   { name: 'Argentina', rating: 86 },
   { name: 'France', rating: 88 },
-  { name: 'Portugal', rating: 84 }
+  { name: 'Portugal', rating: 84 },
+  { name: 'Italy', rating: 83 },
+  { name: 'Belgium', rating: 82 },
 ];
 
 export const WORLD_CUP_SF_OPPONENTS: { name: string; rating: number }[] = [
@@ -148,7 +158,8 @@ export const WORLD_CUP_SF_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Spain', rating: 87 },
   { name: 'France', rating: 88 },
   { name: 'England', rating: 86 },
-  { name: 'Germany', rating: 84 }
+  { name: 'Germany', rating: 84 },
+  { name: 'Italy', rating: 83 },
 ];
 
 export const WORLD_CUP_FINAL_OPPONENTS: { name: string; rating: number }[] = [
@@ -157,7 +168,9 @@ export const WORLD_CUP_FINAL_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Argentina', rating: 86 },
   { name: 'Spain', rating: 87 },
   { name: 'England', rating: 86 },
-  { name: 'Portugal', rating: 84 }
+  { name: 'Portugal', rating: 84 },
+  { name: 'Germany', rating: 84 },
+  { name: 'Italy', rating: 83 },
 ];
 
 export const CL_R16_OPPONENTS: { name: string; rating: number }[] = [
@@ -168,7 +181,7 @@ export const CL_R16_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'Sevilla', rating: 78 },
   { name: 'Lazio', rating: 77 },
   { name: 'Inter Milan', rating: 84 },
-  { name: 'AC Milan', rating: 82 }
+  { name: 'AC Milan', rating: 82 },
 ];
 
 export const CL_QF_OPPONENTS: { name: string; rating: number }[] = [
@@ -179,7 +192,7 @@ export const CL_QF_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'PSG', rating: 86 },
   { name: 'Manchester City', rating: 88 },
   { name: 'Arsenal', rating: 86 },
-  { name: 'Liverpool', rating: 86 }
+  { name: 'Liverpool', rating: 86 },
 ];
 
 export const CL_SF_OPPONENTS: { name: string; rating: number }[] = [
@@ -188,7 +201,7 @@ export const CL_SF_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'PSG', rating: 86 },
   { name: 'Manchester City', rating: 88 },
   { name: 'Barcelona', rating: 86 },
-  { name: 'Inter Milan', rating: 84 }
+  { name: 'Inter Milan', rating: 84 },
 ];
 
 export const CL_FINAL_OPPONENTS: { name: string; rating: number }[] = [
@@ -197,7 +210,7 @@ export const CL_FINAL_OPPONENTS: { name: string; rating: number }[] = [
   { name: 'PSG', rating: 86 },
   { name: 'Manchester City', rating: 88 },
   { name: 'Barcelona', rating: 86 },
-  { name: 'Borussia Dortmund', rating: 82 }
+  { name: 'Borussia Dortmund', rating: 82 },
 ];
 
 export const USER_CLUB_NAME = 'Your XI';

@@ -18,12 +18,13 @@ db.exec(`
     score INTEGER NOT NULL,
     trophies INTEGER NOT NULL,
     mode TEXT NOT NULL,
+    hide_ratings INTEGER NOT NULL DEFAULT 0,
     formation TEXT,
     seed INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
     ip_hash TEXT
   );
-  CREATE INDEX IF NOT EXISTS idx_scores_mode_score ON scores(mode, score DESC, created_at ASC);
+  CREATE INDEX IF NOT EXISTS idx_scores_mode_hide_score ON scores(mode, hide_ratings, score DESC, created_at ASC);
   CREATE INDEX IF NOT EXISTS idx_scores_created ON scores(created_at);
 `);
 
@@ -33,6 +34,18 @@ try {
 } catch {
   // Column already exists
 }
+
+// Add hide_ratings column if it doesn't exist yet (safe migration)
+try {
+  db.exec(`ALTER TABLE scores ADD COLUMN hide_ratings INTEGER NOT NULL DEFAULT 0`);
+} catch {
+  // Column already exists
+}
+
+// Ensure new composite index exists in migrated environments.
+db.exec(
+  `CREATE INDEX IF NOT EXISTS idx_scores_mode_hide_score ON scores(mode, hide_ratings, score DESC, created_at ASC)`,
+);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS shares (
@@ -65,6 +78,7 @@ export type ScoreRow = {
   score: number;
   trophies: number;
   mode: string;
+  hide_ratings: number;
   formation: string | null;
   seed: number;
   squad: string | null;
@@ -72,14 +86,14 @@ export type ScoreRow = {
 };
 
 export const insertScore = db.prepare(`
-  INSERT INTO scores (run_id, name, score, trophies, mode, formation, seed, squad, created_at, ip_hash)
-  VALUES (@run_id, @name, @score, @trophies, @mode, @formation, @seed, @squad, @created_at, @ip_hash)
+  INSERT INTO scores (run_id, name, score, trophies, mode, hide_ratings, formation, seed, squad, created_at, ip_hash)
+  VALUES (@run_id, @name, @score, @trophies, @mode, @hide_ratings, @formation, @seed, @squad, @created_at, @ip_hash)
 `);
 
 export const topScores = db.prepare(`
-  SELECT id, run_id, name, score, trophies, mode, formation, seed, squad, created_at
+  SELECT id, run_id, name, score, trophies, mode, hide_ratings, formation, seed, squad, created_at
   FROM scores
-  WHERE mode = @mode
+  WHERE mode = @mode AND hide_ratings = @hide_ratings
   ORDER BY score DESC, created_at ASC
   LIMIT @limit
 `);

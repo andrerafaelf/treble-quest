@@ -41,23 +41,28 @@ await app.register(rateLimit, {
 
 app.get('/health', async () => ({ ok: true }));
 
-app.get<{ Querystring: { mode?: string; limit?: string } }>('/leaderboard', async (req, reply) => {
-  const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' ? req.query.mode : 'quick';
-  const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
-  const rows = topScores.all({ mode, limit }) as ScoreRow[];
-  reply.header('Cache-Control', 'public, max-age=15');
-  return {
-    mode,
-    entries: rows.map((r) => ({
-      name: r.name,
-      score: r.score,
-      trophies: r.trophies,
-      formation: r.formation,
-      squad: r.squad ? JSON.parse(r.squad) : null,
-      createdAt: r.created_at,
-    })),
-  };
-});
+app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }>(
+  '/leaderboard',
+  async (req, reply) => {
+    const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' ? req.query.mode : 'quick';
+    const hideRatings = mode === 'classic' && req.query.hideRatings === '1';
+    const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
+    const rows = topScores.all({ mode, hide_ratings: hideRatings ? 1 : 0, limit }) as ScoreRow[];
+    reply.header('Cache-Control', 'public, max-age=15');
+    return {
+      mode,
+      hideRatings,
+      entries: rows.map((r) => ({
+        name: r.name,
+        score: r.score,
+        trophies: r.trophies,
+        formation: r.formation,
+        squad: r.squad ? JSON.parse(r.squad) : null,
+        createdAt: r.created_at,
+      })),
+    };
+  },
+);
 
 type SubmitBody = {
   name?: unknown;
@@ -102,6 +107,7 @@ app.post<{ Body: SubmitBody }>(
       score: verified.result.score,
       trophies: verified.result.trophies,
       mode: verified.mode,
+      hide_ratings: verified.hideRatings ? 1 : 0,
       formation: verified.formation ?? null,
       seed: verified.seed,
       squad: JSON.stringify(verified.squad),

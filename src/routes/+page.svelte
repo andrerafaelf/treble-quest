@@ -1,10 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
   import Button from '$lib/components/Button.svelte';
   import Card from '$lib/components/Card.svelte';
   import FormationSelector from '$lib/components/FormationSelector.svelte';
   import ModeSelector from '$lib/components/ModeSelector.svelte';
+  import { parseRunConfigFromUrl } from '$lib/game/deeplink';
   import { getStreak, runStore } from '$lib/game/storage';
   import trebleQuestImage from '$lib/icons/treble-quest.png';
   import type { ClassicFormation, GameMode } from '$lib/game/types';
@@ -12,6 +14,9 @@
   let choosingClassic = false;
   let noOverall = false;
   const streak = browser ? getStreak() : null;
+  let deepLinkApplied = false;
+
+  $: run = $runStore;
 
   function startRun(mode: GameMode = 'quick', formation?: ClassicFormation, hideRatings = false) {
     runStore.start(mode, formation, hideRatings);
@@ -31,6 +36,15 @@
   function selectFormation(formation: ClassicFormation) {
     startRun('classic', formation, noOverall);
   }
+
+  $effect(() => {
+    if (!browser || deepLinkApplied) return;
+    if (run && !run.result) return;
+    const config = parseRunConfigFromUrl(page.url);
+    if (!config) return;
+    deepLinkApplied = true;
+    startRun(config.mode, config.formation, config.hideRatings);
+  });
 </script>
 
 <section class="hero">
@@ -39,8 +53,8 @@
       <span class="eyebrow">Fast football draft simulator</span>
       <h1>Treble Quest</h1>
       <p class="hero-copy">
-        Draft a sharp squad. Chase three trophies. Built for football arguments, group chats, and
-        one-more-run addiction.
+        Draft a sharp squad. Chase three trophies. Built for football arguments, group chats, and one-more-run
+        addiction.
       </p>
       <div class="cta-row">
         <Button onclick={() => startRun('quick')}>Start Quick Run</Button>

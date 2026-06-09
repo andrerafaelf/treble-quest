@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import Button from '$lib/components/Button.svelte';
   import Card from '$lib/components/Card.svelte';
   import DraftProgress from '$lib/components/DraftProgress.svelte';
@@ -9,6 +11,7 @@
   import PlayerOptionCard from '$lib/components/PlayerOptionCard.svelte';
   import SpinPanel from '$lib/components/SpinPanel.svelte';
   import SquadRail from '$lib/components/SquadRail.svelte';
+  import { parseRunConfigFromUrl } from '$lib/game/deeplink';
   import { getDraftSlots } from '$lib/game/draft';
   import { runStore } from '$lib/game/storage';
   import type { ClassicFormation, GameMode } from '$lib/game/types';
@@ -17,6 +20,7 @@
   let choosingClassic = false;
   let noOverall = false;
   let selecting = false;
+  let deepLinkApplied = false;
 
   $: run = $runStore;
   $: slots = run ? getDraftSlots(run.mode, run.formation) : getDraftSlots(mode);
@@ -58,6 +62,14 @@
       selecting = false;
     }, 420);
   }
+
+  $effect(() => {
+    if (!browser || deepLinkApplied || run) return;
+    const config = parseRunConfigFromUrl(page.url);
+    if (!config) return;
+    deepLinkApplied = true;
+    startRun(config.mode, config.formation, config.hideRatings);
+  });
 </script>
 
 <svelte:head>

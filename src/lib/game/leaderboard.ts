@@ -24,11 +24,14 @@ export type LeaderboardEntry = {
 
 export type LeaderboardResponse = {
   mode: GameMode;
+  hideRatings?: boolean;
   entries: LeaderboardEntry[];
 };
 
-export async function fetchLeaderboard(mode: GameMode, limit = 50): Promise<LeaderboardResponse> {
-  const res = await fetch(`${API_BASE}/leaderboard?mode=${mode}&limit=${limit}`);
+export async function fetchLeaderboard(mode: GameMode, limit = 50, hideRatings = false): Promise<LeaderboardResponse> {
+  const params = new URLSearchParams({ mode, limit: String(limit) });
+  if (mode === 'classic' && hideRatings) params.set('hideRatings', '1');
+  const res = await fetch(`${API_BASE}/leaderboard?${params.toString()}`);
   if (!res.ok) throw new Error(`leaderboard ${res.status}`);
   return res.json();
 }
@@ -45,15 +48,15 @@ export async function submitScore(name: string, run: RunState): Promise<{ score:
       startedAt: run.startedAt,
       picks: run.picks.map((pick) => ({
         slotId: pick.slot.id,
-        optionId: pick.type === 'manager' ? pick.manager.id : pick.player.id
-      }))
-    }
+        optionId: pick.type === 'manager' ? pick.manager.id : pick.player.id,
+      })),
+    },
   };
 
   const res = await fetch(`${API_BASE}/scores`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   const data = await res.json().catch(() => ({}));

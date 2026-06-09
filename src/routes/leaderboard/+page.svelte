@@ -3,17 +3,22 @@
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
+  type LeaderboardTab = 'quick' | 'classic' | 'classic-no-overall' | 'world-cup';
+
   let mode = $state<GameMode>('quick');
+  let tab = $state<LeaderboardTab>('quick');
   let entries = $state<LeaderboardEntry[]>([]);
   let status = $state<'loading' | 'ready' | 'error'>('loading');
   let expanded = $state<Set<number>>(new Set());
 
-  async function load(next: GameMode) {
-    mode = next;
+  async function load(next: LeaderboardTab) {
+    tab = next;
+    mode = next === 'world-cup' ? 'world-cup' : next === 'quick' ? 'quick' : 'classic';
+    const hideRatings = next === 'classic-no-overall';
     status = 'loading';
     expanded = new Set();
     try {
-      const data = await fetchLeaderboard(next, 50);
+      const data = await fetchLeaderboard(mode, 50, hideRatings);
       entries = data.entries;
       status = 'ready';
     } catch {
@@ -64,16 +69,34 @@
   <h1 class="page-title">High Scores</h1>
 
   <div class="mode-tabs" role="tablist" aria-label="Game mode">
-    <button role="tab" aria-selected={mode === 'quick'} class:active={mode === 'quick'} onclick={() => load('quick')}>Quick</button>
-    <button role="tab" aria-selected={mode === 'classic'} class:active={mode === 'classic'} onclick={() => load('classic')}>Classic</button>
-    <button role="tab" aria-selected={mode === 'world-cup'} class:active={mode === 'world-cup'} onclick={() => load('world-cup')}>World Cup</button>
+    <button role="tab" aria-selected={tab === 'quick'} class:active={tab === 'quick'} onclick={() => load('quick')}
+      >Quick</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'classic'}
+      class:active={tab === 'classic'}
+      onclick={() => load('classic')}>Classic</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'classic-no-overall'}
+      class:active={tab === 'classic-no-overall'}
+      onclick={() => load('classic-no-overall')}>Classic No Overall</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'world-cup'}
+      class:active={tab === 'world-cup'}
+      onclick={() => load('world-cup')}>World Cup</button
+    >
   </div>
 
   {#if status === 'loading'}
     <p class="text-flow">Loading...</p>
   {:else if status === 'error'}
     <p class="text-flow">Could not load the leaderboard. Try again later.</p>
-    <Button variant="secondary" onclick={() => load(mode)}>Retry</Button>
+    <Button variant="secondary" onclick={() => load(tab)}>Retry</Button>
   {:else if entries.length === 0}
     <p class="text-flow">No scores yet. Be the first.</p>
     <Button href="/play">Start a run</Button>
@@ -85,7 +108,9 @@
         <li class:top={i < 3} class:treble={entry.trophies === 3 || (mode === 'world-cup' && entry.trophies > 0)}>
           <button
             class="lb-main"
-            onclick={() => { if (hasSquad) toggle(i); }}
+            onclick={() => {
+              if (hasSquad) toggle(i);
+            }}
             aria-expanded={isOpen}
             disabled={!hasSquad}
           >
@@ -94,7 +119,8 @@
               <span class="lb-name">{entry.name}</span>
               <span class="lb-meta">
                 {trophyLabel(entry.trophies, mode)}
-                {#if entry.formation} / {entry.formation}{/if}
+                {#if entry.formation}
+                  / {entry.formation}{/if}
                 / {formatDate(entry.createdAt)}
               </span>
             </span>

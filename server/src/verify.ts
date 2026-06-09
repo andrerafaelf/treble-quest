@@ -25,6 +25,7 @@ export type VerifyOk = {
   runId: string;
   seed: number;
   mode: GameMode;
+  hideRatings: boolean;
   formation?: ClassicFormation;
   result: SimulationResult;
   squad: SquadEntry[];
@@ -62,7 +63,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     hideRatings: submitted.mode === 'classic' && submitted.hideRatings === true,
     startedAt: submitted.startedAt,
     currentPick: 0,
-    picks: []
+    picks: [],
   };
   run = { ...run, lastPrompt: generatePrompt(run) };
 
@@ -99,6 +100,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     runId: submitted.id,
     seed: submitted.seed,
     mode: submitted.mode,
+    hideRatings: run.hideRatings === true,
     formation: submitted.formation,
     result,
     squad,
