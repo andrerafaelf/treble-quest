@@ -34,7 +34,7 @@ export function createShareText(result: SimulationResult, shareUrl?: string): st
   if (perfectLeague) text += ` - perfect 38-0`;
   if (perfectCl) text += ` - perfect 15-0 in Europe`;
   if (topScorer.fromUser) text += ` with ${topScorer.name} scoring ${topScorer.goals}`;
-  text += `. Can you top it on 38-0?`;
+  text += `. Can you win the Treble on Treble Quest?`;
   if (shareUrl) text += `\n${shareUrl}`;
   return text;
 }

@@ -62,7 +62,7 @@ function ogDescription(share: ShareRow, awards: Awards): string {
   const parts: string[] = [];
   if (awards.goldenBoot?.fromUser) parts.push(`${awards.goldenBoot.name} scored ${awards.goldenBoot.goals} goals`);
   if (awards.playerOfSeason?.fromUser) parts.push(`${awards.playerOfSeason.name} won Player of the Season`);
-  parts.push(isWorldCup(share) ? 'Can you go 8-0?' : 'Can you beat this on 38-0?');
+  parts.push(isWorldCup(share) ? 'Can you go 8-0?' : 'Can you win the Treble on Treble Quest?');
   return parts.join('. ');
 }
 
@@ -102,7 +102,7 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(title)} | 38-0</title>
+  <title>${escapeHtml(title)} | Treble Quest</title>
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:type" content="website">
@@ -146,6 +146,8 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
     .cta{display:block;text-align:center;background:#10b981;color:#fff;text-decoration:none;font-weight:700;font-size:1rem;padding:1rem;border-radius:8px}
     .cta:hover{background:#059669}
     .manager{text-align:center;font-size:.8rem;color:#94a3b8;margin-bottom:1rem}
+    .cups{text-align:center;font-size:.75rem;color:#94a3b8;margin-bottom:1rem}
+    .cup-sep{margin:0 .4rem;color:#475569}
     .footer{text-align:center;margin-top:1.5rem;font-size:.7rem;color:#64748b}
   </style>
 </head>
@@ -174,6 +176,8 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
 
     ${manager ? `<div class="manager">Manager: <strong>${escapeHtml(manager.name)}</strong></div>` : ''}
 
+    ${!worldCup ? `<div class="cups"><span class="cup-item">CL: ${escapeHtml(share.cl === 'Winners' ? 'Winners' : `Out in ${share.cl}`)}</span><span class="cup-sep">·</span><span class="cup-item">FA Cup: ${escapeHtml(share.fa_cup === 'Winners' ? 'Winners' : `Out in ${share.fa_cup}`)}</span></div>` : ''}
+
     <div class="squad">
       ${squadRows}
     </div>
@@ -187,9 +191,9 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
       <div class="verified-badge">This result was re-simulated and signed on the server.</div>
     </div>
 
-    <a href="${escapeHtml(siteUrl)}" class="cta">${worldCup ? 'Can you go 8-0?' : 'Can you go 38-0?'} Play now</a>
+    <a href="${escapeHtml(siteUrl)}" class="cta">${worldCup ? 'Can you go 8-0?' : 'Can you win the Treble?'} Play now</a>
   </div>
-  <div class="footer">38-0 / The football draft game</div>
+  <div class="footer">Treble Quest / The football draft game</div>
 </body>
 </html>`;
 }
@@ -213,7 +217,7 @@ export function render404Page(siteUrl: string): string {
 <body>
   <h1>Result not found</h1>
   <p>This link may be invalid or expired.</p>
-  <a href="${escapeHtml(siteUrl)}">Play 38-0</a>
+  <a href="${escapeHtml(siteUrl)}">Play Treble Quest</a>
 </body>
 </html>`;
 }

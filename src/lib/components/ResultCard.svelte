@@ -36,11 +36,27 @@
                 ? 'TROPHY WINNER'
                 : `Finished ${ordinal(result.league.position)}`
   );
+
+  const clLabel = $derived(
+    result.championsLeague.won
+      ? 'CL Winners'
+      : result.championsLeague.exitRound === 'Group Stage'
+        ? 'CL: Out in Groups'
+        : `CL: Out in ${result.championsLeague.exitRound}`
+  );
+
+  const facLabel = $derived(
+    result.faCup.won
+      ? 'FA Cup Winners'
+      : result.faCup.exitRound === 'Round 3'
+        ? 'FA Cup: R3 exit'
+        : `FA Cup: Out in ${result.faCup.exitRound}`
+  );
 </script>
 
 <div id="share-card-capture" class="share-card">
   <div class="sc-header">
-    <span class="sc-brand">38-0</span>
+    <span class="sc-brand">Treble Quest</span>
     <span class="sc-tags">
       {modeLabel} / OVR {Math.round((result.ratings.attack + result.ratings.control + result.ratings.defence) / 3)}
     </span>
@@ -62,6 +78,11 @@
       <span class="sc-stat"><strong>{result.league.points}</strong> pts</span>
       <span class="sc-dot">/</span>
       <span class="sc-stat">finished <strong>{ordinal(result.league.position)}</strong></span>
+    </div>
+    <div class="sc-cups">
+      <span class="sc-cup">{clLabel}</span>
+      <span class="sc-dot">·</span>
+      <span class="sc-cup">{facLabel}</span>
     </div>
   {/if}
 
@@ -101,7 +122,7 @@
 
   <div class="sc-footer">
     <span class="sc-verified">Verified result</span>
-    <span class="sc-cta">{result.worldCup ? 'Can you go 8-0?' : 'Can you go 38-0?'} / 38-0.app</span>
+    <span class="sc-cta">{result.worldCup ? 'Can you go 8-0?' : 'Can you win the Treble?'} / treble.quest</span>
   </div>
 </div>
 
@@ -164,6 +185,17 @@
     margin-bottom: 12px;
     font-size: 0.85rem;
     color: #f59e0b;
+  }
+
+  .sc-cups {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 0.7rem;
+    color: #64748b;
+  }
+
+  .sc-cup {
+    color: #94a3b8;
   }
 
   .sc-dot {
