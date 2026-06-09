@@ -209,6 +209,7 @@ export type Match = {
 export type PlayerSeasonStats = {
   playerId: string;
   name: string;
+  nationality: string;
   positionShort: string;
   club: string;
   season: string;
@@ -233,10 +234,10 @@ export type LeagueTableRow = {
 };
 
 export type SeasonAwards = {
-  goldenBoot: { name: string; club: string; goals: number; fromUser: boolean };
-  goldenGlove: { name: string; club: string; cleanSheets: number; fromUser: boolean };
-  playmaker: { name: string; club: string; assists: number; fromUser: boolean };
-  playerOfSeason: { name: string; club: string; rating: number; fromUser: boolean };
+  goldenBoot: { name: string; nationality: string; club: string; goals: number; fromUser: boolean };
+  goldenGlove: { name: string; nationality: string; club: string; cleanSheets: number; fromUser: boolean };
+  playmaker: { name: string; nationality: string; club: string; assists: number; fromUser: boolean };
+  playerOfSeason: { name: string; nationality: string; club: string; rating: number; fromUser: boolean };
 };
 
 export type StatHighlights = {

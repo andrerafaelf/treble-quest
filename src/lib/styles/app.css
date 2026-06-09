@@ -613,15 +613,30 @@ p {
 }
 
 .player-flag {
-  font-size: 1.45rem;
-  line-height: 1;
-  display: none;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+  border-radius: 2px;
 }
 
 @media (max-width: 720px) {
   .player-flag {
-    display: inline;
+    display: block;
   }
+}
+
+.ps-flag,
+.award-flag {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 4px;
+  border-radius: 2px;
+  position: relative;
+  top: -1px;
 }
 
 .player-club {

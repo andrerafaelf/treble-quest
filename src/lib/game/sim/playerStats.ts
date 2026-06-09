@@ -44,7 +44,7 @@ export function buildCandidates(run: RunState): ScorerCandidate[] {
       assistWeight,
       isGK: pick.player.positions.includes('GK'),
       isDef: pick.player.positions.some((p) => ['CB', 'LB', 'RB'].includes(p)),
-      overall: pick.player.overall
+      overall: pick.player.overall,
     };
   });
 }
@@ -63,7 +63,7 @@ function weightedDraw(weights: number[], rng: () => number): number {
 export function attributeMatchGoals(
   match: Match,
   candidates: ScorerCandidate[],
-  rng: () => number
+  rng: () => number,
 ): { scorers: MatchScorer[]; assisters: { playerId: string; name: string }[] } {
   const scorers: MatchScorer[] = [];
   const assisters: { playerId: string; name: string }[] = [];
@@ -95,7 +95,7 @@ export function attributeMatchGoals(
 export function aggregatePlayerStats(
   run: RunState,
   matches: Match[],
-  candidates: ScorerCandidate[]
+  candidates: ScorerCandidate[],
 ): PlayerSeasonStats[] {
   const playerPicks = run.picks.filter((pick): pick is PlayerPick => pick.type === 'player');
   const stats = new Map<string, PlayerSeasonStats>();
@@ -105,6 +105,7 @@ export function aggregatePlayerStats(
     stats.set(pick.player.id, {
       playerId: pick.player.id,
       name: pick.player.name,
+      nationality: pick.player.nationality,
       positionShort: cand?.positionShort ?? shortPosition(pick.player.positions),
       club: pick.player.club,
       season: pick.player.season,
@@ -112,7 +113,7 @@ export function aggregatePlayerStats(
       apps: 0,
       goals: 0,
       assists: 0,
-      cleanSheets: 0
+      cleanSheets: 0,
     });
   }
 

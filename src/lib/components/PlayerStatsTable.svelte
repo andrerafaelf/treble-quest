@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { flagUrl } from '$lib/game/flags';
   import type { PlayerSeasonStats } from '$lib/game/types';
 
   let { stats }: { stats: PlayerSeasonStats[] } = $props();
@@ -10,7 +11,7 @@
       const bi = posOrder.indexOf(b.positionShort);
       if (ai !== bi) return ai - bi;
       return b.goals - a.goals;
-    })
+    }),
   );
 </script>
 
@@ -28,7 +29,18 @@
   {#each sorted as p (p.playerId)}
     <div class="ps-grid ps-row">
       <span class="ps-pos" data-pos={p.positionShort}>{p.positionShort}</span>
-      <span class="ps-name">{p.name}</span>
+      <span class="ps-name">
+        {#if flagUrl(p.nationality, 16, 'flat')}
+          <img
+            class="ps-flag"
+            src={flagUrl(p.nationality, 16, 'flat')}
+            alt={p.nationality}
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+        {/if}{p.name}</span
+      >
       <span class="ps-num">{p.goals || '—'}</span>
       <span class="ps-num">{p.assists || '—'}</span>
       <span class="ps-num">{p.cleanSheets || '—'}</span>

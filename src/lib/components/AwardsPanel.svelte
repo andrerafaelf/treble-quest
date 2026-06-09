@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { flagUrl } from '$lib/game/flags';
   import type { SeasonAwards } from '$lib/game/types';
 
   let { awards }: { awards: SeasonAwards } = $props();
@@ -9,22 +10,66 @@
   <div class="awards-grid">
     <article class="award-card award-boot">
       <span class="award-label">⚽ Golden Boot</span>
-      <h3>{awards.goldenBoot.name}</h3>
+      <h3>
+        {#if flagUrl(awards.goldenBoot.nationality, 16, 'flat')}
+          <img
+            class="award-flag"
+            src={flagUrl(awards.goldenBoot.nationality, 16, 'flat')}
+            alt={awards.goldenBoot.nationality}
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+        {/if}{awards.goldenBoot.name}
+      </h3>
       <p>{awards.goldenBoot.goals} goals</p>
     </article>
     <article class="award-card award-playmaker">
       <span class="award-label">🎯 Playmaker</span>
-      <h3>{awards.playmaker.name}</h3>
+      <h3>
+        {#if flagUrl(awards.playmaker.nationality, 16, 'flat')}
+          <img
+            class="award-flag"
+            src={flagUrl(awards.playmaker.nationality, 16, 'flat')}
+            alt={awards.playmaker.nationality}
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+        {/if}{awards.playmaker.name}
+      </h3>
       <p>{awards.playmaker.assists} assists</p>
     </article>
     <article class="award-card award-glove">
       <span class="award-label">🧤 Golden Glove</span>
-      <h3>{awards.goldenGlove.name}</h3>
+      <h3>
+        {#if flagUrl(awards.goldenGlove.nationality, 16, 'flat')}
+          <img
+            class="award-flag"
+            src={flagUrl(awards.goldenGlove.nationality, 16, 'flat')}
+            alt={awards.goldenGlove.nationality}
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+        {/if}{awards.goldenGlove.name}
+      </h3>
       <p>{awards.goldenGlove.cleanSheets} clean sheets</p>
     </article>
     <article class="award-card award-pots">
       <span class="award-label">🏆 Player of the Season</span>
-      <h3>{awards.playerOfSeason.name}</h3>
+      <h3>
+        {#if flagUrl(awards.playerOfSeason.nationality, 16, 'flat')}
+          <img
+            class="award-flag"
+            src={flagUrl(awards.playerOfSeason.nationality, 16, 'flat')}
+            alt={awards.playerOfSeason.nationality}
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+        {/if}{awards.playerOfSeason.name}
+      </h3>
       <p>Rating {awards.playerOfSeason.rating}</p>
     </article>
   </div>

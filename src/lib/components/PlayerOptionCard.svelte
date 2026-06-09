@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { flag } from '$lib/game/flags';
+  import { flagUrl } from '$lib/game/flags';
   import type { PlayerSeason, Position } from '$lib/game/types';
 
   let {
@@ -7,7 +7,7 @@
     required = 'ANY',
     showRatings = true,
     disabled = false,
-    onSelect
+    onSelect,
   }: {
     player: PlayerSeason;
     required?: Position;
@@ -16,21 +16,33 @@
     onSelect?: (id: string) => void;
   } = $props();
 
-  const realPositions = $derived(player.positions.filter((position) => !['ANY', 'DEF', 'MID', 'FWD'].includes(position)));
+  const realPositions = $derived(
+    player.positions.filter((position) => !['ANY', 'DEF', 'MID', 'FWD'].includes(position)),
+  );
   const fallbackPositions = $derived([
     ...(player.positions.includes('DEF') ? ['CB'] : []),
     ...(player.positions.includes('MID') ? ['CM'] : []),
-    ...(player.positions.includes('FWD') ? ['ST'] : [])
+    ...(player.positions.includes('FWD') ? ['ST'] : []),
   ]);
   const positionText = $derived(realPositions.length ? realPositions.join(' / ') : fallbackPositions.join(' / '));
   const requiresSpecificPosition = $derived(required !== 'ANY');
-  const nationalityFlag = $derived(flag(player.nationality));
+  const nationalityFlagUrl = $derived(flagUrl(player.nationality, 24, 'flat'));
 </script>
 
 <button class="option-card player-card" type="button" {disabled} onclick={() => onSelect?.(player.id)}>
   <div class="card-top-row">
     <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
-    <span class="player-flag" title={player.nationality}>{nationalityFlag}</span>
+    {#if nationalityFlagUrl}
+      <img
+        class="player-flag"
+        src={nationalityFlagUrl}
+        alt={player.nationality}
+        title={player.nationality}
+        width="24"
+        height="24"
+        loading="lazy"
+      />
+    {/if}
   </div>
   <span class="player-club">{player.club}</span>
   <span class="player-season-year">{player.season}</span>

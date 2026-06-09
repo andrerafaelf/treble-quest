@@ -52,7 +52,7 @@ app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }
     const hideRatings = mode === 'classic' && req.query.hideRatings === '1';
     const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
     const rows = topScores.all({ mode, hide_ratings: hideRatings ? 1 : 0, limit }) as ScoreRow[];
-    reply.header('Cache-Control', 'public, max-age=15');
+    reply.header('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
     return {
       mode,
       hideRatings,
@@ -81,6 +81,7 @@ app.get<{ Querystring: { mode?: string; hideRatings?: string; score?: string } }
     const rankRow = scoreSpot.get({ mode, hide_ratings: hideRatings ? 1 : 0, score }) as { rank: number };
     const countRow = scoreCount.get({ mode, hide_ratings: hideRatings ? 1 : 0 }) as { count: number };
 
+    reply.header('Cache-Control', 'public, max-age=10, stale-while-revalidate=20');
     return {
       mode,
       hideRatings,
@@ -223,7 +224,7 @@ app.get<{ Params: { id: string } }>('/r/:id', async (req, reply) => {
     return render404Page(SITE_URL);
   }
   reply.header('Content-Type', 'text/html; charset=utf-8');
-  reply.header('Cache-Control', 'public, max-age=3600');
+  reply.header('Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return renderResultPage(share, SITE_URL);
 });
 
@@ -232,7 +233,7 @@ app.get<{ Params: { id: string } }>('/share/:id', async (req, reply) => {
   if (!share) {
     return reply.code(404).send({ error: 'not_found' });
   }
-  reply.header('Cache-Control', 'public, max-age=3600');
+  reply.header('Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return {
     ok: true,
     share: {
