@@ -31,7 +31,7 @@ import { sanitizeName } from './name.ts';
 import { render404Page, renderResultPage } from './result-page.ts';
 import { generateShareId } from './share-id.ts';
 import { verifyRun, type SubmittedRun } from './verify.ts';
-import { broadcastRoom, registerVsWebsocket } from './ws.ts';
+import { broadcastRoom, registerVsWebsocketRoutes, registerWebsocketPlugin } from './ws.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const HOST = process.env.HOST ?? '127.0.0.1';
@@ -41,6 +41,10 @@ const ORIGINS = (process.env.ALLOWED_ORIGINS ?? 'https://treble.quest,http://loc
 const SITE_URL = (process.env.SITE_URL ?? 'https://treble.quest').replace(/\/$/, '');
 
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' } });
+
+// Must be registered before any other plugin/route and before listen(): it
+// attaches the server's `upgrade` handler at registration time.
+await registerWebsocketPlugin(app);
 
 await app.register(cors, {
   origin: (origin, cb) => {
@@ -231,7 +235,7 @@ app.post<{ Body: ShareBody }>(
 
 // ---- Multiplayer "Versus" lobbies ----
 
-await registerVsWebsocket(app);
+registerVsWebsocketRoutes(app);
 
 // Sweep stale/empty rooms periodically.
 const sweepTimer = setInterval(() => sweepExpired(), 5 * 60 * 1000);

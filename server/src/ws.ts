@@ -41,9 +41,16 @@ export function broadcastRoom(code: string) {
   }
 }
 
-export async function registerVsWebsocket(app: FastifyInstance) {
+// Register the @fastify/websocket plugin. MUST run before app.listen() AND before
+// the routes that use { websocket: true } — the plugin installs the HTTP server's
+// `upgrade` listener at registration time, so registering it late makes upgrade
+// requests hang (the route matches but the connection is never upgraded).
+export async function registerWebsocketPlugin(app: FastifyInstance) {
   await app.register(fastifyWebsocket);
+}
 
+// Define the /vs/ws route. Call AFTER registerWebsocketPlugin has run.
+export function registerVsWebsocketRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { code?: string; token?: string } }>(
     '/vs/ws',
     { websocket: true },
