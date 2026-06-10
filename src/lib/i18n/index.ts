@@ -11,6 +11,11 @@ export function isRTL(lang: string): boolean {
   return RTL_LOCALES.includes(lang as SupportedLocale);
 }
 
+export function normalizeLocale(lang: string | null | undefined): SupportedLocale | null {
+  if (!lang) return null;
+  return SUPPORTED_LOCALES.find((locale) => locale.toLowerCase() === lang.toLowerCase()) ?? null;
+}
+
 register('en', () => import('./locales/en.json'));
 register('es', () => import('./locales/es.json'));
 register('ar', () => import('./locales/ar.json'));

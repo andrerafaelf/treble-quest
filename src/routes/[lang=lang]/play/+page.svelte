@@ -21,6 +21,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 
   let mode = $state<GameMode>('classic');
   let choosingClassic = $state(false);
@@ -91,7 +92,7 @@
     window.setTimeout(() => {
       if (next && next.currentPick >= getDraftSlots(next.mode, next.formation).length) {
         runStore.finish();
-        goto(`/${lang}/result`);
+        goto(`/${pathLang}/result`);
       }
       selecting = false;
     }, 420);
@@ -140,7 +141,7 @@
         <FormationSelector onSelect={selectFormation} />
       {/if}
       <div class="toolbar-row">
-        <Button href={`/${lang}`} variant="ghost">{$t('play.back_home')}</Button>
+        <Button href={`/${pathLang}`} variant="ghost">{$t('play.back_home')}</Button>
       </div>
     </Card>
   </section>
@@ -149,7 +150,7 @@
     <span class="eyebrow">{$t('play.run_complete')}</span>
     <h1 class="page-title">{$t('play.result_ready')}</h1>
     <div class="toolbar-row">
-      <Button href={`/${lang}/result`}>{$t('play.view_result')}</Button>
+      <Button href={`/${pathLang}/result`}>{$t('play.view_result')}</Button>
       <Button variant="secondary" onclick={() => runStore.replay()}>{$t('play.replay_mode')}</Button>
       <Button variant="danger" onclick={clearRun}>{$t('play.clear_run')}</Button>
     </div>

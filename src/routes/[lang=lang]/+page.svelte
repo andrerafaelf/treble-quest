@@ -14,6 +14,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 
   let noOverall = $state(false);
   let selectedMode = $state<GameMode>('classic');
@@ -24,7 +25,7 @@
 
   function startRun(mode: GameMode = 'classic', formation?: ClassicFormation, hideRatings = false, clubFilter?: string) {
     runStore.start(mode, formation, hideRatings, clubFilter);
-    goto(`/${lang}/play`);
+    goto(`/${pathLang}/play`);
   }
 
   function selectMode(mode: GameMode) {
@@ -99,13 +100,13 @@
       </div>
       <nav class="home-foot-links" aria-label="Secondary navigation">
         {#if $runStore}
-          <a href={$runStore.result ? `/${lang}/result` : `/${lang}/play`} class="foot-link foot-link-resume">
+          <a href={$runStore.result ? `/${pathLang}/result` : `/${pathLang}/play`} class="foot-link foot-link-resume">
             {$runStore.result ? $t('home.view_result') : $t('home.resume_run')}
           </a>
         {/if}
-        <a href={`/${lang}/leaderboard`} class="foot-link">{$t('nav.leaderboard')}</a>
-        <a href={`/${lang}/how-to-play`} class="foot-link">{$t('home.how_it_works')}</a>
-        <a href={`/${lang}/support`} class="foot-link">{$t('nav.support')}</a>
+        <a href={`/${pathLang}/leaderboard`} class="foot-link">{$t('nav.leaderboard')}</a>
+        <a href={`/${pathLang}/how-to-play`} class="foot-link">{$t('home.how_it_works')}</a>
+        <a href={`/${pathLang}/support`} class="foot-link">{$t('nav.support')}</a>
       </nav>
     </footer>
   </div>

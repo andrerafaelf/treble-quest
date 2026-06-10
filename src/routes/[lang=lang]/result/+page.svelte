@@ -21,6 +21,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 
   const run = $derived($runStore);
   const result = $derived(run?.result);
@@ -76,7 +77,7 @@
     playbackDone = false;
     keepResultOnLeave = true;
     runStore.replay();
-    goto(`/${lang}/play`);
+    goto(`/${pathLang}/play`);
   }
 
   function newRun() {
@@ -84,7 +85,7 @@
     playbackDone = false;
     keepResultOnLeave = true;
     runStore.clear();
-    goto(`/${lang}/play`);
+    goto(`/${pathLang}/play`);
   }
 
   onDestroy(() => {
@@ -100,13 +101,13 @@
   <section class="page-section narrow">
     <span class="eyebrow">{$t('result.no_active_run')}</span>
     <h1 class="page-title">{$t('result.start_draft_first')}</h1>
-    <Button href={`/${lang}/play`}>{$t('result.start_run')}</Button>
+    <Button href={`/${pathLang}/play`}>{$t('result.start_run')}</Button>
   </section>
 {:else if !result}
   <section class="page-section narrow">
     <span class="eyebrow">{$t('result.run_in_progress')}</span>
     <h1 class="page-title">{$t('result.finish_draft')}</h1>
-    <Button href={`/${lang}/play`}>{$t('result.resume_draft')}</Button>
+    <Button href={`/${pathLang}/play`}>{$t('result.resume_draft')}</Button>
   </section>
 {:else}
   <section class="result-page">

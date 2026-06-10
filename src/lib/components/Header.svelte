@@ -1,19 +1,20 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { SUPPORTED_LOCALES, type SupportedLocale } from '$lib/i18n';
+  import { DEFAULT_LOCALE, normalizeLocale, SUPPORTED_LOCALES, type SupportedLocale } from '$lib/i18n';
   import brandIcon from '$lib/icons/favicon-32x32.png';
   import { t } from 'svelte-i18n';
 
-  const lang = $derived<SupportedLocale>(($page.params.lang as SupportedLocale) ?? 'en');
+  const lang = $derived<SupportedLocale>(normalizeLocale($page.params.lang) ?? DEFAULT_LOCALE);
+  const pathLang = $derived(lang.toLowerCase());
 
   const links = $derived([
-    { href: `/${lang}`, label: $t('nav.home') },
-    { href: `/${lang}/play`, label: $t('nav.play') },
-    { href: `/${lang}/vs`, label: $t('nav.versus') },
-    { href: `/${lang}/leaderboard`, label: $t('nav.leaderboard') },
-    { href: `/${lang}/how-to-play`, label: $t('nav.how_to_play') },
-    { href: `/${lang}/support`, label: $t('nav.support') },
-    { href: `/${lang}/about`, label: $t('nav.about') }
+    { href: `/${pathLang}`, label: $t('nav.home') },
+    { href: `/${pathLang}/play`, label: $t('nav.play') },
+    { href: `/${pathLang}/vs`, label: $t('nav.versus') },
+    { href: `/${pathLang}/leaderboard`, label: $t('nav.leaderboard') },
+    { href: `/${pathLang}/how-to-play`, label: $t('nav.how_to_play') },
+    { href: `/${pathLang}/support`, label: $t('nav.support') },
+    { href: `/${pathLang}/about`, label: $t('nav.about') }
   ]);
 
   const LANG_FLAGS: Record<SupportedLocale, string> = {
@@ -56,7 +57,7 @@
 }} />
 
 <header class="site-header">
-  <a class="brand" href={`/${lang}`} aria-label={$t('nav.brand_aria')}>
+  <a class="brand" href={`/${pathLang}`} aria-label={$t('nav.brand_aria')}>
     <img class="brand-mark" src={brandIcon} alt="" aria-hidden="true" />
     <span>Treble Quest</span>
   </a>
@@ -80,7 +81,7 @@
       <div class="lang-dropdown" role="listbox" aria-label={$t('lang_switcher.label')}>
         {#each SUPPORTED_LOCALES as locale}
           <a
-            href={$page.url.pathname.replace(/^\/[^/]+/, `/${locale}`)}
+            href={$page.url.pathname.replace(/^\/[^/]+/, `/${locale.toLowerCase()}`)}
             role="option"
             aria-selected={lang === locale}
             class:active={lang === locale}

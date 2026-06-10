@@ -36,6 +36,7 @@ need() {
 need docker
 need awk
 need grep
+need python3
 need sed
 need curl
 
@@ -86,6 +87,188 @@ patch_host_proxy_pass() {
   rm -f "$tmp"
 
   log "patched host file $host_file (backup: $backup)"
+  return 0
+}
+
+patch_r_proxy_file() {
+  local file="$1"
+  local backup
+
+  backup="$file.treble-backup-$(date +%Y%m%d%H%M%S)"
+  if ! $SUDO cp "$file" "$backup"; then
+    fail "could not back up $file before adding /r/ proxy"
+  fi
+
+  if $SUDO python3 - "$file" "$DOMAIN" "$GATEWAY" "$API_PORT" <<'PY'
+import re
+import sys
+
+path, domain, gateway, api_port = sys.argv[1:]
+with open(path, encoding='utf-8') as fh:
+    content = fh.read()
+
+proxy_block = f"""
+
+    # Proxy share-result pages to the API server
+    location /r/ {{
+        proxy_pass http://{gateway}:{api_port};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 10s;
+    }}
+"""
+
+def server_blocks(text):
+    for match in re.finditer(r'\bserver\s*\{', text):
+        depth = 0
+        for index in range(match.end() - 1, len(text)):
+            char = text[index]
+            if char == '{':
+                depth += 1
+            elif char == '}':
+                depth -= 1
+                if depth == 0:
+                    yield match.start(), index + 1, text[match.start():index + 1]
+                    break
+
+for start, end, block in server_blocks(content):
+    server_name = re.search(r'^\s*server_name\s+([^;]*);', block, re.M)
+    if not server_name:
+        continue
+    names = server_name.group(1).split()
+    if domain not in names and f'www.{domain}' not in names:
+        continue
+    if 'location /r/' in block:
+        sys.exit(2)
+    updated, count = re.subn(r'(\n\s+location\s+/\s*\{)', proxy_block + r'\1', block, count=1)
+    if count == 0:
+        continue
+    content = content[:start] + updated + content[end:]
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(content)
+    sys.exit(0)
+
+sys.exit(3)
+PY
+  then
+    :
+  else
+    local code=$?
+    if [ "$code" -eq 2 ]; then
+      $SUDO rm -f "$backup"
+      log "/r/ proxy already present in $file"
+      return 1
+    fi
+    if [ "$code" -eq 3 ]; then
+      $SUDO rm -f "$backup"
+      log "no main-site /r/ insertion point found in $file"
+      return 1
+    fi
+    fail "could not add /r/ proxy to $file"
+  fi
+
+  log "added /r/ proxy to $file (backup: $backup)"
+  return 0
+}
+
+patch_container_r_proxy() {
+  local file="$1"
+  local tmp
+  local backup
+
+  tmp="$(mktemp)"
+  if ! $SUDO docker cp "$EDGE_CID:$file" "$tmp"; then
+    rm -f "$tmp"
+    fail "could not copy $file out of $EDGE_NAME before adding /r/ proxy"
+  fi
+
+  if DOMAIN="$DOMAIN" GATEWAY="$GATEWAY" API_PORT="$API_PORT" python3 - "$tmp" <<'PY'
+import os
+import re
+import sys
+
+path = sys.argv[1]
+domain = os.environ['DOMAIN']
+gateway = os.environ['GATEWAY']
+api_port = os.environ['API_PORT']
+
+with open(path, encoding='utf-8') as fh:
+    content = fh.read()
+
+proxy_block = f"""
+
+    # Proxy share-result pages to the API server
+    location /r/ {{
+        proxy_pass http://{gateway}:{api_port};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 10s;
+    }}
+"""
+
+def server_blocks(text):
+    for match in re.finditer(r'\bserver\s*\{', text):
+        depth = 0
+        for index in range(match.end() - 1, len(text)):
+            char = text[index]
+            if char == '{':
+                depth += 1
+            elif char == '}':
+                depth -= 1
+                if depth == 0:
+                    yield match.start(), index + 1, text[match.start():index + 1]
+                    break
+
+for start, end, block in server_blocks(content):
+    server_name = re.search(r'^\s*server_name\s+([^;]*);', block, re.M)
+    if not server_name:
+        continue
+    names = server_name.group(1).split()
+    if domain not in names and f'www.{domain}' not in names:
+        continue
+    if 'location /r/' in block:
+        sys.exit(2)
+    updated, count = re.subn(r'(\n\s+location\s+/\s*\{)', proxy_block + r'\1', block, count=1)
+    if count == 0:
+        continue
+    content = content[:start] + updated + content[end:]
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(content)
+    sys.exit(0)
+
+sys.exit(3)
+PY
+  then
+    :
+  else
+    local code=$?
+    rm -f "$tmp"
+    if [ "$code" -eq 2 ]; then
+      log "/r/ proxy already present in $file"
+      return 1
+    fi
+    if [ "$code" -eq 3 ]; then
+      log "no main-site /r/ insertion point found in $file"
+      return 1
+    fi
+    fail "could not add /r/ proxy to copied $file"
+  fi
+
+  backup="$file.treble-backup-$(date +%Y%m%d%H%M%S)"
+  $SUDO docker exec "$EDGE_CID" sh -c "cp '$file' '$backup'"
+  if ! $SUDO docker cp "$tmp" "$EDGE_CID:$file"; then
+    rm -f "$tmp"
+    fail "could not copy patched /r/ proxy config back to $EDGE_NAME:$file"
+  fi
+  rm -f "$tmp"
+
+  log "added /r/ proxy to $file inside $EDGE_NAME (backup: $backup)"
   return 0
 }
 
@@ -280,6 +463,9 @@ while IFS= read -r file; do
     else
       log "no Treble proxy target needed changing in $host_file"
     fi
+    if patch_r_proxy_file "$host_file"; then
+      PATCHED=1
+    fi
     continue
   fi
 
@@ -292,11 +478,14 @@ while IFS= read -r file; do
   if $SUDO docker exec "$EDGE_CID" sh -c "cmp -s '$file' '$backup'"; then
     $SUDO docker exec "$EDGE_CID" sh -c "rm -f '$backup'"
     log "no Treble proxy target needed changing in $file"
-    continue
+  else
+    PATCHED=1
+    log "patched $file (backup: $backup)"
   fi
 
-  PATCHED=1
-  log "patched $file (backup: $backup)"
+  if patch_container_r_proxy "$file"; then
+    PATCHED=1
+  fi
 done <<EOF
 $CONFIG_FILES
 EOF
@@ -315,9 +504,17 @@ log "reloaded shared nginx edge"
 for i in $(seq 1 6); do
   if curl -fsS --connect-timeout 5 --max-time 10 "https://$API_DOMAIN/health" >/dev/null; then
     log "public API healthy through shared edge"
-    exit 0
+    break
   fi
   sleep 3
+  if [ "$i" -eq 6 ]; then
+    fail "public API still unhealthy after shared-edge repair"
+  fi
 done
 
-fail "public API still unhealthy after shared-edge repair"
+if curl -sSI --connect-timeout 5 --max-time 10 "https://$DOMAIN/r/__treble_probe__" | grep -q '^HTTP/.* 404'; then
+  log "public /r/ share route reaches the API"
+  exit 0
+fi
+
+fail "public /r/ share route still falls through instead of returning API 404"

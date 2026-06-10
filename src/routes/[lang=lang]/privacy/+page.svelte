@@ -5,6 +5,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 
   const consentKey = 'trebleQuestAnalyticsConsent';
 
@@ -27,10 +28,10 @@
     <p>{$t('privacy.p3')}</p>
   </div>
   <div class="toolbar-row">
-    <Button href={`/${lang}/play`}>{$t('privacy.play')}</Button>
+    <Button href={`/${pathLang}/play`}>{$t('privacy.play')}</Button>
     <button type="button" class="button secondary" onclick={resetAnalyticsChoice}>
       {$t('privacy.reset_analytics')}
     </button>
-    <Button href={`/${lang}`} variant="ghost">{$t('privacy.home')}</Button>
+    <Button href={`/${pathLang}`} variant="ghost">{$t('privacy.home')}</Button>
   </div>
 </section>

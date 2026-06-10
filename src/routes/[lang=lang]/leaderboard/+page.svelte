@@ -10,6 +10,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 
   type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'world-cup-no-overall' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
 
@@ -98,7 +99,7 @@
       tab === 'world-cup-no-overall'
     )
       params.set('hideRatings', '1');
-    return `/${lang}/play?${params.toString()}`;
+    return `/${pathLang}/play?${params.toString()}`;
   }
 </script>
 
@@ -129,7 +130,7 @@
     <Button variant="secondary" onclick={() => load(tab)}>{$t('leaderboard.retry')}</Button>
   {:else if entries.length === 0}
     <p class="text-flow">{$t('leaderboard.no_scores')}</p>
-    <Button href={`/${lang}/play`}>{$t('leaderboard.start_run')}</Button>
+    <Button href={`/${pathLang}/play`}>{$t('leaderboard.start_run')}</Button>
   {:else}
     <ol class="lb-list">
       {#each entries as entry, i (entry.name + entry.createdAt)}

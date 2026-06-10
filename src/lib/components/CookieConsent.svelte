@@ -2,14 +2,15 @@
   import { env } from '$env/dynamic/public';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import type { SupportedLocale } from '$lib/i18n';
+  import { DEFAULT_LOCALE, normalizeLocale } from '$lib/i18n';
   import { t } from 'svelte-i18n';
 
   const consentKey = 'trebleQuestAnalyticsConsent';
   const consentGrantedEvent = 'treblequest:analytics-consent-granted';
   const analyticsEnabled = Boolean(env.PUBLIC_GA_MEASUREMENT_ID);
 
-  const lang = $derived<SupportedLocale>(($page.params.lang as SupportedLocale) ?? 'en');
+  const lang = $derived(normalizeLocale($page.params.lang) ?? DEFAULT_LOCALE);
+  const pathLang = $derived(lang.toLowerCase());
 
   let ready = $state(false);
   let choice = $state<'unknown' | 'granted' | 'denied'>('unknown');
@@ -41,7 +42,7 @@
     <div class="cookie-actions">
       <button type="button" class="button primary" onclick={acceptAnalytics}>{$t('cookie.accept')}</button>
       <button type="button" class="button ghost" onclick={declineAnalytics}>{$t('cookie.decline')}</button>
-      <a href={`/${lang}/privacy`}>{$t('cookie.privacy')}</a>
+      <a href={`/${pathLang}/privacy`}>{$t('cookie.privacy')}</a>
     </div>
   </section>
 {/if}

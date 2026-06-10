@@ -2,9 +2,11 @@
   import Button from '$lib/components/Button.svelte';
   import { fetchLeaderboardSpot, getSavedName, hasSubmitted, saveName, submitScore } from '$lib/game/leaderboard';
   import type { RunState } from '$lib/game/types';
+  import { DEFAULT_LOCALE, normalizeLocale } from '$lib/i18n';
   import { t } from 'svelte-i18n';
 
   let { run, lang = 'en' }: { run: RunState; lang?: string } = $props();
+  const pathLang = $derived((normalizeLocale(lang) ?? DEFAULT_LOCALE).toLowerCase());
 
   let name = $state(getSavedName());
   const alreadySubmitted = $derived(hasSubmitted(run.id));
@@ -80,7 +82,7 @@
           </p>
         {/if}
       </div>
-      <a href="/{lang}/leaderboard">{$t('leaderboard_submit.view_leaderboard')}</a>
+      <a href={`/${pathLang}/leaderboard`}>{$t('leaderboard_submit.view_leaderboard')}</a>
     </div>
   {:else}
     <form onsubmit={onSubmit}>

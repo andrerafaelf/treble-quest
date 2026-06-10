@@ -164,9 +164,12 @@ sudo bash /tmp/treble-quest-deploy/repair-nginx-vps.sh
 The script finds the nginx container publishing `443`, binds the API to that
 container's Docker gateway, patches Treble Quest `proxy_pass` targets that still
 point at an unreachable loopback/public address, validates nginx, reloads the
-container, and then checks `https://api.treble.quest/health`. If a host firewall
-blocks container-to-host traffic, it also allows only the shared edge Docker
-subnet to reach only the API port on the Docker gateway.
+container, and then checks `https://api.treble.quest/health`. It also ensures
+the main `treble.quest` vhost proxies `/r/*` share-result links to the API; if
+share links show the unstyled Treble Quest shell instead of a verified result,
+the edge is falling through to the static site and this repair needs to run
+again. If a host firewall blocks container-to-host traffic, it also allows only
+the shared edge Docker subnet to reach only the API port on the Docker gateway.
 
 If host nginx owns the public edge, `nginx -t` must pass. An error like
 `host not found in upstream "client:3000"` means a stale nginx config from

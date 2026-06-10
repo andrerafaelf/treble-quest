@@ -5,6 +5,7 @@
 
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
+  const pathLang = $derived(lang.toLowerCase());
 </script>
 
 <svelte:head>
@@ -19,8 +20,8 @@
     <p>{$t('about.p2')}</p>
   </div>
   <div class="toolbar-row">
-    <Button href={`/${lang}/play`}>{$t('about.start_run')}</Button>
-    <Button href={`/${lang}/support`} variant="secondary">{$t('about.support')}</Button>
-    <Button href={`/${lang}/privacy`} variant="secondary">{$t('about.privacy')}</Button>
+    <Button href={`/${pathLang}/play`}>{$t('about.start_run')}</Button>
+    <Button href={`/${pathLang}/support`} variant="secondary">{$t('about.support')}</Button>
+    <Button href={`/${pathLang}/privacy`} variant="secondary">{$t('about.privacy')}</Button>
   </div>
 </section>
