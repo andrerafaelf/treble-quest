@@ -133,12 +133,12 @@
           <article>
             <span>{$t('result.best_pick')}</span>
             <h2>{result.bestPick.type === 'manager' ? result.bestPick.manager.name : result.bestPick.player.name}</h2>
-            <p>{result.bestPick.slot.label}</p>
+            <p>{$t('slots.' + result.bestPick.slot.id)}</p>
           </article>
           <article>
             <span>{$t('result.weak_link')}</span>
             <h2>{result.weakLink.type === 'manager' ? result.weakLink.manager.name : result.weakLink.player.name}</h2>
-            <p>{result.weakLink.slot.label}</p>
+            <p>{$t('slots.' + result.weakLink.slot.id)}</p>
           </article>
           <article>
             <span>{$t('result.manager_impact')}</span>

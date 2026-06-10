@@ -6,9 +6,9 @@
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
-  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global' | 'global-no-overall';
+  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
 
-  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global', 'global-no-overall'];
+  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global', 'global-no-overall', 'legacy', 'legacy-no-overall'];
 
   function initialTab(): LeaderboardTab {
     if (!browser) return 'classic';
@@ -25,8 +25,14 @@
   async function load(next: LeaderboardTab) {
     tab = next;
     mode =
-      next === 'world-cup' ? 'world-cup' : next === 'global' || next === 'global-no-overall' ? 'global' : 'classic';
-    const hideRatings = next === 'classic-no-overall' || next === 'global-no-overall';
+      next === 'world-cup'
+        ? 'world-cup'
+        : next === 'global' || next === 'global-no-overall'
+          ? 'global'
+          : next === 'legacy' || next === 'legacy-no-overall'
+            ? 'legacy'
+            : 'classic';
+    const hideRatings = next === 'classic-no-overall' || next === 'global-no-overall' || next === 'legacy-no-overall';
     status = 'loading';
     expanded = new Set();
     if (browser) {
@@ -77,7 +83,7 @@
   function beatUrl(entry: LeaderboardEntry): string {
     const params = new URLSearchParams({ mode });
     if (entry.formation) params.set('formation', entry.formation);
-    if (tab === 'classic-no-overall' || tab === 'global-no-overall') params.set('hideRatings', '1');
+    if (tab === 'classic-no-overall' || tab === 'global-no-overall' || tab === 'legacy-no-overall') params.set('hideRatings', '1');
     return `/play?${params.toString()}`;
   }
 </script>
@@ -121,6 +127,18 @@
       aria-selected={tab === 'world-cup'}
       class:active={tab === 'world-cup'}
       onclick={() => load('world-cup')}>World Cup</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'legacy'}
+      class:active={tab === 'legacy'}
+      onclick={() => load('legacy')}>Legacy Draft</button
+    >
+    <button
+      role="tab"
+      aria-selected={tab === 'legacy-no-overall'}
+      class:active={tab === 'legacy-no-overall'}
+      onclick={() => load('legacy-no-overall')}>Legacy · No OVR</button
     >
   </div>
 

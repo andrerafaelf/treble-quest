@@ -7,10 +7,10 @@
 
 <div class="spin-panel">
   <div>
-    <span class="eyebrow">{slot ? $t('spin.pick_label', { values: { label: slot.label } }) : $t('spin.pick_complete')}</span>
+    <span class="eyebrow">{slot ? $t('spin.pick_label', { values: { label: $t('slots.' + slot.id) } }) : $t('spin.pick_complete')}</span>
     {#if prompt?.type === 'player'}
-      <h1>{prompt.slot.label}</h1>
-      <p>{$t('spin.select_player', { values: { label: prompt.slot.label.toLowerCase() } })}</p>
+      <h1>{$t('slots.' + prompt.slot.id)}</h1>
+      <p>{$t('spin.select_player', { values: { label: $t('slots.' + prompt.slot.id).toLowerCase() } })}</p>
     {:else if prompt?.type === 'manager'}
       <h1>{$t('spin.touchline_brief')}</h1>
       <p>{$t('spin.manager_desc')}</p>

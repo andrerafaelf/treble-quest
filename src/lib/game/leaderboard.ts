@@ -38,7 +38,7 @@ export type LeaderboardSpotResponse = {
 
 export async function fetchLeaderboard(mode: GameMode, limit = 50, hideRatings = false): Promise<LeaderboardResponse> {
   const params = new URLSearchParams({ mode, limit: String(limit) });
-  if ((mode === 'classic' || mode === 'global') && hideRatings) params.set('hideRatings', '1');
+  if ((mode === 'classic' || mode === 'global' || mode === 'legacy') && hideRatings) params.set('hideRatings', '1');
   const res = await fetch(`${API_BASE}/leaderboard?${params.toString()}`);
   if (!res.ok) throw new Error(`leaderboard ${res.status}`);
   return res.json();
@@ -50,7 +50,7 @@ export async function fetchLeaderboardSpot(
   hideRatings = false,
 ): Promise<LeaderboardSpotResponse> {
   const params = new URLSearchParams({ mode, score: String(score) });
-  if ((mode === 'classic' || mode === 'global') && hideRatings) params.set('hideRatings', '1');
+  if ((mode === 'classic' || mode === 'global' || mode === 'legacy') && hideRatings) params.set('hideRatings', '1');
   const res = await fetch(`${API_BASE}/leaderboard/spot?${params.toString()}`);
   if (!res.ok) throw new Error(`leaderboard_spot ${res.status}`);
   return res.json();
