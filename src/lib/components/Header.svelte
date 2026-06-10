@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import brandIcon from '$lib/icons/favicon-32x32.png';
   import { SUPPORTED_LOCALES, type SupportedLocale } from '$lib/i18n';
+  import brandIcon from '$lib/icons/favicon-32x32.png';
   import { t } from 'svelte-i18n';
 
   const lang = $derived<SupportedLocale>(($page.params.lang as SupportedLocale) ?? 'en');
@@ -9,7 +9,7 @@
   const links = $derived([
     { href: `/${lang}`, label: $t('nav.home') },
     { href: `/${lang}/play`, label: $t('nav.play') },
-    { href: `/vs`, label: $t('nav.versus') },
+    { href: `/${lang}/vs`, label: $t('nav.versus') },
     { href: `/${lang}/leaderboard`, label: $t('nav.leaderboard') },
     { href: `/${lang}/how-to-play`, label: $t('nav.how_to_play') },
     { href: `/${lang}/support`, label: $t('nav.support') },
