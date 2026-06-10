@@ -1,6 +1,6 @@
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import Fastify from 'fastify';
+import Fastify, { type FastifyReply } from 'fastify';
 import { createHash } from 'node:crypto';
 import {
   findByRunId,
@@ -16,10 +16,22 @@ import {
   type ScoreRow,
   type ShareRow,
 } from './db.ts';
+import {
+  createRoom,
+  getPublicRoom,
+  getRoom,
+  isLobbyError,
+  joinRoom,
+  recordResult,
+  startRoom,
+  sweepExpired,
+  type StartConfig,
+} from './lobby.ts';
 import { sanitizeName } from './name.ts';
 import { render404Page, renderResultPage } from './result-page.ts';
 import { generateShareId } from './share-id.ts';
 import { verifyRun, type SubmittedRun } from './verify.ts';
+import { broadcastRoom, registerVsWebsocket } from './ws.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const HOST = process.env.HOST ?? '127.0.0.1';
@@ -216,6 +228,126 @@ app.post<{ Body: ShareBody }>(
     return { ok: true, shareId, url: `${SITE_URL}/r/${shareId}` };
   },
 );
+
+// ---- Multiplayer "Versus" lobbies ----
+
+await registerVsWebsocket(app);
+
+// Sweep stale/empty rooms periodically.
+const sweepTimer = setInterval(() => sweepExpired(), 5 * 60 * 1000);
+sweepTimer.unref?.();
+
+const LOBBY_ERROR_STATUS: Record<string, number> = {
+  invalid_name: 400,
+  invalid_mode: 400,
+  room_not_found: 404,
+  room_full: 409,
+  already_started: 409,
+  already_submitted: 409,
+  not_host: 403,
+  not_playing: 409,
+  not_a_member: 403,
+  mode_mismatch: 400,
+};
+
+function sendLobbyError(reply: FastifyReply, error: string) {
+  const status = LOBBY_ERROR_STATUS[error] ?? 400;
+  return reply.code(status).send({ error });
+}
+
+app.post<{ Body: { name?: unknown } }>(
+  '/vs/rooms',
+  { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+  async (req, reply) => {
+    const result = createRoom((req.body ?? {}).name);
+    if (isLobbyError(result)) return sendLobbyError(reply, result.error);
+    return {
+      ok: true,
+      code: result.room.code,
+      token: result.member.id,
+      pid: result.member.pid,
+      room: getPublicRoom(result.room),
+    };
+  },
+);
+
+app.post<{ Params: { code: string }; Body: { name?: unknown } }>(
+  '/vs/rooms/:code/join',
+  { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+  async (req, reply) => {
+    const result = joinRoom(req.params.code, (req.body ?? {}).name);
+    if (isLobbyError(result)) return sendLobbyError(reply, result.error);
+    broadcastRoom(result.room.code);
+    return {
+      ok: true,
+      code: result.room.code,
+      token: result.member.id,
+      pid: result.member.pid,
+      room: getPublicRoom(result.room),
+    };
+  },
+);
+
+type StartBody = { token?: string } & Partial<StartConfig>;
+
+app.post<{ Params: { code: string }; Body: StartBody }>(
+  '/vs/rooms/:code/start',
+  { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+  async (req, reply) => {
+    const body = req.body ?? {};
+    if (typeof body.token !== 'string') return reply.code(400).send({ error: 'invalid_token' });
+    if (typeof body.mode !== 'string') return reply.code(400).send({ error: 'invalid_mode' });
+    const result = startRoom(req.params.code, body.token, {
+      mode: body.mode,
+      formation: body.formation,
+      hideRatings: body.hideRatings,
+    });
+    if (isLobbyError(result)) return sendLobbyError(reply, result.error);
+    broadcastRoom(result.code);
+    return { ok: true, room: getPublicRoom(result) };
+  },
+);
+
+type VsSubmitBody = { token?: string; run?: SubmittedRun };
+
+app.post<{ Params: { code: string }; Body: VsSubmitBody }>(
+  '/vs/rooms/:code/submit',
+  { config: { rateLimit: { max: 12, timeWindow: '1 minute' } } },
+  async (req, reply) => {
+    const body = req.body ?? {};
+    if (typeof body.token !== 'string') return reply.code(400).send({ error: 'invalid_token' });
+    if (!body.run || typeof body.run !== 'object') return reply.code(400).send({ error: 'invalid_run' });
+
+    // Reuse the same server-side replay used by the global leaderboard: a tampered
+    // payload can't post a fake score because the server reproduces it from the picks.
+    const verified = verifyRun(body.run);
+    if (!verified.ok) {
+      req.log.warn({ reason: verified.reason }, 'vs submission rejected');
+      return reply.code(400).send({ error: 'invalid_run', reason: verified.reason });
+    }
+
+    const result = recordResult(req.params.code, body.token, verified);
+    if (isLobbyError(result)) return sendLobbyError(reply, result.error);
+    broadcastRoom(result.code);
+
+    const members = getPublicRoom(result).members.filter((m) => m.done);
+    const rank = members.findIndex((m) => m.score === verified.result.score) + 1;
+    return {
+      ok: true,
+      score: verified.result.score,
+      trophies: verified.result.trophies,
+      rank: rank > 0 ? rank : members.length,
+      totalDone: members.length,
+      room: getPublicRoom(result),
+    };
+  },
+);
+
+app.get<{ Params: { code: string } }>('/vs/rooms/:code', async (req, reply) => {
+  const room = getRoom(req.params.code);
+  if (!room) return reply.code(404).send({ error: 'room_not_found' });
+  return { ok: true, room: getPublicRoom(room) };
+});
 
 app.get<{ Params: { id: string } }>('/r/:id', async (req, reply) => {
   const share = findShareById.get(req.params.id) as ShareRow | undefined;

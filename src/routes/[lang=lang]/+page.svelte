@@ -103,6 +103,7 @@
             {$runStore.result ? $t('home.view_result') : $t('home.resume_run')}
           </a>
         {/if}
+        <a href="/vs" class="foot-link foot-link-versus">⚔️ {$t('nav.versus')}</a>
         <a href={`/${lang}/leaderboard`} class="foot-link">{$t('nav.leaderboard')}</a>
         <a href={`/${lang}/how-to-play`} class="foot-link">{$t('home.how_it_works')}</a>
         <a href={`/${lang}/support`} class="foot-link">{$t('nav.support')}</a>

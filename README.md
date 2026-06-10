@@ -54,7 +54,12 @@ Setup checklist:
 
 The leaderboard API lives in [`server/`](server/) — a small Fastify + SQLite service that
 replays every submitted run server-side to verify the score before storing it.
-See [`server/README.md`](server/README.md) for details.
+The same service hosts **multiplayer "Versus" lobbies** (`/vs/*` + a `/vs/ws` WebSocket): a
+streamer creates a lobby, shares the link/code with chat, everyone races their own randomly
+seeded draft of the chosen mode, and a live board ranks them — highest treble score wins. Scores
+are verified through the same replay path, so the lobby can't be cheated. The multiplayer UI is
+the [`/vs`](src/routes/vs/+page.svelte) route. See [`server/README.md`](server/README.md) for the
+endpoint list.
 
 ## Deploy via GitHub Actions
 
@@ -104,7 +109,16 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 | `PUBLIC_GOOGLE_SITE_VERIFICATION` | (your Search Console token, optional) |
 
 The API runs as a separate origin on `api.treble.quest`, proxied to the Node
-service on port `8787`. On a single-purpose VPS, host nginx can proxy to
+service on port `8787`. The multiplayer lobby uses a WebSocket at
+`api.treble.quest/vs/ws`, so the nginx `location` proxying to `8787` must forward
+the upgrade headers:
+
+```nginx
+proxy_http_version 1.1;
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection "upgrade";
+```
+ On a single-purpose VPS, host nginx can proxy to
 `127.0.0.1:8787`. On the current shared VPS, Docker owns public ports `80` and
 `443`, so the Dockerized shared nginx edge must proxy to the host via its Docker
 gateway instead. The deploy workflow detects that mode and runs
