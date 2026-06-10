@@ -13,6 +13,14 @@ import type {
   RunState,
 } from '$lib/game/types';
 
+const PL_CLUBS = new Set([
+  'Arsenal', 'Chelsea', 'Liverpool', 'Manchester City', 'Manchester United', 'Tottenham',
+  'Blackburn Rovers', 'Newcastle United', 'Leeds United', 'Everton', 'Leicester City', 'Southampton',
+  'West Ham United', 'Aston Villa', 'Portsmouth', 'Wigan Athletic', 'Fulham', 'Middlesbrough',
+  'Bolton Wanderers', 'Ipswich Town', 'Charlton Athletic', 'Birmingham City', 'Swansea City',
+  'Crystal Palace', 'Reading',
+]);
+
 export const quickDraftSlots: DraftSlot[] = [
   { id: 'manager', label: 'Manager', short: 'MGR', required: 'ANY' },
   { id: 'goalkeeper', label: 'Goalkeeper', short: 'GK', required: 'GK' },
@@ -165,11 +173,14 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
 
   const playerPool =
     run.mode === 'world-cup' ? worldCupPlayerSeasons : run.mode === 'global' ? globalPlayerSeasons : playerSeasons;
-  const usedIds = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.id));
-  const basePool = run.mode === 'legacy' && run.clubFilter
-    ? playerPool.filter((player) => player.club === run.clubFilter)
-    : playerPool;
-  const fitPlayers = basePool.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
+  const usedNames = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.name));
+  const basePool =
+    run.mode === 'legacy' && run.clubFilter
+      ? playerPool.filter((player) => player.club === run.clubFilter)
+      : run.mode === 'classic'
+        ? playerPool.filter((player) => PL_CLUBS.has(player.club))
+        : playerPool;
+  const fitPlayers = basePool.filter((player) => !usedNames.has(player.name) && isSlotFit(player, slot.required));
   const options = run.mode === 'legacy' ? chooseEraDiversePlayers(fitPlayers, 4, rng) : chooseDiversePlayers(fitPlayers, 4, rng);
 
   return {
