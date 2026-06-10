@@ -16,6 +16,7 @@ export type Member = {
   score: number | null;
   trophies: number | null;
   squad: SquadEntry[] | null;
+  formation: ClassicFormation; // each player picks their own; only matters for classic mode
 };
 
 export type Room = {
@@ -42,6 +43,7 @@ export type PublicMember = {
   score: number | null;
   trophies: number | null;
   squad: SquadEntry[] | null;
+  formation: ClassicFormation;
 };
 
 export type PublicRoom = {
@@ -97,6 +99,7 @@ function newMember(name: string, isHost: boolean): Member {
     score: null,
     trophies: null,
     squad: null,
+    formation: '4-3-3',
   };
 }
 
@@ -200,6 +203,18 @@ export function recordResult(code: string, token: string, verified: VerifyOk): R
   return room;
 }
 
+export function setMemberFormation(code: string, token: string, formation: ClassicFormation): Room | LobbyError {
+  const room = rooms.get(normalizeCode(code));
+  if (!room) return { error: 'room_not_found' };
+  if (room.phase !== 'lobby') return { error: 'already_started' };
+  if (!VALID_FORMATIONS.includes(formation)) return { error: 'invalid_formation' };
+  const member = room.members.get(token);
+  if (!member) return { error: 'not_a_member' };
+  member.formation = formation;
+  touch(room);
+  return room;
+}
+
 export function setConnected(code: string, token: string, connected: boolean): Room | undefined {
   const room = rooms.get(normalizeCode(code));
   if (!room) return undefined;
@@ -267,6 +282,7 @@ export function getPublicRoom(room: Room): PublicRoom {
         score: m.score,
         trophies: m.trophies,
         squad: m.squad,
+        formation: m.formation,
       })),
   };
 }
@@ -285,7 +301,9 @@ export function sweepExpired(now = Date.now()): number {
 }
 
 function normalizeCode(code: string): string {
-  return String(code ?? '').trim().toUpperCase();
+  return String(code ?? '')
+    .trim()
+    .toUpperCase();
 }
 
 export function roomCount(): number {

@@ -23,6 +23,7 @@ import {
   isLobbyError,
   joinRoom,
   recordResult,
+  setMemberFormation,
   startRoom,
   sweepExpired,
   type StartConfig,
@@ -64,7 +65,10 @@ app.get('/health', async () => ({ ok: true }));
 app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }>(
   '/leaderboard',
   async (req, reply) => {
-    const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global' ? req.query.mode : 'classic';
+    const mode =
+      req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global'
+        ? req.query.mode
+        : 'classic';
     const hideRatings = req.query.hideRatings === '1';
     const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
     const rows = topScores.all({ mode, hide_ratings: hideRatings ? 1 : 0, limit }) as ScoreRow[];
@@ -87,7 +91,10 @@ app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }
 app.get<{ Querystring: { mode?: string; hideRatings?: string; score?: string } }>(
   '/leaderboard/spot',
   async (req, reply) => {
-    const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global' ? req.query.mode : 'classic';
+    const mode =
+      req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global'
+        ? req.query.mode
+        : 'classic';
     const hideRatings = req.query.hideRatings === '1';
     const score = Number(req.query.score ?? NaN);
     if (!Number.isFinite(score)) {
@@ -244,6 +251,7 @@ sweepTimer.unref?.();
 const LOBBY_ERROR_STATUS: Record<string, number> = {
   invalid_name: 400,
   invalid_mode: 400,
+  invalid_formation: 400,
   room_not_found: 404,
   room_full: 409,
   already_started: 409,
@@ -289,6 +297,22 @@ app.post<{ Params: { code: string }; Body: { name?: unknown } }>(
       pid: result.member.pid,
       room: getPublicRoom(result.room),
     };
+  },
+);
+
+type FormationBody = { token?: string; formation?: string };
+
+app.post<{ Params: { code: string }; Body: FormationBody }>(
+  '/vs/rooms/:code/formation',
+  { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+  async (req, reply) => {
+    const body = req.body ?? {};
+    if (typeof body.token !== 'string') return reply.code(400).send({ error: 'invalid_token' });
+    if (typeof body.formation !== 'string') return reply.code(400).send({ error: 'invalid_formation' });
+    const result = setMemberFormation(req.params.code, body.token, body.formation as never);
+    if (isLobbyError(result)) return sendLobbyError(reply, result.error);
+    broadcastRoom(result.code);
+    return { ok: true, room: getPublicRoom(result) };
   },
 );
 

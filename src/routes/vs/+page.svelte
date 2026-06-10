@@ -2,6 +2,7 @@
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { env } from '$env/dynamic/public';
   import Button from '$lib/components/Button.svelte';
   import Card from '$lib/components/Card.svelte';
   import DraftProgress from '$lib/components/DraftProgress.svelte';
@@ -19,13 +20,13 @@
     createRoom,
     joinRoom,
     loadSession,
+    setFormation,
     startRoom,
     submitVsRun,
     type PublicRoom,
     type VsSession,
   } from '$lib/game/vs-api';
   import { connectRoom, type VsSocket } from '$lib/game/vs-socket';
-  import { env } from '$env/dynamic/public';
   import { onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
 
@@ -43,8 +44,10 @@
 
   // host round config
   let mode = $state<GameMode>('classic');
-  let formation = $state<ClassicFormation>('4-3-3');
   let noOverall = $state(false);
+
+  // local pick (synced to server) for this player's own formation; used when the round starts
+  let myFormation = $state<ClassicFormation>('4-3-3');
 
   // session + live room
   let session = $state<VsSession | null>(null);
@@ -108,19 +111,38 @@
   });
 
   // When the host starts a new round, every player sees a synced countdown, then
-  // auto-begins their own draft for that round.
+  // auto-begins their own draft for that round using their own chosen formation.
   $effect(() => {
     if (!room || !session) return;
     if (room.phase === 'playing' && room.round !== startedRound) {
       const r = room;
+      const f = me?.formation ?? myFormation;
       startedRound = r.round;
       submitted = false;
       submitting = false;
       myResult = null;
       runStore.clear();
-      beginCountdown(() => runStore.start(r.mode, r.formation, r.hideRatings));
+      beginCountdown(() => runStore.start(r.mode, f, r.hideRatings));
     }
   });
+
+  // Keep the local picker in sync with whatever the server thinks our formation is
+  // (e.g. after rejoin from sessionStorage we adopt our previous pick).
+  $effect(() => {
+    if (me?.formation && me.formation !== myFormation) {
+      myFormation = me.formation;
+    }
+  });
+
+  async function handleFormationChange(next: ClassicFormation) {
+    myFormation = next;
+    if (!session) return;
+    try {
+      await setFormation(session.code, session.token, next);
+    } catch (e) {
+      errorMsg = friendlyError((e as Error).message);
+    }
+  }
 
   function beginCountdown(onGo: () => void) {
     if (countdownTimer) clearInterval(countdownTimer);
@@ -192,9 +214,10 @@
     errorMsg = '';
     busy = true;
     try {
+      // Each player picks their own formation; we still send one for compatibility.
       await startRoom(session.code, session.token, {
         mode,
-        formation,
+        formation: myFormation,
         hideRatings: noOverall,
       });
     } catch (e) {
@@ -284,8 +307,8 @@
 </script>
 
 <svelte:head>
-  <title>Treble Quest — Versus (streamer vs chat)</title>
-  <meta name="description" content="Create a lobby, share the link with your chat, and race to the best treble." />
+  <title>Treble Quest — Multiplayer</title>
+  <meta name="description" content="Create a lobby, share the link with your friends, and race to the best treble." />
 </svelte:head>
 
 {#if countdown !== null}
@@ -295,7 +318,13 @@
       <span class="countdown-number" class:go={countdown === 0}>{countdown === 0 ? 'GO!' : countdown}</span>
     {/key}
     <p class="countdown-mode">
-      {room?.mode === 'world-cup' ? 'World Cup' : room?.mode === 'global' ? 'Global' : room?.mode === 'legacy' ? 'Legacy' : 'Classic'}
+      {room?.mode === 'world-cup'
+        ? 'World Cup'
+        : room?.mode === 'global'
+          ? 'Global'
+          : room?.mode === 'legacy'
+            ? 'Legacy'
+            : 'Classic'}
       {#if room?.mode === 'classic' && room?.formation}· {room.formation}{/if}
     </p>
   </div>
@@ -321,7 +350,7 @@
             <span>Your name</span>
             <input
               type="text"
-              placeholder="e.g. Joey, Mara, TheStreamer…"
+              placeholder="Pick a name"
               maxlength="16"
               bind:value={nameInput}
               autofocus
@@ -339,54 +368,49 @@
       </Card>
     </section>
   {:else}
-  <!-- ENTRY: create or join -->
-  <section class="page-section narrow">
-    <span class="eyebrow">Multiplayer</span>
-    <h1 class="page-title">Streamer vs Chat.</h1>
-    <p class="lede">
-      Create a lobby, drop the link in your chat, and everyone races the same mode. Highest treble score wins.
-    </p>
-    <Card>
-      <label class="field">
-        <span>Your name</span>
-        <input
-          type="text"
-          placeholder="e.g. Joey, Mara, TheStreamer…"
-          maxlength="16"
-          bind:value={nameInput}
-        />
-      </label>
+    <!-- ENTRY: create or join -->
+    <section class="page-section narrow">
+      <span class="eyebrow">Multiplayer</span>
+      <h1 class="page-title">Race your friends.</h1>
+      <p class="lede">
+        Create a lobby, share the link, and everyone drafts at the same time. Highest treble score wins.
+      </p>
+      <Card>
+        <label class="field">
+          <span>Your name</span>
+          <input type="text" placeholder="Pick a name" maxlength="16" bind:value={nameInput} />
+        </label>
 
-      <div class="entry-actions">
-        <Button onclick={handleCreate} disabled={busy}>Create lobby</Button>
-      </div>
+        <div class="entry-actions">
+          <Button onclick={handleCreate} disabled={busy}>Create lobby</Button>
+        </div>
 
-      <div class="divider"><span>or join one</span></div>
+        <div class="divider"><span>or join one</span></div>
 
-      <form
-        class="join-row"
-        onsubmit={(e) => {
-          e.preventDefault();
-          handleJoin();
-        }}
-      >
-        <input
-          class="code-input"
-          type="text"
-          placeholder="CODE"
-          maxlength="6"
-          bind:value={codeInput}
-          oninput={() => (codeInput = codeInput.toUpperCase())}
-        />
-        <Button type="submit" variant="secondary" disabled={busy}>Join</Button>
-      </form>
+        <form
+          class="join-row"
+          onsubmit={(e) => {
+            e.preventDefault();
+            handleJoin();
+          }}
+        >
+          <input
+            class="code-input"
+            type="text"
+            placeholder="CODE"
+            maxlength="6"
+            bind:value={codeInput}
+            oninput={() => (codeInput = codeInput.toUpperCase())}
+          />
+          <Button type="submit" variant="secondary" disabled={busy}>Join</Button>
+        </form>
 
-      {#if errorMsg}<p class="error">{errorMsg}</p>{/if}
-      <div class="toolbar-row">
-        <Button href="/" variant="ghost">Back home</Button>
-      </div>
-    </Card>
-  </section>
+        {#if errorMsg}<p class="error">{errorMsg}</p>{/if}
+        <div class="toolbar-row">
+          <Button href="/" variant="ghost">Back home</Button>
+        </div>
+      </Card>
+    </section>
   {/if}
 {:else if room.phase === 'lobby'}
   <!-- LOBBY -->
@@ -396,8 +420,8 @@
 
     {#if status !== 'open'}
       <p class="conn-warning">
-        ⚠ Live connection {status === 'connecting' ? 'is reconnecting' : 'is offline'} — the player list and round
-        start may lag until it's back. If this persists, the multiplayer WebSocket isn't reachable.
+        ⚠ Live connection {status === 'connecting' ? 'is reconnecting' : 'is offline'} — the player list and round start
+        may lag until it's back. If this persists, the multiplayer WebSocket isn't reachable.
       </p>
     {/if}
 
@@ -412,14 +436,18 @@
           <small class="share-url">{shareUrl}</small>
         </div>
 
+        {#if room.mode === 'classic'}
+          <div class="my-formation">
+            <h2>Your formation</h2>
+            <p class="picked">Locked in: <strong>{me?.formation ?? myFormation}</strong></p>
+            <FormationSelector onSelect={handleFormationChange} />
+          </div>
+        {/if}
+
         {#if isHost}
           <div class="host-controls">
             <h2>Round settings</h2>
             <ModeSelector value={mode} onSelect={(m) => (mode = m)} />
-            {#if mode === 'classic'}
-              <FormationSelector onSelect={(f) => (formation = f)} />
-              <p class="picked">Formation: <strong>{formation}</strong></p>
-            {/if}
             <label class="toggle-row">
               <input type="checkbox" bind:checked={noOverall} />
               <span>No overall mode</span><strong>Hard</strong>
@@ -441,6 +469,9 @@
             <li class:me={m.pid === session.pid}>
               <span class="dot" class:on={m.connected}></span>
               <span class="pname">{m.name}</span>
+              {#if room.mode === 'classic'}
+                <span class="badge formation">{m.formation}</span>
+              {/if}
               {#if m.isHost}<span class="badge host">HOST</span>{/if}
               {#if m.pid === session.pid}<span class="badge you">YOU</span>{/if}
             </li>
@@ -507,7 +538,10 @@
       <ol class="standings-list">
         {#each sortedMembers as m (m.pid)}
           <li class:me={m.pid === session.pid} class:done={m.done}>
-            <span class="pname">{m.name}{#if m.pid === session.pid} (you){/if}</span>
+            <span class="pname"
+              >{m.name}{#if m.pid === session.pid}
+                (you){/if}</span
+            >
             {#if m.done}
               <span class="pscore">{m.score} · {m.trophies}🏆</span>
             {:else}
@@ -728,12 +762,24 @@
     border-radius: 4px;
     font-weight: 700;
   }
+  .badge.formation {
+    background: rgba(255, 255, 255, 0.12);
+    letter-spacing: 0.05em;
+  }
   .badge.host {
     background: #ffb84d;
     color: #222;
   }
   .badge.you {
     background: rgba(120, 200, 255, 0.3);
+  }
+  .my-formation {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .my-formation h2 {
+    margin: 0 0 0.5rem;
   }
 
   .standings {

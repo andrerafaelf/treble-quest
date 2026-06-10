@@ -18,6 +18,7 @@ export type PublicMember = {
   score: number | null;
   trophies: number | null;
   squad: SquadEntry[] | null;
+  formation: ClassicFormation;
 };
 
 export type PublicRoom = {
@@ -97,6 +98,14 @@ export async function startRoom(
   const data = await postJson<{ ok: true; room: PublicRoom }>(`/vs/rooms/${encodeURIComponent(code)}/start`, {
     token,
     ...config,
+  });
+  return data.room;
+}
+
+export async function setFormation(code: string, token: string, formation: ClassicFormation): Promise<PublicRoom> {
+  const data = await postJson<{ ok: true; room: PublicRoom }>(`/vs/rooms/${encodeURIComponent(code)}/formation`, {
+    token,
+    formation,
   });
   return data.room;
 }

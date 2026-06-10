@@ -13,6 +13,7 @@
   import SharePanel from '$lib/components/SharePanel.svelte';
   import SquadRail from '$lib/components/SquadRail.svelte';
   import StatHighlights from '$lib/components/StatHighlights.svelte';
+  import VsStandingsPanel from '$lib/components/VsStandingsPanel.svelte';
   import { getDraftSlots } from '$lib/game/draft';
   import { recordStreakResult, runStore, type StreakState } from '$lib/game/storage';
   import { onDestroy } from 'svelte';
@@ -115,6 +116,7 @@
           onDone={finishPlayback}
         />
       {:else}
+        <VsStandingsPanel />
         <ResultHero {result} />
         <StatHighlights highlights={result.highlights} {achievements} />
         <CompetitionBreakdown {result} />
