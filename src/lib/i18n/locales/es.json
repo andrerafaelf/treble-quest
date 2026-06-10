@@ -334,7 +334,7 @@
     "world_cup_label": "Modo Mundial",
     "world_cup_hint": "Una partida de selección nacional basada en el camino campeón 8-0.",
     "legacy_label": "Legacy Draft",
-    "legacy_hint": "Elige el XI histórico de un club de la Premier League a lo largo de todas las temporadas disponibles."
+    "legacy_hint": "Elige el XI histórico de un club legendario a lo largo de todas las temporadas disponibles."
   },
   "club_selector": {
     "label": "Elige tu club"

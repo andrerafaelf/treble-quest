@@ -20,19 +20,23 @@
     es: '🇪🇸',
     ar: '🇸🇦',
     'pt-PT': '🇵🇹',
+    'pt-BR': '🇧🇷',
     de: '🇩🇪',
     it: '🇮🇹',
-    id: '🇮🇩'
+    id: '🇮🇩',
+    nl: '🇳🇱'
   };
 
   const LANG_LABELS: Record<SupportedLocale, string> = {
     en: 'English',
     es: 'Español',
     ar: 'العربية',
-    'pt-PT': 'Português',
+    'pt-PT': 'Português (PT)',
+    'pt-BR': 'Português (BR)',
     de: 'Deutsch',
     it: 'Italiano',
-    id: 'Indonesia'
+    id: 'Indonesia',
+    nl: 'Nederlands'
   };
 
   let dropdownOpen = $state(false);
