@@ -2,7 +2,7 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 const LOCALES = ['en', 'es', 'ar', 'pt-PT', 'pt-BR', 'de', 'it', 'id', 'nl'];
-const ROUTES = ['', '/play', '/result', '/leaderboard', '/about', '/how-to-play', '/privacy', '/support'];
+const ROUTES = ['', '/play', '/vs', '/result', '/leaderboard', '/about', '/how-to-play', '/privacy', '/support'];
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
