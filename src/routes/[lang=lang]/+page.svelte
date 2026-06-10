@@ -2,6 +2,7 @@
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import ClubSelector from '$lib/components/ClubSelector.svelte';
   import FormationSelector from '$lib/components/FormationSelector.svelte';
   import ModeSelector from '$lib/components/ModeSelector.svelte';
   import { parseRunConfigFromUrl } from '$lib/game/deeplink';
@@ -16,21 +17,27 @@
 
   let noOverall = $state(false);
   let selectedMode = $state<GameMode>('classic');
+  let selectedClub = $state<string | undefined>(undefined);
   const streak = browser ? getStreak() : null;
   let deepLinkApplied = $state(false);
   const run = $derived($runStore);
 
-  function startRun(mode: GameMode = 'classic', formation?: ClassicFormation, hideRatings = false) {
-    runStore.start(mode, formation, hideRatings);
+  function startRun(mode: GameMode = 'classic', formation?: ClassicFormation, hideRatings = false, clubFilter?: string) {
+    runStore.start(mode, formation, hideRatings, clubFilter);
     goto(`/${lang}/play`);
   }
 
   function selectMode(mode: GameMode) {
     selectedMode = mode;
+    selectedClub = undefined;
+  }
+
+  function selectClub(clubName: string) {
+    selectedClub = clubName;
   }
 
   function selectFormation(formation: ClassicFormation) {
-    startRun(selectedMode, formation, noOverall);
+    startRun(selectedMode, formation, noOverall, selectedMode === 'legacy' ? selectedClub : undefined);
   }
 
   $effect(() => {
@@ -70,7 +77,13 @@
           <strong>{$t('home.hard')}</strong>
         </label>
 
-        <FormationSelector onSelect={selectFormation} />
+        {#if selectedMode === 'legacy'}
+          <ClubSelector value={selectedClub} onSelect={selectClub} />
+        {/if}
+
+        {#if selectedMode !== 'legacy' || selectedClub}
+          <FormationSelector onSelect={selectFormation} />
+        {/if}
       </div>
     </div>
 

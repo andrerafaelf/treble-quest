@@ -305,7 +305,12 @@
     "global_label": "Modalità Globale",
     "global_hint": "Squadre leggendarie di tutte le epoche e campionati: Porto 2004, Nacional 2008/09, Barcellona 2010/11, Real Madrid 2013/14, e altro.",
     "world_cup_label": "Modalità Mondiale",
-    "world_cup_hint": "Una corsa con la nazionale basata sul percorso del campione 8-0."
+    "world_cup_hint": "Una corsa con la nazionale basata sul percorso del campione 8-0.",
+    "legacy_label": "Legacy Draft",
+    "legacy_hint": "Crea l'XI di tutti i tempi di un club della Premier League attingendo da tutte le stagioni disponibili."
+  },
+  "club_selector": {
+    "label": "Scegli il tuo club"
   },
   "formations": {
     "433_hint": "Ideale per il controllo, ali e squadre equilibrate.",

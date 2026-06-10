@@ -294,7 +294,12 @@
     "global_label": "Global Mode",
     "global_hint": "Legendary teams from all eras and all leagues: Porto 2004, Nacional 2008/09, Barcelona 2010/11, Real Madrid 2013/14, and more.",
     "world_cup_label": "World Cup Mode",
-    "world_cup_hint": "A national-team run built around the 8-0 champion path."
+    "world_cup_hint": "A national-team run built around the 8-0 champion path.",
+    "legacy_label": "Legacy Draft",
+    "legacy_hint": "Draft the all-time XI from one Premier League club across every season in our data."
+  },
+  "club_selector": {
+    "label": "Pick your club"
   },
   "formations": {
     "433_hint": "Best for control, wide forwards, and balanced squads.",

@@ -95,13 +95,14 @@ export const modeLabels: Record<GameMode, string> = {
   classic: 'Classic Mode',
   'world-cup': 'World Cup Mode',
   global: 'Global Mode',
+  legacy: 'Legacy Draft',
 };
 
 export function createSeed(): number {
   return Math.floor(Date.now() % 2147483647) ^ Math.floor(Math.random() * 2147483647);
 }
 
-export function createRun(mode: GameMode, formation?: ClassicFormation, hideRatings = false): RunState {
+export function createRun(mode: GameMode, formation?: ClassicFormation, hideRatings = false, clubFilter?: string): RunState {
   const seed = createSeed();
   const run: RunState = {
     id: `run-${seed}-${Date.now()}`,
@@ -109,6 +110,7 @@ export function createRun(mode: GameMode, formation?: ClassicFormation, hideRati
     mode,
     formation: formation ?? '4-3-3',
     hideRatings: hideRatings,
+    clubFilter: mode === 'legacy' ? clubFilter : undefined,
     startedAt: Date.now(),
     currentPick: 0,
     picks: [],
@@ -117,7 +119,7 @@ export function createRun(mode: GameMode, formation?: ClassicFormation, hideRati
 }
 
 export function replayRun(previous: RunState): RunState {
-  return createRun(previous.mode, previous.formation, previous.hideRatings);
+  return createRun(previous.mode, previous.formation, previous.hideRatings, previous.clubFilter);
 }
 
 export function getDraftSlots(mode: GameMode, formation?: ClassicFormation): DraftSlot[] {
@@ -164,8 +166,11 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
   const playerPool =
     run.mode === 'world-cup' ? worldCupPlayerSeasons : run.mode === 'global' ? globalPlayerSeasons : playerSeasons;
   const usedIds = new Set(run.picks.filter((pick) => pick.type === 'player').map((pick) => pick.player.id));
-  const fitPlayers = playerPool.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
-  const options = chooseDiversePlayers(fitPlayers, 4, rng);
+  const basePool = run.mode === 'legacy' && run.clubFilter
+    ? playerPool.filter((player) => player.club === run.clubFilter)
+    : playerPool;
+  const fitPlayers = basePool.filter((player) => !usedIds.has(player.id) && isSlotFit(player, slot.required));
+  const options = run.mode === 'legacy' ? chooseEraDiversePlayers(fitPlayers, 4, rng) : chooseDiversePlayers(fitPlayers, 4, rng);
 
   return {
     type: 'player',
@@ -257,3 +262,27 @@ function weightedPick(pool: PlayerSeason[], rng: () => number): PlayerSeason {
 function sameClubSeason(a: PlayerSeason, b: PlayerSeason): boolean {
   return a.club === b.club && a.season === b.season;
 }
+
+function seasonDecade(season: string): string {
+  const year = parseInt(season.slice(0, 4), 10);
+  return `${Math.floor(year / 10) * 10}s`;
+}
+
+// Like chooseDiversePlayers but diversity is by season (all same club in legacy mode)
+function chooseEraDiversePlayers(items: PlayerSeason[], count: number, rng: () => number): PlayerSeason[] {
+  const chosen: PlayerSeason[] = [];
+  const remaining = [...items];
+  while (remaining.length && chosen.length < count) {
+    const diversePool = remaining.filter((player) => !chosen.some((picked) => picked.season === player.season));
+    const pool = diversePool.length ? diversePool : remaining;
+    const option = weightedPick(pool, rng);
+    chosen.push(option);
+    remaining.splice(
+      remaining.findIndex((player) => player.id === option.id),
+      1,
+    );
+  }
+  return chosen;
+}
+
+export { seasonDecade };

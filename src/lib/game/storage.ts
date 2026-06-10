@@ -60,8 +60,8 @@ function createRunStore() {
 
   return {
     subscribe,
-    start(mode: GameMode, formation?: ClassicFormation, hideRatings = false) {
-      const run = createRun(mode, formation, hideRatings);
+    start(mode: GameMode, formation?: ClassicFormation, hideRatings = false, clubFilter?: string) {
+      const run = createRun(mode, formation, hideRatings, clubFilter);
       set(run);
       persist(run);
       return run;
@@ -134,7 +134,7 @@ function hasRemovedQuickWildcard(run: RunState): boolean {
 }
 
 function hasInvalidMode(run: RunState): boolean {
-  return run.mode !== 'classic' && run.mode !== 'world-cup' && run.mode !== 'global';
+  return run.mode !== 'classic' && run.mode !== 'world-cup' && run.mode !== 'global' && run.mode !== 'legacy';
 }
 
 function hasInvalidClassicFormation(run: RunState): boolean {

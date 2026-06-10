@@ -305,7 +305,12 @@
     "global_label": "Mode Global",
     "global_hint": "Tim-tim legendaris dari semua era dan liga: Porto 2004, Nacional 2008/09, Barcelona 2010/11, Real Madrid 2013/14, dan lainnya.",
     "world_cup_label": "Mode Piala Dunia",
-    "world_cup_hint": "Perjalanan tim nasional berdasarkan jalur juara 8-0."
+    "world_cup_hint": "Perjalanan tim nasional berdasarkan jalur juara 8-0.",
+    "legacy_label": "Legacy Draft",
+    "legacy_hint": "Susun XI terbaik sepanjang masa dari satu klub Premier League di setiap musim yang tersedia."
+  },
+  "club_selector": {
+    "label": "Pilih klubmu"
   },
   "formations": {
     "433_hint": "Terbaik untuk kontrol, sayap, dan skuat seimbang.",

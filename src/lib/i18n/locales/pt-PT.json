@@ -305,7 +305,12 @@
     "global_label": "Modo Global",
     "global_hint": "Equipas lendárias de todas as épocas e ligas: Porto 2004, Nacional 2008/09, Barcelona 2010/11, Real Madrid 2013/14, e mais.",
     "world_cup_label": "Modo Mundial",
-    "world_cup_hint": "Uma corrida de seleção nacional baseada no caminho do campeão 8-0."
+    "world_cup_hint": "Uma corrida de seleção nacional baseada no caminho do campeão 8-0.",
+    "legacy_label": "Legacy Draft",
+    "legacy_hint": "Escolhe o XI histórico de um clube da Premier League ao longo de todas as temporadas disponíveis."
+  },
+  "club_selector": {
+    "label": "Escolhe o teu clube"
   },
   "formations": {
     "433_hint": "Ideal para controlo, extremos e equipas equilibradas.",

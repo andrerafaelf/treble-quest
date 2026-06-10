@@ -90,6 +90,21 @@ export const playerSeasons: PlayerSeason[] = [
 
 export const players = playerSeasons;
 
+export type LegacyClub = {
+  id: string;
+  name: string;
+  shortName: string;
+};
+
+export const legacyClubs: LegacyClub[] = [
+  { id: 'arsenal', name: 'Arsenal', shortName: 'ARS' },
+  { id: 'chelsea', name: 'Chelsea', shortName: 'CHE' },
+  { id: 'liverpool', name: 'Liverpool', shortName: 'LIV' },
+  { id: 'manchester-city', name: 'Manchester City', shortName: 'MCI' },
+  { id: 'manchester-united', name: 'Manchester United', shortName: 'MUN' },
+  { id: 'tottenham', name: 'Tottenham', shortName: 'TOT' },
+];
+
 export const clubSeasonPools = Array.from(
   playerSeasons
     .reduce(

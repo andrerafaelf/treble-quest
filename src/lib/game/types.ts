@@ -45,7 +45,7 @@ export type Manager = {
   leagueBoost: number;
 };
 
-export type GameMode = 'classic' | 'world-cup' | 'global';
+export type GameMode = 'classic' | 'world-cup' | 'global' | 'legacy';
 
 export type ClassicFormation = '4-3-3' | '4-4-2' | '4-2-3-1' | '3-4-3';
 
@@ -117,6 +117,7 @@ export type RunState = {
   formation?: ClassicFormation;
   hideRatings?: boolean;
   teamName?: string;
+  clubFilter?: string;
   startedAt: number;
   currentPick: number;
   picks: DraftPick[];
