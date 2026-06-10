@@ -134,6 +134,12 @@ def server_blocks(text):
                     yield match.start(), index + 1, text[match.start():index + 1]
                     break
 
+pieces = []
+cursor = 0
+matched = 0
+changed = 0
+has_r = 0
+
 for start, end, block in server_blocks(content):
     server_name = re.search(r'^\s*server_name\s+([^;]*);', block, re.M)
     if not server_name:
@@ -141,16 +147,27 @@ for start, end, block in server_blocks(content):
     names = server_name.group(1).split()
     if domain not in names and f'www.{domain}' not in names:
         continue
+    matched += 1
     if 'location /r/' in block:
-        sys.exit(2)
+        has_r += 1
+        continue
     updated, count = re.subn(r'(\n\s+location\s+/\s*\{)', proxy_block + r'\1', block, count=1)
     if count == 0:
         continue
-    content = content[:start] + updated + content[end:]
+    pieces.append(content[cursor:start])
+    pieces.append(updated)
+    cursor = end
+    changed += 1
+
+if changed:
+    pieces.append(content[cursor:])
+    content = ''.join(pieces)
     with open(path, 'w', encoding='utf-8') as fh:
         fh.write(content)
     sys.exit(0)
 
+if has_r:
+    sys.exit(2)
 sys.exit(3)
 PY
   then
@@ -225,6 +242,12 @@ def server_blocks(text):
                     yield match.start(), index + 1, text[match.start():index + 1]
                     break
 
+pieces = []
+cursor = 0
+matched = 0
+changed = 0
+has_r = 0
+
 for start, end, block in server_blocks(content):
     server_name = re.search(r'^\s*server_name\s+([^;]*);', block, re.M)
     if not server_name:
@@ -232,16 +255,27 @@ for start, end, block in server_blocks(content):
     names = server_name.group(1).split()
     if domain not in names and f'www.{domain}' not in names:
         continue
+    matched += 1
     if 'location /r/' in block:
-        sys.exit(2)
+        has_r += 1
+        continue
     updated, count = re.subn(r'(\n\s+location\s+/\s*\{)', proxy_block + r'\1', block, count=1)
     if count == 0:
         continue
-    content = content[:start] + updated + content[end:]
+    pieces.append(content[cursor:start])
+    pieces.append(updated)
+    cursor = end
+    changed += 1
+
+if changed:
+    pieces.append(content[cursor:])
+    content = ''.join(pieces)
     with open(path, 'w', encoding='utf-8') as fh:
         fh.write(content)
     sys.exit(0)
 
+if has_r:
+    sys.exit(2)
 sys.exit(3)
 PY
   then
@@ -512,9 +546,24 @@ for i in $(seq 1 6); do
   fi
 done
 
-if curl -sSI --connect-timeout 5 --max-time 10 "https://$DOMAIN/r/__treble_probe__" | grep -q '^HTTP/.* 404'; then
+PROBE_BODY="$(mktemp)"
+if ! PROBE_STATUS="$(
+  curl -sS --connect-timeout 5 --max-time 10 \
+    -o "$PROBE_BODY" \
+    -w '%{http_code}' \
+    "https://$DOMAIN/r/__treble_probe_$(date +%s)__"
+)"; then
+  rm -f "$PROBE_BODY"
+  fail "could not reach public /r/ probe"
+fi
+
+if [ "$PROBE_STATUS" = "404" ] && grep -q 'Result not found' "$PROBE_BODY"; then
+  rm -f "$PROBE_BODY"
   log "public /r/ share route reaches the API"
   exit 0
 fi
 
+log "public /r/ probe returned HTTP $PROBE_STATUS; first response lines:"
+sed -n '1,20p' "$PROBE_BODY" || true
+rm -f "$PROBE_BODY"
 fail "public /r/ share route still falls through instead of returning API 404"
