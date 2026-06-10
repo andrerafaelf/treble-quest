@@ -37,8 +37,9 @@
   let copied = $state(false);
 
   // If we arrived via an invite link (?code=…), this is a join-only flow:
-  // skip "create lobby" entirely and just ask for a name.
-  const inviteCode = $derived(page.url.searchParams.get('code')?.trim().toUpperCase() || '');
+  // skip "create lobby" entirely and just ask for a name. Guard on `browser`
+  // because reading searchParams is disallowed during static prerender.
+  const inviteCode = $derived(browser ? page.url.searchParams.get('code')?.trim().toUpperCase() || '' : '');
 
   // host round config
   let mode = $state<GameMode>('classic');
