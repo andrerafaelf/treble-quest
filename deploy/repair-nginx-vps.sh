@@ -546,24 +546,49 @@ for i in $(seq 1 6); do
   fi
 done
 
-PROBE_BODY="$(mktemp)"
-if ! PROBE_STATUS="$(
-  curl -sS --connect-timeout 5 --max-time 10 \
-    -o "$PROBE_BODY" \
-    -w '%{http_code}' \
-    "https://$DOMAIN/r/__treble_probe_$(date +%s)__"
-)"; then
-  rm -f "$PROBE_BODY"
-  fail "could not reach public /r/ probe"
-fi
+probe_share_route() {
+  local label="$1"
+  local url="$2"
+  local resolve_arg="${3:-}"
+  local body
+  local status
 
-if [ "$PROBE_STATUS" = "404" ] && grep -q 'Result not found' "$PROBE_BODY"; then
-  rm -f "$PROBE_BODY"
-  log "public /r/ share route reaches the API"
+  body="$(mktemp)"
+  if [ -n "$resolve_arg" ]; then
+    status="$(curl -sS --connect-timeout 5 --max-time 10 --resolve "$resolve_arg" -o "$body" -w '%{http_code}' "$url")" || {
+      rm -f "$body"
+      log "$label /r/ probe could not connect"
+      return 2
+    }
+  else
+    status="$(curl -sS --connect-timeout 5 --max-time 10 -o "$body" -w '%{http_code}' "$url")" || {
+      rm -f "$body"
+      log "$label /r/ probe could not connect"
+      return 2
+    }
+  fi
+
+  if [ "$status" = "404" ] && grep -q 'Result not found' "$body"; then
+    rm -f "$body"
+    log "$label /r/ share route reaches the API"
+    return 0
+  fi
+
+  log "$label /r/ probe returned HTTP $status; first response lines:"
+  sed -n '1,20p' "$body" || true
+  rm -f "$body"
+  return 1
+}
+
+PROBE_PATH="/r/__treble_probe_$(date +%s)__"
+
+if probe_share_route "local edge" "https://$DOMAIN$PROBE_PATH" "$DOMAIN:443:127.0.0.1"; then
   exit 0
 fi
 
-log "public /r/ probe returned HTTP $PROBE_STATUS; first response lines:"
-sed -n '1,20p' "$PROBE_BODY" || true
-rm -f "$PROBE_BODY"
-fail "public /r/ share route still falls through instead of returning API 404"
+log "local edge probe failed; checking public Cloudflare path for diagnostics"
+if probe_share_route "public" "https://$DOMAIN$PROBE_PATH"; then
+  exit 0
+fi
+
+fail "local /r/ share route still falls through instead of returning API 404"

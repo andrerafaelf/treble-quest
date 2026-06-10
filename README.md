@@ -168,8 +168,10 @@ container, and then checks `https://api.treble.quest/health`. It also ensures
 the main `treble.quest` vhost proxies `/r/*` share-result links to the API; if
 share links show the unstyled Treble Quest shell instead of a verified result,
 the edge is falling through to the static site and this repair needs to run
-again. If a host firewall blocks container-to-host traffic, it also allows only
-the shared edge Docker subnet to reach only the API port on the Docker gateway.
+again. The `/r/*` verification probes the local HTTPS edge with `--resolve` so
+Cloudflare managed challenges do not fail deploys. If a host firewall blocks
+container-to-host traffic, it also allows only the shared edge Docker subnet to
+reach only the API port on the Docker gateway.
 
 If host nginx owns the public edge, `nginx -t` must pass. An error like
 `host not found in upstream "client:3000"` means a stale nginx config from
