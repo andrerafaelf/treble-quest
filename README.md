@@ -110,15 +110,32 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 
 The API runs as a separate origin on `api.treble.quest`, proxied to the Node
 service on port `8787`. The multiplayer lobby uses a WebSocket at
-`api.treble.quest/vs/ws`, so the nginx `location` proxying to `8787` must forward
-the upgrade headers:
+`api.treble.quest/vs/ws`. **The `api.treble.quest` vhost must be edited once** to
+forward the upgrade headers — without this the WS handshake fails at the edge and
+lobbies silently fall back to a stale snapshot (members/round-start don't update
+live). The deploy ships the server code but does **not** auto-patch upgrade headers
+into the shared edge, because injecting directives into a shared Docker nginx is
+risky. Add a dedicated `location /vs/ws` block to the API vhost (see the canonical
+[`deploy/nginx.example.conf`](deploy/nginx.example.conf)):
 
 ```nginx
-proxy_http_version 1.1;
-proxy_set_header Upgrade $http_upgrade;
-proxy_set_header Connection "upgrade";
+# once, at http {} scope (top of the config):
+map $http_upgrade $connection_upgrade { default upgrade; '' close; }
+
+# inside the api.treble.quest server {} block, BEFORE `location / {`:
+location /vs/ws {
+    proxy_pass http://127.0.0.1:8787;   # or the Docker gateway on the shared edge
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_set_header Host $host;
+    proxy_read_timeout 3600s;
+}
 ```
- On a single-purpose VPS, host nginx can proxy to
+
+Verify after reloading nginx: a WS upgrade request to `/vs/ws` should return
+`101`/`426`/`400` (route exists), **not** `404` (route missing → server not deployed)
+and not hang (headers not forwarded). On a single-purpose VPS, host nginx can proxy to
 `127.0.0.1:8787`. On the current shared VPS, Docker owns public ports `80` and
 `443`, so the Dockerized shared nginx edge must proxy to the host via its Docker
 gateway instead. The deploy workflow detects that mode and runs

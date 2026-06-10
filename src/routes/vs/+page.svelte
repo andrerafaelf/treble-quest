@@ -36,6 +36,10 @@
   let errorMsg = $state('');
   let copied = $state(false);
 
+  // If we arrived via an invite link (?code=…), this is a join-only flow:
+  // skip "create lobby" entirely and just ask for a name.
+  const inviteCode = $derived(page.url.searchParams.get('code')?.trim().toUpperCase() || '');
+
   // host round config
   let mode = $state<GameMode>('classic');
   let formation = $state<ClassicFormation>('4-3-3');
@@ -60,6 +64,8 @@
   let submitted = $state(false);
   let myResult = $state<{ score: number; rank: number; totalDone: number } | null>(null);
   let startedRound = $state(0); // round number the local run was started for
+  let countdown = $state<number | null>(null); // 3,2,1 then "GO" before the draft begins
+  let countdownTimer: ReturnType<typeof setInterval> | null = null;
 
   const me = $derived(room?.members.find((m) => m.pid === session?.pid) ?? null);
   const isHost = $derived(me?.isHost ?? false);
@@ -100,24 +106,38 @@
     }
   });
 
-  // Prefill the join code from ?code= in the URL.
-  $effect(() => {
-    if (!browser || session) return;
-    const fromUrl = page.url.searchParams.get('code');
-    if (fromUrl && !codeInput) codeInput = fromUrl.toUpperCase();
-  });
-
-  // When the host starts a new round, every player auto-begins their own draft for it.
+  // When the host starts a new round, every player sees a synced countdown, then
+  // auto-begins their own draft for that round.
   $effect(() => {
     if (!room || !session) return;
     if (room.phase === 'playing' && room.round !== startedRound) {
-      startedRound = room.round;
+      const r = room;
+      startedRound = r.round;
       submitted = false;
       submitting = false;
       myResult = null;
-      runStore.start(room.mode, room.formation, room.hideRatings);
+      runStore.clear();
+      beginCountdown(() => runStore.start(r.mode, r.formation, r.hideRatings));
     }
   });
+
+  function beginCountdown(onGo: () => void) {
+    if (countdownTimer) clearInterval(countdownTimer);
+    countdown = 3;
+    countdownTimer = setInterval(() => {
+      if (countdown === null) return;
+      if (countdown > 1) {
+        countdown -= 1;
+      } else if (countdown === 1) {
+        countdown = 0; // shows "GO!"
+      } else {
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = null;
+        countdown = null;
+        onGo();
+      }
+    }, 800);
+  }
 
   async function handleCreate() {
     errorMsg = '';
@@ -140,10 +160,10 @@
     }
   }
 
-  async function handleJoin() {
+  async function handleJoin(explicitCode?: string) {
     errorMsg = '';
     const name = nameInput.trim();
-    const code = codeInput.trim().toUpperCase();
+    const code = (explicitCode ?? codeInput).trim().toUpperCase();
     if (name.length < 2) {
       errorMsg = 'Pick a name (2–16 characters).';
       return;
@@ -224,6 +244,9 @@
 
   function leave() {
     detachSocket();
+    if (countdownTimer) clearInterval(countdownTimer);
+    countdownTimer = null;
+    countdown = null;
     clearSession();
     session = null;
     roomStore.set(null);
@@ -253,7 +276,10 @@
     return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
   }
 
-  onDestroy(() => detachSocket());
+  onDestroy(() => {
+    detachSocket();
+    if (countdownTimer) clearInterval(countdownTimer);
+  });
 </script>
 
 <svelte:head>
@@ -261,7 +287,57 @@
   <meta name="description" content="Create a lobby, share the link with your chat, and race to the best treble." />
 </svelte:head>
 
+{#if countdown !== null}
+  <div class="countdown-overlay" role="status" aria-live="assertive">
+    <p class="countdown-eyebrow">Round {room?.round ?? ''} — get ready</p>
+    {#key countdown}
+      <span class="countdown-number" class:go={countdown === 0}>{countdown === 0 ? 'GO!' : countdown}</span>
+    {/key}
+    <p class="countdown-mode">
+      {room?.mode === 'world-cup' ? 'World Cup' : room?.mode === 'global' ? 'Global' : room?.mode === 'legacy' ? 'Legacy' : 'Classic'}
+      {#if room?.mode === 'classic' && room?.formation}· {room.formation}{/if}
+    </p>
+  </div>
+{/if}
+
 {#if !session || !room}
+  {#if inviteCode}
+    <!-- ENTRY (invite link): join-only, just ask for a name -->
+    <section class="page-section narrow">
+      <span class="eyebrow">Multiplayer</span>
+      <h1 class="page-title">Join the lobby</h1>
+      <p class="lede">
+        You've been invited to room <strong class="code-inline">{inviteCode}</strong>. Pick a name to join the race.
+      </p>
+      <Card>
+        <form
+          onsubmit={(e) => {
+            e.preventDefault();
+            handleJoin(inviteCode);
+          }}
+        >
+          <label class="field">
+            <span>Your name</span>
+            <input
+              type="text"
+              placeholder="e.g. Joey, Mara, TheStreamer…"
+              maxlength="16"
+              bind:value={nameInput}
+              autofocus
+            />
+          </label>
+          <Button type="submit" disabled={busy} full>
+            {busy ? 'Joining…' : `Join lobby ${inviteCode}`}
+          </Button>
+        </form>
+
+        {#if errorMsg}<p class="error">{errorMsg}</p>{/if}
+        <div class="toolbar-row">
+          <Button href="/vs" variant="ghost">Create my own lobby instead</Button>
+        </div>
+      </Card>
+    </section>
+  {:else}
   <!-- ENTRY: create or join -->
   <section class="page-section narrow">
     <span class="eyebrow">Multiplayer</span>
@@ -310,11 +386,19 @@
       </div>
     </Card>
   </section>
+  {/if}
 {:else if room.phase === 'lobby'}
   <!-- LOBBY -->
   <section class="page-section">
     <span class="eyebrow">Lobby {status === 'open' ? '· live' : '· connecting…'}</span>
     <h1 class="page-title">Waiting room</h1>
+
+    {#if status !== 'open'}
+      <p class="conn-warning">
+        ⚠ Live connection {status === 'connecting' ? 'is reconnecting' : 'is offline'} — the player list and round
+        start may lag until it's back. If this persists, the multiplayer WebSocket isn't reachable.
+      </p>
+    {/if}
 
     <div class="lobby-grid">
       <Card>
@@ -474,6 +558,12 @@
   .entry-actions {
     margin-bottom: 0.75rem;
   }
+  .code-inline {
+    letter-spacing: 0.15em;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.05rem 0.4rem;
+    border-radius: 6px;
+  }
   .divider {
     text-align: center;
     margin: 1rem 0;
@@ -496,6 +586,16 @@
     color: #ff6b6b;
     margin-top: 0.75rem;
     font-size: 0.9rem;
+  }
+  .conn-warning {
+    background: rgba(255, 184, 77, 0.12);
+    border: 1px solid rgba(255, 184, 77, 0.35);
+    color: #ffd28a;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+    max-width: 640px;
   }
   .toolbar-row {
     margin-top: 1rem;
@@ -661,5 +761,60 @@
     text-align: center;
     padding: 2rem 0;
     font-size: 1.2rem;
+  }
+
+  .countdown-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: radial-gradient(circle at center, rgba(20, 24, 36, 0.96), rgba(8, 10, 16, 0.98));
+    backdrop-filter: blur(4px);
+  }
+  .countdown-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 0.85rem;
+    color: var(--accent, #e63946);
+    margin: 0;
+  }
+  .countdown-number {
+    font-size: clamp(6rem, 22vw, 14rem);
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+    animation: countpop 0.8s ease-out;
+  }
+  .countdown-number.go {
+    color: #46d369;
+  }
+  .countdown-mode {
+    opacity: 0.7;
+    margin: 0;
+    font-variant: small-caps;
+    letter-spacing: 0.1em;
+  }
+  @keyframes countpop {
+    0% {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+    40% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .countdown-number {
+      animation: none;
+    }
   }
 </style>

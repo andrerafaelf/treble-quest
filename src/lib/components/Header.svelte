@@ -9,6 +9,7 @@
   const links = $derived([
     { href: `/${lang}`, label: $t('nav.home') },
     { href: `/${lang}/play`, label: $t('nav.play') },
+    { href: `/vs`, label: $t('nav.versus') },
     { href: `/${lang}/leaderboard`, label: $t('nav.leaderboard') },
     { href: `/${lang}/how-to-play`, label: $t('nav.how_to_play') },
     { href: `/${lang}/support`, label: $t('nav.support') },
