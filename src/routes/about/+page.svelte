@@ -15,7 +15,7 @@
       peak seasons, tactical fits, cup nerve, and the joy of seeing a drafted team chase the lot.
     </p>
     <p>
-      It is intentionally compact. No transfer windows, no wage budgets, no inbox admin. Pick seven,
+      It is intentionally compact. No transfer windows, no wage budgets, no inbox admin. Draft your squad,
       simulate, share the damage.
     </p>
   </div>

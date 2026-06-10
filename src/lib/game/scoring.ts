@@ -1,5 +1,5 @@
 import { isSlotFit, seasonDecade } from '$lib/game/draft';
-import type { DraftPick, Manager, PlayerPick, RunState, TeamRatings } from '$lib/game/types';
+import type { DraftPick, Manager, PlayerPick, PlayerSeason, RunState, TeamRatings } from '$lib/game/types';
 
 export function calculateTeamRatings(run: RunState): TeamRatings {
   const playerPicks = run.picks.filter((pick): pick is PlayerPick => pick.type === 'player');
@@ -74,6 +74,57 @@ export function weightedTeamPower(ratings: TeamRatings): number {
     ratings.chemistry * 0.22 +
     ratings.managerBoost * 0.03
   );
+}
+
+export type ChemBond = {
+  label: string;
+  delta: number;
+};
+
+export type ChemPreview = {
+  current: number;
+  projected: number;
+  delta: number;
+  bonds: ChemBond[];
+};
+
+export function previewChemistry(existingPicks: PlayerPick[], candidate: PlayerSeason, mode: string): ChemPreview {
+  const current = mode === 'legacy' ? calculateLegacyChemistry(existingPicks) : calculateChemistry(existingPicks);
+
+  const bonds: ChemBond[] = [];
+  const players = existingPicks.map((p) => p.player);
+
+  if (mode === 'legacy') {
+    for (const p of players) {
+      if (p.season === candidate.season) bonds.push({ label: `Same era as ${p.name.split(' ').pop()}`, delta: 6 });
+      else if (seasonDecade(p.season) === seasonDecade(candidate.season))
+        bonds.push({ label: `Same decade as ${p.name.split(' ').pop()}`, delta: 3 });
+      if (p.nationality === candidate.nationality)
+        bonds.push({ label: `${candidate.nationality} connection`, delta: 2 });
+    }
+  } else {
+    for (const p of players) {
+      if (p.club === candidate.club) {
+        bonds.push({ label: `${candidate.club} bond`, delta: 4 });
+        if (p.season === candidate.season) bonds.push({ label: `${candidate.season} squad`, delta: 4 });
+      }
+      if (p.nationality === candidate.nationality)
+        bonds.push({ label: `${candidate.nationality} connection`, delta: 2 });
+    }
+  }
+
+  // Deduplicate bond labels, summing deltas
+  const merged = new Map<string, number>();
+  for (const b of bonds) merged.set(b.label, (merged.get(b.label) ?? 0) + b.delta);
+  const dedupedBonds = Array.from(merged.entries())
+    .map(([label, delta]) => ({ label, delta }))
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 4);
+
+  const totalDelta = dedupedBonds.reduce((sum, b) => sum + b.delta, 0);
+  const projected = Math.min(100, current + totalDelta);
+
+  return { current, projected, delta: projected - current, bonds: dedupedBonds };
 }
 
 export function pickScore(pick: DraftPick): number {

@@ -15,18 +15,18 @@
 </script>
 
 <svelte:head>
-  <title>Treble Quest - Draft Seven Picks. Chase Three Trophies.</title>
+  <title>Treble Quest - Draft Your Squad. Chase Three Trophies.</title>
   <meta
     name="description"
-    content="Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase."
+    content="Draft 11 players, pick your formation, and simulate a Premier League, FA Cup and Champions League treble chase."
   />
   {#if googleSiteVerification}
     <meta name="google-site-verification" content={googleSiteVerification} />
   {/if}
-  <meta property="og:title" content="Treble Quest - Draft Seven Picks. Chase Three Trophies." />
+  <meta property="og:title" content="Treble Quest - Draft Your Squad. Chase Three Trophies." />
   <meta
     property="og:description"
-    content="Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase."
+    content="Draft 11 players, pick your formation, and simulate a Premier League, FA Cup and Champions League treble chase."
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={siteUrl} />
@@ -36,10 +36,10 @@
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:alt" content="Treble Quest, Draft. Simulate. Conquer." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Treble Quest - Draft Seven Picks. Chase Three Trophies." />
+  <meta name="twitter:title" content="Treble Quest - Draft Your Squad. Chase Three Trophies." />
   <meta
     name="twitter:description"
-    content="Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase."
+    content="Draft 11 players, pick your formation, and simulate a Premier League, FA Cup and Champions League treble chase."
   />
   <meta name="twitter:image" content={ogImage} />
   <meta name="twitter:image:alt" content="Treble Quest, Draft. Simulate. Conquer." />

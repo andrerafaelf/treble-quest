@@ -21,7 +21,9 @@
         ? $t('leaderboard_submit.board_classic_no_ovr')
         : $t('leaderboard_submit.board_classic')
       : run.mode === 'world-cup'
-        ? $t('leaderboard_submit.board_world_cup')
+        ? run.hideRatings
+          ? $t('leaderboard_submit.board_world_cup_no_ovr')
+          : $t('leaderboard_submit.board_world_cup')
         : $t('leaderboard_submit.board_quick'),
   );
 
@@ -40,7 +42,7 @@
     if (!run.result || alreadySubmitted || status === 'success') return;
     let cancelled = false;
     spotLoading = true;
-    fetchLeaderboardSpot(run.mode, run.result.score, run.mode === 'classic' && run.hideRatings === true)
+    fetchLeaderboardSpot(run.mode, run.result.score, run.hideRatings === true)
       .then((spot) => { if (cancelled) return; spotRank = spot.rank; })
       .catch(() => { if (cancelled) return; spotRank = null; })
       .finally(() => { if (cancelled) return; spotLoading = false; });

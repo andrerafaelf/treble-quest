@@ -14,8 +14,8 @@
     "privacy": "Privacy"
   },
   "meta": {
-    "site_title": "Treble Quest - Draft Seven Picks. Chase Three Trophies.",
-    "site_description": "Draft a football squad and simulate a Premier League, FA Cup and Champions League treble chase.",
+    "site_title": "Treble Quest - Draft Your Squad. Chase Three Trophies.",
+    "site_description": "Draft 11 players, pick your formation, and simulate a Premier League, FA Cup and Champions League treble chase.",
     "og_alt": "Treble Quest, Draft. Simulate. Conquer."
   },
   "home": {
@@ -219,6 +219,7 @@
     "tab_global": "Global",
     "tab_global_no_ovr": "Global · No OVR",
     "tab_world_cup": "World Cup",
+    "tab_world_cup_no_ovr": "World Cup · No OVR",
     "tab_legacy": "Legacy Draft",
     "tab_legacy_no_ovr": "Legacy · No OVR",
     "loading": "Loading...",
@@ -321,7 +322,7 @@
     "eyebrow": "About",
     "headline": "A two-minute treble argument.",
     "p1": "Treble Quest is a small, independent football draft game about impossible squad debates: peak seasons, tactical fits, cup nerve, and the joy of seeing a drafted team chase the lot.",
-    "p2": "It is intentionally compact. No transfer windows, no wage budgets, no inbox admin. Pick seven, simulate, share the damage.",
+    "p2": "It is intentionally compact. No transfer windows, no wage budgets, no inbox admin. Draft your squad, simulate, share the damage.",
     "start_run": "Start Run",
     "support": "Support Treble Quest",
     "privacy": "Privacy"

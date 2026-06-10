@@ -13,8 +13,9 @@
   import SquadRail from '$lib/components/SquadRail.svelte';
   import { parseRunConfigFromUrl } from '$lib/game/deeplink';
   import { getDraftSlots } from '$lib/game/draft';
+  import { previewChemistry, type ChemPreview } from '$lib/game/scoring';
   import { runStore } from '$lib/game/storage';
-  import type { ClassicFormation, GameMode } from '$lib/game/types';
+  import type { ClassicFormation, GameMode, PlayerPick } from '$lib/game/types';
   import type { LayoutData } from '../$types';
   import { t } from 'svelte-i18n';
 
@@ -28,11 +29,35 @@
   let deepLinkApplied = $state(false);
   let namingTeam = $state(false);
   let teamNameInput = $state('');
+  let hoveredPlayerId = $state<string | null>(null);
 
   const run = $derived($runStore);
   const slots = $derived(run ? getDraftSlots(run.mode, run.formation) : getDraftSlots(mode));
   const currentSlot = $derived(run ? slots[run.currentPick] : undefined);
   const prompt = $derived(run?.lastPrompt);
+
+  const existingPlayerPicks = $derived(
+    run ? (run.picks.filter((p) => p.type === 'player') as PlayerPick[]) : [],
+  );
+
+  const chemPreviews = $derived((): Map<string, ChemPreview> => {
+    if (!run || !prompt || prompt.type !== 'player') return new Map();
+    const map = new Map<string, ChemPreview>();
+    for (const player of prompt.options) {
+      map.set(player.id, previewChemistry(existingPlayerPicks, player, run.mode));
+    }
+    return map;
+  });
+
+  const baseChemPreview = $derived((): ChemPreview | undefined => {
+    if (existingPlayerPicks.length === 0) return undefined;
+    const current = chemPreviews().values().next().value?.current ?? 50;
+    return { current, projected: current, delta: 0, bonds: [] };
+  });
+
+  const activeChemPreview = $derived(
+    hoveredPlayerId ? chemPreviews().get(hoveredPlayerId) : baseChemPreview(),
+  );
 
   function startRun(nextMode: GameMode = mode, formation?: ClassicFormation, hideRatings = false) {
     runStore.start(nextMode, formation, hideRatings);
@@ -61,6 +86,7 @@
   function choose(id: string) {
     if (selecting) return;
     selecting = true;
+    hoveredPlayerId = null;
     const next = runStore.choose(id);
     window.setTimeout(() => {
       if (next && next.currentPick >= getDraftSlots(next.mode, next.formation).length) {
@@ -69,6 +95,10 @@
       }
       selecting = false;
     }, 420);
+  }
+
+  function handleHover(id: string | null) {
+    hoveredPlayerId = id;
   }
 
   $effect(() => {
@@ -167,7 +197,9 @@
               required={prompt.slot.required}
               showRatings={!run.hideRatings}
               disabled={selecting}
+              chemPreview={chemPreviews().get(player.id)}
               onSelect={choose}
+              onHover={handleHover}
             />
           {/each}
         {/if}
@@ -176,6 +208,6 @@
         <Button variant="ghost" onclick={clearRun}>{$t('play.clear_run')}</Button>
       </div>
     </div>
-    <SquadRail picks={run.picks} {slots} showRatings={!run.hideRatings} />
+    <SquadRail picks={run.picks} {slots} showRatings={!run.hideRatings} chemPreview={activeChemPreview} />
   </section>
 {/if}

@@ -14,6 +14,7 @@ function parseMode(raw: string | null): GameMode | null {
   if (normalized === 'classic') return 'classic';
   if (normalized === 'world-cup' || normalized === 'worldcup' || normalized === 'wc') return 'world-cup';
   if (normalized === 'global') return 'global';
+  if (normalized === 'legacy') return 'legacy';
   return null;
 }
 

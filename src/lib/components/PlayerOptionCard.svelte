@@ -1,5 +1,6 @@
 <script lang="ts">
   import { flagUrl } from '$lib/game/flags';
+  import type { ChemPreview } from '$lib/game/scoring';
   import type { PlayerSeason, Position } from '$lib/game/types';
 
   let {
@@ -7,13 +8,17 @@
     required = 'ANY',
     showRatings = true,
     disabled = false,
+    chemPreview = undefined,
     onSelect,
+    onHover,
   }: {
     player: PlayerSeason;
     required?: Position;
     showRatings?: boolean;
     disabled?: boolean;
+    chemPreview?: ChemPreview;
     onSelect?: (id: string) => void;
+    onHover?: (id: string | null) => void;
   } = $props();
 
   const realPositions = $derived(
@@ -27,9 +32,19 @@
   const positionText = $derived(realPositions.length ? realPositions.join(' / ') : fallbackPositions.join(' / '));
   const requiresSpecificPosition = $derived(required !== 'ANY');
   const nationalityFlagUrl = $derived(flagUrl(player.nationality, 24, 'flat'));
+  const chemDelta = $derived(chemPreview?.delta ?? 0);
 </script>
 
-<button class="option-card player-card" type="button" {disabled} onclick={() => onSelect?.(player.id)}>
+<button
+  class="option-card player-card"
+  type="button"
+  {disabled}
+  onclick={() => onSelect?.(player.id)}
+  onmouseenter={() => onHover?.(player.id)}
+  onmouseleave={() => onHover?.(null)}
+  onfocus={() => onHover?.(player.id)}
+  onblur={() => onHover?.(null)}
+>
   <div class="card-top-row">
     {#if showRatings}
       <span class={`rarity ${player.rarity}`}>{player.rarity}</span>
@@ -63,5 +78,14 @@
     </div>
   {:else}
     <div class="blind-strip">Ratings hidden</div>
+  {/if}
+  {#if chemPreview && chemDelta > 0}
+    <div class="chem-delta-badge">
+      <span class="chem-delta-icon">⚗</span>
+      <span class="chem-delta-value">+{chemDelta} chem</span>
+      {#if chemPreview.bonds.length > 0}
+        <span class="chem-delta-reason">{chemPreview.bonds[0].label}</span>
+      {/if}
+    </div>
   {/if}
 </button>

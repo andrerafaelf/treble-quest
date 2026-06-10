@@ -11,9 +11,9 @@
   let { data }: { data: LayoutData } = $props();
   const lang = $derived(data.lang);
 
-  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
+  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'world-cup-no-overall' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
 
-  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'global', 'global-no-overall', 'legacy', 'legacy-no-overall'];
+  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'world-cup-no-overall', 'global', 'global-no-overall', 'legacy', 'legacy-no-overall'];
 
   function initialTab(): LeaderboardTab {
     if (!browser) return 'classic';
@@ -30,14 +30,18 @@
   async function load(next: LeaderboardTab) {
     tab = next;
     mode =
-      next === 'world-cup'
+      next === 'world-cup' || next === 'world-cup-no-overall'
         ? 'world-cup'
         : next === 'global' || next === 'global-no-overall'
           ? 'global'
           : next === 'legacy' || next === 'legacy-no-overall'
             ? 'legacy'
             : 'classic';
-    const hideRatings = next === 'classic-no-overall' || next === 'global-no-overall' || next === 'legacy-no-overall';
+    const hideRatings =
+      next === 'classic-no-overall' ||
+      next === 'global-no-overall' ||
+      next === 'legacy-no-overall' ||
+      next === 'world-cup-no-overall';
     status = 'loading';
     expanded = new Set();
     if (browser) {
@@ -87,7 +91,13 @@
   function beatUrl(entry: LeaderboardEntry): string {
     const params = new URLSearchParams({ mode });
     if (entry.formation) params.set('formation', entry.formation);
-    if (tab === 'classic-no-overall' || tab === 'global-no-overall' || tab === 'legacy-no-overall') params.set('hideRatings', '1');
+    if (
+      tab === 'classic-no-overall' ||
+      tab === 'global-no-overall' ||
+      tab === 'legacy-no-overall' ||
+      tab === 'world-cup-no-overall'
+    )
+      params.set('hideRatings', '1');
     return `/${lang}/play?${params.toString()}`;
   }
 </script>
@@ -107,6 +117,7 @@
     <button role="tab" aria-selected={tab === 'global'} class:active={tab === 'global'} onclick={() => load('global')}>{$t('leaderboard.tab_global')}</button>
     <button role="tab" aria-selected={tab === 'global-no-overall'} class:active={tab === 'global-no-overall'} onclick={() => load('global-no-overall')}>{$t('leaderboard.tab_global_no_ovr')}</button>
     <button role="tab" aria-selected={tab === 'world-cup'} class:active={tab === 'world-cup'} onclick={() => load('world-cup')}>{$t('leaderboard.tab_world_cup')}</button>
+    <button role="tab" aria-selected={tab === 'world-cup-no-overall'} class:active={tab === 'world-cup-no-overall'} onclick={() => load('world-cup-no-overall')}>{$t('leaderboard.tab_world_cup_no_ovr')}</button>
     <button role="tab" aria-selected={tab === 'legacy'} class:active={tab === 'legacy'} onclick={() => load('legacy')}>{$t('leaderboard.tab_legacy')}</button>
     <button role="tab" aria-selected={tab === 'legacy-no-overall'} class:active={tab === 'legacy-no-overall'} onclick={() => load('legacy-no-overall')}>{$t('leaderboard.tab_legacy_no_ovr')}</button>
   </div>

@@ -49,7 +49,7 @@ app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }
   '/leaderboard',
   async (req, reply) => {
     const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global' ? req.query.mode : 'classic';
-    const hideRatings = (mode === 'classic' || mode === 'global') && req.query.hideRatings === '1';
+    const hideRatings = req.query.hideRatings === '1';
     const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
     const rows = topScores.all({ mode, hide_ratings: hideRatings ? 1 : 0, limit }) as ScoreRow[];
     reply.header('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
@@ -72,7 +72,7 @@ app.get<{ Querystring: { mode?: string; hideRatings?: string; score?: string } }
   '/leaderboard/spot',
   async (req, reply) => {
     const mode = req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global' ? req.query.mode : 'classic';
-    const hideRatings = (mode === 'classic' || mode === 'global') && req.query.hideRatings === '1';
+    const hideRatings = req.query.hideRatings === '1';
     const score = Number(req.query.score ?? NaN);
     if (!Number.isFinite(score)) {
       return reply.code(400).send({ error: 'invalid_score' });

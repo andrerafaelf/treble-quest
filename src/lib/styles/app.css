@@ -854,6 +854,177 @@ p {
   backdrop-filter: blur(16px);
 }
 
+/* ===== Live Chemistry Panel ===== */
+.chem-panel {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.chem-panel.chem-panel-active {
+  border-color: rgba(244, 162, 97, 0.45);
+  background: rgba(244, 162, 97, 0.04);
+}
+
+.chem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.chem-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.chem-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.chem-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.chem-arrow {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--gold);
+  background: rgba(244, 162, 97, 0.15);
+  border: 1px solid rgba(244, 162, 97, 0.35);
+  border-radius: 999px;
+  padding: 2px 7px;
+  animation: chem-pop 0.2s ease-out;
+}
+
+@keyframes chem-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.chem-bar-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.chem-bar-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: width 0.35s ease;
+}
+
+.chem-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width 0.35s ease;
+}
+
+.chem-bar-fill.chem-bar-preview {
+  background: linear-gradient(90deg, var(--gold), #ffcc80);
+  box-shadow: 0 0 8px rgba(244, 162, 97, 0.6);
+}
+
+.chem-bonds {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+  animation: chem-pop 0.18s ease-out;
+}
+
+.chem-bond {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.74rem;
+}
+
+.chem-bond-label {
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chem-bond-delta {
+  color: var(--gold);
+  font-weight: 900;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.chem-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* ===== Chem delta badge on player cards ===== */
+.chem-delta-badge {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(244, 162, 97, 0.4);
+  border-radius: 6px;
+  background: rgba(244, 162, 97, 0.08);
+  animation: chem-pop 0.18s ease-out;
+}
+
+.chem-delta-icon {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.chem-delta-value {
+  font-size: 0.74rem;
+  font-weight: 900;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.chem-delta-reason {
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .squad-rail h2 {
   margin-bottom: 12px;
 }

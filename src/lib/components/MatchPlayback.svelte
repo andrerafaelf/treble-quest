@@ -182,23 +182,45 @@
   // Last 5 PL results
   const plLast5 = $derived(plHistory.slice(-5));
 
-  // Live table: user row uses running totals; others show their final standings
+  // Live table: every club progresses together. The user row uses real running
+  // totals from played matches; AI clubs are scaled to the same point in the season
+  // (played/38 of their final stats) so the whole table climbs as games go on, rather
+  // than freezing the AI at full-season totals while only the user moves.
   const liveTable = $derived(
     (() => {
       if (!leagueTable.length) return leagueTable;
+      const fraction = plPlayed >= 38 ? 1 : plPlayed / 38;
       const rows: LeagueTableRow[] = leagueTable.map((row) => {
-        if (!row.isUser) return row;
-        const gd = runningTotals.pl.gf - runningTotals.pl.ga;
+        if (row.isUser) {
+          return {
+            ...row,
+            played: plPlayed,
+            wins: runningTotals.pl.w,
+            draws: runningTotals.pl.d,
+            losses: runningTotals.pl.l,
+            goalsFor: runningTotals.pl.gf,
+            goalsAgainst: runningTotals.pl.ga,
+            goalDifference: runningTotals.pl.gf - runningTotals.pl.ga,
+            points: runningTotals.pl.pts,
+          };
+        }
+        if (fraction >= 1) return row;
+        const played = Math.round(38 * fraction);
+        const wins = Math.round(row.wins * fraction);
+        const draws = Math.round(row.draws * fraction);
+        const losses = Math.max(0, played - wins - draws);
+        const goalsFor = Math.round(row.goalsFor * fraction);
+        const goalsAgainst = Math.round(row.goalsAgainst * fraction);
         return {
           ...row,
-          played: plPlayed,
-          wins: runningTotals.pl.w,
-          draws: runningTotals.pl.d,
-          losses: runningTotals.pl.l,
-          goalsFor: runningTotals.pl.gf,
-          goalsAgainst: runningTotals.pl.ga,
-          goalDifference: gd,
-          points: runningTotals.pl.pts,
+          played,
+          wins,
+          draws,
+          losses,
+          goalsFor,
+          goalsAgainst,
+          goalDifference: goalsFor - goalsAgainst,
+          points: wins * 3 + draws,
         };
       });
       rows.sort(
