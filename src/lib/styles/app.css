@@ -524,6 +524,12 @@ p {
   background: rgba(230, 57, 70, 0.07);
 }
 
+.formation-selector button.selected {
+  border-color: var(--accent);
+  background: rgba(230, 57, 70, 0.14);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
 .formation-selector span {
   display: block;
   font-weight: 900;
@@ -861,7 +867,9 @@ p {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.025);
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 .chem-panel.chem-panel-active {
@@ -909,8 +917,14 @@ p {
 }
 
 @keyframes chem-pop {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .chem-bar-track {
@@ -2895,12 +2909,7 @@ p {
 
 /* ── RTL (Arabic) ───────────────────────────────────────────────── */
 [dir='rtl'] {
-  font-family:
-    'Segoe UI',
-    Tahoma,
-    ui-sans-serif,
-    system-ui,
-    sans-serif;
+  font-family: 'Segoe UI', Tahoma, ui-sans-serif, system-ui, sans-serif;
 }
 
 [dir='rtl'] .site-header {

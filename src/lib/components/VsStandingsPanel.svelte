@@ -1,13 +1,13 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { loadSession, type PublicRoom } from '$lib/game/vs-api';
+  import { loadSession, type PublicRoom, type VsSession } from '$lib/game/vs-api';
   import { connectRoom, type VsSocket } from '$lib/game/vs-socket';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
   let { compact = false }: { compact?: boolean } = $props();
 
-  const session = browser ? loadSession() : null;
+  let session = $state<VsSession | null>(null);
   const roomStore = writable<PublicRoom | null>(null);
   const statusStore = writable<'connecting' | 'open' | 'closed'>('closed');
   const room = $derived($roomStore);
@@ -16,11 +16,17 @@
   let sock: VsSocket | null = null;
   let unsubs: Array<() => void> = [];
 
-  $effect(() => {
-    if (!browser || !session || sock) return;
-    sock = connectRoom(session.code, session.token);
+  // Load session and connect in onMount so we run strictly after hydration —
+  // sessionStorage isn't reliably readable during the initial script pass on
+  // a prerendered page.
+  onMount(() => {
+    if (!browser) return;
+    const s = loadSession();
+    if (!s) return;
+    session = s;
+    sock = connectRoom(s.code, s.token);
     unsubs.push(sock.room.subscribe((r) => roomStore.set(r)));
-    unsubs.push(sock.status.subscribe((s) => statusStore.set(s)));
+    unsubs.push(sock.status.subscribe((st) => statusStore.set(st)));
   });
 
   onDestroy(() => {

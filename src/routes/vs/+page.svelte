@@ -440,7 +440,7 @@
           <div class="my-formation">
             <h2>Your formation</h2>
             <p class="picked">Locked in: <strong>{me?.formation ?? myFormation}</strong></p>
-            <FormationSelector onSelect={handleFormationChange} />
+            <FormationSelector selected={me?.formation ?? myFormation} onSelect={handleFormationChange} />
           </div>
         {/if}
 
