@@ -82,6 +82,7 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   const pageUrl = `${siteUrl}/r/${share.id}`;
   const ogImage = `${siteUrl}/og-image.png`;
   const worldCup = isWorldCup(share);
+  const cardClass = share.trophies === 3 || (worldCup && share.trophies > 0) ? 'result-card treble' : 'result-card';
 
   const players = squad.filter((s) => !s.isManager);
   const manager = squad.find((s) => s.isManager);
@@ -89,13 +90,37 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   const squadRows = players
     .map(
       (p) => `
-      <div class="squad-row">
-        <span class="pos" style="background:${positionColor(p.slot)}">${escapeHtml(p.slot)}</span>
-        <span class="name">${escapeHtml(p.name)}</span>
-        <span class="ovr">${p.overall}</span>
+      <div class="squad-player">
+        <span class="pos-badge" style="background:${positionColor(p.slot)}">${escapeHtml(p.slot)}</span>
+        <span class="player-name">${escapeHtml(p.name)}</span>
+        <span class="player-rarity">${escapeHtml(p.rarity)}</span>
+        <span class="player-ovr">${p.overall}</span>
       </div>`,
     )
     .join('');
+
+  const awardsMarkup = `
+      <article>
+        <span>Golden Boot</span>
+        <h2>${escapeHtml(awards.goldenBoot.name)}</h2>
+        <p>${awards.goldenBoot.goals} goals${awards.goldenBoot.fromUser ? ' for your squad' : ''}</p>
+      </article>
+      <article>
+        <span>Player of Season</span>
+        <h2>${escapeHtml(awards.playerOfSeason.name)}</h2>
+        <p>${awards.playerOfSeason.rating.toFixed(1)} average rating${awards.playerOfSeason.fromUser ? ' for your squad' : ''}</p>
+      </article>`;
+
+  const trophyStrip = worldCup
+    ? `<div class="trophy-strip" aria-label="World Cup result">
+        <span class="${share.trophies > 0 ? 'won' : ''}">World Cup</span>
+        <span class="${share.league_wins === 8 && share.league_draws === 0 && share.league_losses === 0 ? 'won' : ''}">8-0</span>
+      </div>`
+    : `<div class="trophy-strip" aria-label="${share.trophies} trophies">
+        <span class="${share.league_position === 1 ? 'won' : ''}">Premier League</span>
+        <span class="${share.fa_cup === 'Winners' ? 'won' : ''}">FA Cup</span>
+        <span class="${share.cl === 'Winners' ? 'won' : ''}">Champions League</span>
+      </div>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -119,39 +144,128 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
   <meta name="twitter:image" content="${escapeHtml(ogImage)}">
   <meta name="twitter:image:alt" content="Treble Quest - Draft. Simulate. Conquer.">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#0f1923;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
-    .card{max-width:440px;width:100%;background:#1a2634;border-radius:8px;padding:2rem;border:1px solid #2d3f50}
-    .header{text-align:center;margin-bottom:1.5rem}
-    .badge{display:inline-block;background:#10b981;color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .6rem;border-radius:4px;margin-bottom:.75rem}
-    .label{font-size:1.4rem;font-weight:800;color:#f8fafc;margin-bottom:.25rem}
-    .mode-tag{font-size:.75rem;color:#94a3b8;margin-bottom:1rem}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.5rem;text-align:center}
-    .stat{background:#0f1923;border-radius:8px;padding:.75rem .5rem}
-    .stat-value{font-size:1.3rem;font-weight:800;color:#f8fafc}
-    .stat-label{font-size:.65rem;color:#94a3b8;text-transform:uppercase;margin-top:.2rem}
-    .squad{margin-bottom:1.5rem}
-    .squad-row{display:flex;align-items:center;padding:.4rem 0;border-bottom:1px solid #2d3f50}
-    .squad-row:last-child{border-bottom:none}
-    .pos{font-size:.65rem;font-weight:700;color:#fff;padding:.15rem .4rem;border-radius:3px;width:2.2rem;text-align:center;flex-shrink:0}
-    .name{flex:1;font-size:.85rem;margin-left:.6rem;color:#e2e8f0}
-    .ovr{font-size:.85rem;font-weight:700;color:#f59e0b}
-    .awards{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.5rem}
-    .award{background:#0f1923;border-radius:8px;padding:.6rem;text-align:center}
-    .award-label{font-size:.6rem;color:#f59e0b;text-transform:uppercase;letter-spacing:.03em}
-    .award-name{font-size:.8rem;font-weight:700;color:#f8fafc;margin-top:.2rem}
-    .award-stat{font-size:.7rem;color:#10b981}
-    .verified{text-align:center;margin-bottom:1.5rem}
-    .verified-badge{font-size:.75rem;color:#10b981}
-    .cta{display:block;text-align:center;background:#10b981;color:#fff;text-decoration:none;font-weight:700;font-size:1rem;padding:1rem;border-radius:8px}
-    .cta:hover{background:#059669}
-    .manager{text-align:center;font-size:.8rem;color:#94a3b8;margin-bottom:1rem}
-    .cups{text-align:center;font-size:.75rem;color:#94a3b8;margin-bottom:1rem}
-    .cup-sep{margin:0 .4rem;color:#475569}
-    .footer{text-align:center;margin-top:1.5rem;font-size:.7rem;color:#64748b}
+    :root{--bg:#0f0d0d;--surface:#1a1616;--surface-2:#241f1f;--line:rgba(255,255,255,.12);--text:#f1f0ee;--muted:#9e9e9e;--accent:#e63946;--accent-2:#457b9d;--gold:#f4a261;color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+    *{box-sizing:border-box}
+    body{margin:0;min-width:320px;min-height:100vh;background:linear-gradient(rgba(230,57,70,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(230,57,70,.04) 1px,transparent 1px),linear-gradient(155deg,rgba(69,123,157,.22),transparent 34rem),linear-gradient(25deg,rgba(244,162,97,.18),transparent 38rem),var(--bg);background-size:100% 4.5rem,4.5rem 100%,auto,auto,auto}
+    a{color:inherit;text-decoration:none}
+    .site-header,.site-footer,main{width:min(1120px,calc(100% - 32px));margin:0 auto}
+    .site-header{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-weight:850;letter-spacing:0}
+    .brand img{width:30px;height:30px;border-radius:6px;box-shadow:0 0 0 1px rgba(230,57,70,.28),0 10px 26px rgba(0,0,0,.35)}
+    nav{display:flex;gap:6px;align-items:center}
+    nav a{color:var(--muted);padding:9px 10px;border-radius:6px;font-size:.92rem;white-space:nowrap}
+    nav a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+    .result-page{padding:24px 0 54px}
+    .result-card{border:1px solid rgba(244,162,97,.38);border-radius:12px;background:linear-gradient(150deg,rgba(244,162,97,.1),transparent 40%),rgba(22,16,16,.95);padding:22px}
+    .result-card.treble{border-color:rgba(244,162,97,.7);background:linear-gradient(150deg,rgba(244,162,97,.2),transparent 50%),rgba(22,16,16,.98);box-shadow:0 0 60px rgba(244,162,97,.18),0 0 0 1px rgba(255,190,130,.15)}
+    .result-hero{display:grid;grid-template-columns:1fr minmax(220px,330px);gap:18px;align-items:end}
+    .eyebrow{color:var(--accent);font-size:.74rem;text-transform:uppercase;font-weight:850;letter-spacing:.06em}
+    h1{font-size:clamp(4rem,14vw,9rem);line-height:.85;margin:10px 0;background:linear-gradient(135deg,#ffc49b,var(--gold) 50%,#e87722);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .result-title{color:var(--gold);font-weight:800;font-size:1.12rem;margin:0}
+    .result-subtitle{color:var(--muted);margin:8px 0 0;line-height:1.5}
+    .trophy-strip{display:grid;gap:8px}
+    .trophy-strip span{border:1px solid var(--line);border-radius:8px;padding:14px 16px;color:var(--muted);font-size:.92rem}
+    .trophy-strip span.won{color:#1a0a00;background:linear-gradient(135deg,#ffc49b,var(--gold) 60%,#e87722);border-color:var(--gold);font-weight:900;font-size:1rem;box-shadow:0 4px 24px rgba(244,162,97,.45),0 0 0 1px rgba(255,190,130,.3)}
+    .breakdown-grid,.share-grid,.awards-grid{display:grid;gap:12px;margin-top:14px}
+    .breakdown-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .share-grid{grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);align-items:start}
+    .awards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    article,.squad-panel,.proof-panel{border:1px solid var(--line);border-radius:8px;padding:14px;background:rgba(255,255,255,.035)}
+    article.won{border-color:rgba(244,162,97,.55);background:linear-gradient(150deg,rgba(244,162,97,.18),rgba(244,162,97,.06));box-shadow:0 2px 20px rgba(244,162,97,.15)}
+    article span,.panel-kicker{color:var(--accent);font-size:.74rem;text-transform:uppercase;font-weight:850;letter-spacing:.06em}
+    article h2{margin:8px 0;font-size:1.25rem}
+    article p,.panel-note{color:var(--muted);margin:0;line-height:1.45}
+    .squad-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:12px}
+    .squad-head h2{margin:4px 0 0;font-size:1.3rem}
+    .manager{color:var(--muted);font-size:.86rem;text-align:right}
+    .manager strong{color:var(--text)}
+    .squad-list{display:grid;gap:6px}
+    .squad-player{display:grid;grid-template-columns:42px minmax(0,1fr) auto 38px;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:8px;background:rgba(12,10,10,.42)}
+    .pos-badge{font-size:.66rem;font-weight:900;color:#fff;padding:4px 6px;border-radius:4px;text-align:center}
+    .player-name{font-weight:780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .player-rarity{color:var(--muted);font-size:.74rem;text-transform:uppercase}
+    .player-ovr{color:var(--gold);font-weight:900;text-align:right;font-variant-numeric:tabular-nums}
+    .proof-panel{display:grid;gap:12px}
+    .proof-panel .awards-grid{grid-template-columns:1fr}
+    .verified{border:1px solid rgba(244,162,97,.42);border-radius:8px;padding:12px;background:linear-gradient(140deg,rgba(244,162,97,.12),rgba(244,162,97,.03));color:var(--gold);font-weight:800}
+    .button{display:inline-flex;justify-content:center;align-items:center;width:100%;border-radius:8px;padding:14px 16px;background:var(--accent);color:#fff;font-weight:900;text-align:center;box-shadow:0 12px 30px rgba(230,57,70,.18)}
+    .button:hover{filter:brightness(1.06)}
+    .site-footer{display:flex;justify-content:space-between;gap:20px;padding:36px 0 28px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem;line-height:1.5}
+    .site-footer p{margin:0}
+    @media (max-width:760px){.site-header{align-items:flex-start;flex-direction:column;padding:16px 0}.result-hero,.share-grid,.breakdown-grid,.awards-grid{grid-template-columns:1fr}h1{font-size:4.4rem}.squad-player{grid-template-columns:38px minmax(0,1fr) 34px}.player-rarity{display:none}.site-footer{flex-direction:column}}
   </style>
 </head>
 <body>
+  <header class="site-header">
+    <a class="brand" href="${escapeHtml(siteUrl)}" aria-label="Treble Quest home">
+      <img src="${escapeHtml(siteUrl)}/favicon.svg" alt="" aria-hidden="true">
+      <span>Treble Quest</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="${escapeHtml(siteUrl)}">Home</a>
+      <a href="${escapeHtml(siteUrl)}/play">Play</a>
+      <a href="${escapeHtml(siteUrl)}/leaderboard">Leaderboard</a>
+    </nav>
+  </header>
+  <main class="result-page">
+    <section class="${cardClass}">
+      <section class="result-hero">
+        <div>
+          <span class="eyebrow">Verified result</span>
+          <h1>${share.score.toLocaleString()}</h1>
+          <p class="result-title">${escapeHtml(label)}</p>
+          <p class="result-subtitle">${escapeHtml(modeLabel(share))}${share.headline ? ` / ${escapeHtml(share.headline)}` : ''}</p>
+        </div>
+        ${trophyStrip}
+      </section>
+
+      <div class="breakdown-grid">
+        <article class="${share.trophies > 0 ? 'won' : ''}">
+          <span>${worldCup ? 'Record' : 'Points'}</span>
+          <h2>${worldCup ? record : share.league_points}</h2>
+          <p>${worldCup ? 'World Cup run' : `${record} league record`}</p>
+        </article>
+        <article class="${share.league_position === 1 || (worldCup && share.trophies > 0) ? 'won' : ''}">
+          <span>${worldCup ? 'Target' : 'League'}</span>
+          <h2>${worldCup ? '8-0' : ordinal(share.league_position)}</h2>
+          <p>${worldCup ? 'Perfect world run' : 'Final position'}</p>
+        </article>
+        <article class="${!worldCup && (share.fa_cup === 'Winners' || share.cl === 'Winners') ? 'won' : ''}">
+          <span>${worldCup ? 'Finished' : 'Cups'}</span>
+          <h2>${worldCup ? ordinal(share.league_position) : `${share.trophies}/3`}</h2>
+          <p>${worldCup ? 'Tournament finish' : `FA Cup: ${escapeHtml(share.fa_cup)} / CL: ${escapeHtml(share.cl)}`}</p>
+        </article>
+      </div>
+
+      <div class="share-grid">
+        <section class="squad-panel">
+          <div class="squad-head">
+            <div>
+              <span class="panel-kicker">Drafted squad</span>
+              <h2>Starting XI</h2>
+            </div>
+            ${manager ? `<div class="manager">Manager<br><strong>${escapeHtml(manager.name)}</strong></div>` : ''}
+          </div>
+          <div class="squad-list">
+            ${squadRows}
+          </div>
+        </section>
+
+        <aside class="proof-panel">
+          <div class="verified">This result was re-simulated and signed on the server.</div>
+          <div class="awards-grid">
+            ${awardsMarkup}
+          </div>
+          <a href="${escapeHtml(siteUrl)}" class="button">${worldCup ? 'Can you go 8-0?' : 'Can you win the Treble?'} Play now</a>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Treble Quest is an independent, fan-made football draft game.</p>
+    <p>Verified share / ${escapeHtml(share.id)}</p>
+  </footer>
+  <template>
   <div class="card">
     <div class="header">
       <div class="badge">Verified result</div>
@@ -194,6 +308,7 @@ export function renderResultPage(share: ShareRow, siteUrl: string): string {
     <a href="${escapeHtml(siteUrl)}" class="cta">${worldCup ? 'Can you go 8-0?' : 'Can you win the Treble?'} Play now</a>
   </div>
   <div class="footer">Treble Quest / The football draft game</div>
+  </template>
 </body>
 </html>`;
 }
