@@ -1,6 +1,9 @@
 [Unit]
 Description=Treble Quest leaderboard API
-After=network.target
+# Binds to the docker0 gateway (HOST in /etc/treble-quest.env), which only
+# exists once Docker is up.
+After=network-online.target docker.service
+Wants=network-online.target
 
 [Service]
 Type=simple

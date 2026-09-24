@@ -63,30 +63,43 @@ endpoint list.
 
 ## Deploy via GitHub Actions
 
-Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+(it can also be started by hand from the Actions tab).
 The workflow typechecks and builds both the static site and the API, then SSHes
 into the VPS to swap in the new build and restart the systemd unit.
 
+### Hosting layout (shared VPS)
+
+Treble Quest shares one VPS with Vexara and the portfolio. Vexara's Dockerized
+nginx (`vx-nginx`) is the only thing on ports `80`/`443` and serves every site:
+
+| Hostname                      | Served by                                                      |
+| ----------------------------- | -------------------------------------------------------------- |
+| `treble.quest`                | static files in `/var/www/treble-quest`                        |
+| `treble.quest/r/*`            | proxied to the API (share-result pages)                        |
+| `api.treble.quest`            | proxied to the API, incl. the `/vs/ws` lobby WebSocket         |
+| `www.treble.quest`            | 301 to `treble.quest`                                          |
+
+The API is the `treble-quest-api` systemd unit on the host, bound to the docker0
+gateway `172.17.0.1:8787`. The nginx container reaches it as
+`host.docker.internal`, and UFW only lets Docker subnets reach that port.
+
+The nginx server blocks for all three hostnames live in the **vexara** repo:
+`deploy/nginx/treble.conf.template`. Change them there, then run Vexara's deploy.
+
 ### One-time VPS setup
 
-Point DNS at the VPS:
+Host provisioning (Docker, Node 22, the `deploy` and `trebleq` users, UFW,
+Let's Encrypt cert for `treble.quest` + `www` + `api`) is done by the vexara
+repo's `deploy/bootstrap-vps.sh`. See its `deploy/RUNBOOK.md`.
+
+DNS (Cloudflare):
 
 ```
-A    treble.quest       → <VPS IP>
-A    www.treble.quest   → <VPS IP>
-A    api.treble.quest   → <VPS IP>
+A    treble.quest       → <VPS IP>   proxied
+A    www.treble.quest   → <VPS IP>   proxied
+A    api.treble.quest   → <VPS IP>   DNS only
 ```
-
-On the VPS, run:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/andrerafaelf/treble-quest/main/deploy/bootstrap-vps.sh | sudo bash
-sudo certbot --nginx -d treble.quest -d www.treble.quest
-sudo certbot --nginx -d api.treble.quest
-```
-
-The deploy user (the one CI SSHes in as) needs passwordless sudo. Add their
-public key to `~/.ssh/authorized_keys`.
 
 ### Required GitHub repo configuration
 
@@ -95,8 +108,8 @@ Secrets (Settings → Secrets and variables → Actions → Secrets):
 | Name           | Purpose                                                    |
 | -------------- | ---------------------------------------------------------- |
 | `VPS_HOST`     | VPS IP or hostname                                         |
-| `VPS_USER`     | SSH user with passwordless sudo                            |
-| `VPS_SSH_KEY`  | Private SSH key (PEM) authorized for `VPS_USER`            |
+| `VPS_USER`     | SSH user with passwordless sudo (`deploy`)                 |
+| `VPS_SSH_KEY`  | Private SSH key authorized for `VPS_USER`                  |
 | `IP_SALT`      | Random string used to hash IPs in the scores table         |
 
 Variables (Settings → Secrets and variables → Actions → Variables):
@@ -106,88 +119,23 @@ Variables (Settings → Secrets and variables → Actions → Variables):
 | `PUBLIC_SITE_URL`                 | `https://treble.quest`     |
 | `PUBLIC_API_BASE`                 | `https://api.treble.quest` |
 | `ALLOWED_ORIGINS`                 | `https://treble.quest`     |
+| `PUBLIC_GA_MEASUREMENT_ID`        | (GA4 id, optional)         |
 | `PUBLIC_GOOGLE_SITE_VERIFICATION` | (your Search Console token, optional) |
-
-The API runs as a separate origin on `api.treble.quest`, proxied to the Node
-service on port `8787`. The multiplayer lobby uses a WebSocket at
-`api.treble.quest/vs/ws`. **The `api.treble.quest` vhost must be edited once** to
-forward the upgrade headers — without this the WS handshake fails at the edge and
-lobbies silently fall back to a stale snapshot (members/round-start don't update
-live). The deploy ships the server code but does **not** auto-patch upgrade headers
-into the shared edge, because injecting directives into a shared Docker nginx is
-risky. Add a dedicated `location /vs/ws` block to the API vhost (see the canonical
-[`deploy/nginx.example.conf`](deploy/nginx.example.conf)):
-
-```nginx
-# once, at http {} scope (top of the config):
-map $http_upgrade $connection_upgrade { default upgrade; '' close; }
-
-# inside the api.treble.quest server {} block, BEFORE `location / {`:
-location /vs/ws {
-    proxy_pass http://127.0.0.1:8787;   # or the Docker gateway on the shared edge
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $connection_upgrade;
-    proxy_set_header Host $host;
-    proxy_read_timeout 3600s;
-}
-```
-
-Verify after reloading nginx: a WS upgrade request to `/vs/ws` should return
-`101`/`426`/`400` (route exists), **not** `404` (route missing → server not deployed)
-and not hang (headers not forwarded). On a single-purpose VPS, host nginx can proxy to
-`127.0.0.1:8787`. On the current shared VPS, Docker owns public ports `80` and
-`443`, so the Dockerized shared nginx edge must proxy to the host via its Docker
-gateway instead. The deploy workflow detects that mode and runs
-[`deploy/repair-nginx-vps.sh`](deploy/repair-nginx-vps.sh).
 
 ### API troubleshooting
 
-If the leaderboard service is healthy on the VPS but `https://api.treble.quest`
-times out publicly, first check which process owns the public edge:
-
 ```bash
-curl -v http://127.0.0.1:8787/health
-sudo ss -tlnp | grep -E ':80|:443|:8787'
-sudo nginx -t
-sudo grep -R "client:3000\|api.treble.quest\|treble.quest" -n /etc/nginx
+sudo systemctl status treble-quest-api
+sudo journalctl -u treble-quest-api -n 100 --no-pager
+curl -v http://172.17.0.1:8787/health                     # API itself
+curl -v --resolve api.treble.quest:443:127.0.0.1 https://api.treble.quest/health   # through vx-nginx
+docker logs --tail 50 vx-nginx
 ```
 
-If `docker-proxy` owns `80`/`443`, do not start or restart host nginx to take
-those ports. Keep the VPS shared and repair only Treble Quest's route in the
-Dockerized edge:
-
-```bash
-sudo bash /tmp/treble-quest-deploy/repair-nginx-vps.sh
-```
-
-The script finds the nginx container publishing `443`, binds the API to that
-container's Docker gateway, patches Treble Quest `proxy_pass` targets that still
-point at an unreachable loopback/public address, validates nginx, reloads the
-container, and then checks `https://api.treble.quest/health`. It also ensures
-the main `treble.quest` vhost proxies `/r/*` share-result links to the API; if
-share links show the unstyled Treble Quest shell instead of a verified result,
-the edge is falling through to the static site and this repair needs to run
-again. The `/r/*` verification probes the local HTTPS edge with `--resolve` so
-Cloudflare managed challenges do not fail deploys. If a host firewall blocks
-container-to-host traffic, it also allows only the shared edge Docker subnet to
-reach only the API port on the Docker gateway.
-
-If host nginx owns the public edge, `nginx -t` must pass. An error like
-`host not found in upstream "client:3000"` means a stale nginx config from
-another app is still loaded from `/etc/nginx`. Production deploys repair that
-one known-bad host-level upstream by replacing `server client:3000;` with
-`server 127.0.0.1:3000;` after backing up `/etc/nginx/nginx.conf`. This is
-intentionally narrow for a shared VPS: the deploy does not replace nginx config
-or remove other apps' server blocks.
-
-For any other nginx error, fix only the stale config that owns the bad upstream,
-then reload nginx and re-check the public health endpoint:
-
-```bash
-sudo systemctl reload nginx
-curl -v https://api.treble.quest/health
-```
+If the API is healthy but the edge returns `502`, check that UFW still has the
+`8787` rule for `172.16.0.0/12` (`sudo ufw status`) and that
+`/opt/vexara/runtime/nginx/treble.conf` is not empty (it is left empty when the
+`treble.quest` cert is missing).
 
 ### Production environment gate
 
