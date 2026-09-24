@@ -138,6 +138,18 @@ export function nextSlot(run: RunState): DraftSlot | undefined {
   return getDraftSlots(run.mode, run.formation)[run.currentPick];
 }
 
+const SLOT_LINE: Partial<Record<Position, Position>> = {
+  RB: 'DEF',
+  CB: 'DEF',
+  LB: 'DEF',
+  CM: 'MID',
+  RM: 'MID',
+  LM: 'MID',
+  RW: 'FWD',
+  LW: 'FWD',
+  ST: 'FWD',
+};
+
 export function isSlotFit(player: PlayerSeason, required: Position): boolean {
   if (required === 'ANY') return true;
   if (required === 'NOGK') return !player.positions.includes('GK');
@@ -180,7 +192,13 @@ export function generatePrompt(run: RunState): DraftPrompt | undefined {
       : run.mode === 'classic'
         ? playerPool.filter((player) => PL_CLUBS.has(player.club))
         : playerPool;
-  const fitPlayers = basePool.filter((player) => !usedNames.has(player.name) && isSlotFit(player, slot.required));
+  const available = basePool.filter((player) => !usedNames.has(player.name));
+  let fitPlayers = available.filter((player) => isSlotFit(player, slot.required));
+  // Small Legacy pools can run out of a position (AC Milan has no right winger),
+  // so fall back to the same line of the pitch, then to any outfielder
+  const line = SLOT_LINE[slot.required];
+  if (!fitPlayers.length && line) fitPlayers = available.filter((player) => isSlotFit(player, line));
+  if (!fitPlayers.length) fitPlayers = available.filter((player) => isSlotFit(player, slot.required === 'GK' ? 'ANY' : 'NOGK'));
   const options = run.mode === 'legacy' ? chooseEraDiversePlayers(fitPlayers, 4, rng) : chooseDiversePlayers(fitPlayers, 4, rng);
 
   return {
