@@ -130,6 +130,7 @@ jobs:
             NODE_ENV=production
             PORT=8787
             HOST=$API_HOST
+            TRUST_PROXY=172.16.0.0/12
             DB_PATH=$APP_DIR/server/data/leaderboard.db
             ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}
             SITE_URL=${{ vars.PUBLIC_SITE_URL }}

@@ -40,8 +40,16 @@ const ORIGINS = (process.env.ALLOWED_ORIGINS ?? 'https://treble.quest,http://loc
   .split(',')
   .map((o) => o.trim());
 const SITE_URL = (process.env.SITE_URL ?? 'https://treble.quest').replace(/\/$/, '');
+// Proxies whose X-Forwarded-For we believe (comma-separated IPs/CIDRs). In
+// production every request arrives from the shared nginx container, so without
+// this req.ip is that container for all players: one shared rate-limit bucket
+// and one IP hash. Unset = trust nobody (direct local dev).
+const TRUST_PROXY = process.env.TRUST_PROXY || false;
 
-const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' } });
+const app = Fastify({
+  logger: { level: process.env.LOG_LEVEL ?? 'info' },
+  trustProxy: TRUST_PROXY,
+});
 
 // Must be registered before any other plugin/route and before listen(): it
 // attaches the server's `upgrade` handler at registration time.
