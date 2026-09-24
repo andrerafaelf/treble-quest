@@ -318,13 +318,7 @@
       <span class="countdown-number" class:go={countdown === 0}>{countdown === 0 ? 'GO!' : countdown}</span>
     {/key}
     <p class="countdown-mode">
-      {room?.mode === 'world-cup'
-        ? 'World Cup'
-        : room?.mode === 'global'
-          ? 'Global'
-          : room?.mode === 'legacy'
-            ? 'Legacy'
-            : 'Classic'}
+      {room?.mode === 'global' ? 'Global' : room?.mode === 'legacy' ? 'Legacy' : 'Classic'}
       {#if room?.mode === 'classic' && room?.formation}· {room.formation}{/if}
     </p>
   </div>

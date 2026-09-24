@@ -22,11 +22,13 @@
       ? run.hideRatings
         ? $t('leaderboard_submit.board_classic_no_ovr')
         : $t('leaderboard_submit.board_classic')
-      : run.mode === 'world-cup'
+      : run.mode === 'global'
         ? run.hideRatings
-          ? $t('leaderboard_submit.board_world_cup_no_ovr')
-          : $t('leaderboard_submit.board_world_cup')
-        : $t('leaderboard_submit.board_quick'),
+          ? $t('leaderboard.tab_global_no_ovr')
+          : $t('leaderboard.tab_global')
+        : run.hideRatings
+          ? $t('leaderboard.tab_legacy_no_ovr')
+          : $t('leaderboard.tab_legacy'),
   );
 
   $effect(() => {

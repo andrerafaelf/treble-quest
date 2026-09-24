@@ -163,7 +163,9 @@
         <section class="final-squad-pitch" aria-label="Final squad">
           <SquadRail picks={run.picks} {slots} />
         </section>
-        <LeaderboardSubmit {run} {lang} />
+        {#if run.mode !== 'world-cup'}
+          <LeaderboardSubmit {run} {lang} />
+        {/if}
         <div class="kofi-nudge">
           <p>
             {$t('result.enjoying')} <a href="https://ko-fi.com/treblequest" target="_blank" rel="noreferrer"

@@ -6,9 +6,9 @@
   import { fetchLeaderboard, type LeaderboardEntry, type SquadEntry } from '$lib/game/leaderboard';
   import type { GameMode } from '$lib/game/types';
 
-  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'world-cup' | 'world-cup-no-overall' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
+  type LeaderboardTab = 'classic' | 'classic-no-overall' | 'global' | 'global-no-overall' | 'legacy' | 'legacy-no-overall';
 
-  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'world-cup', 'world-cup-no-overall', 'global', 'global-no-overall', 'legacy', 'legacy-no-overall'];
+  const VALID_TABS: LeaderboardTab[] = ['classic', 'classic-no-overall', 'global', 'global-no-overall', 'legacy', 'legacy-no-overall'];
 
   function initialTab(): LeaderboardTab {
     if (!browser) return 'classic';
@@ -25,18 +25,15 @@
   async function load(next: LeaderboardTab) {
     tab = next;
     mode =
-      next === 'world-cup' || next === 'world-cup-no-overall'
-        ? 'world-cup'
-        : next === 'global' || next === 'global-no-overall'
-          ? 'global'
-          : next === 'legacy' || next === 'legacy-no-overall'
-            ? 'legacy'
-            : 'classic';
+      next === 'global' || next === 'global-no-overall'
+        ? 'global'
+        : next === 'legacy' || next === 'legacy-no-overall'
+          ? 'legacy'
+          : 'classic';
     const hideRatings =
       next === 'classic-no-overall' ||
       next === 'global-no-overall' ||
-      next === 'legacy-no-overall' ||
-      next === 'world-cup-no-overall';
+      next === 'legacy-no-overall';
     status = 'loading';
     expanded = new Set();
     if (browser) {
@@ -69,7 +66,6 @@
   }
 
   function trophyLabel(n: number, entryMode: GameMode): string {
-    if (entryMode === 'world-cup') return n > 0 ? 'World Cup' : 'No trophy';
     if (n === 3) return 'Treble';
     if (n === 2) return 'Double';
     if (n === 1) return '1 trophy';
@@ -87,12 +83,7 @@
   function beatUrl(entry: LeaderboardEntry): string {
     const params = new URLSearchParams({ mode });
     if (entry.formation) params.set('formation', entry.formation);
-    if (
-      tab === 'classic-no-overall' ||
-      tab === 'global-no-overall' ||
-      tab === 'legacy-no-overall' ||
-      tab === 'world-cup-no-overall'
-    )
+    if (tab === 'classic-no-overall' || tab === 'global-no-overall' || tab === 'legacy-no-overall')
       params.set('hideRatings', '1');
     return `/play?${params.toString()}`;
   }
@@ -102,7 +93,7 @@
   <title>Leaderboard - Treble Quest</title>
   <meta
     name="description"
-    content="Top Treble Quest scores from Classic, Global, and World Cup mode runs, including no-overall variants."
+    content="Top Treble Quest scores from Classic, Global and Legacy Draft runs, including no-overall variants."
   />
 </svelte:head>
 
@@ -134,18 +125,6 @@
     >
     <button
       role="tab"
-      aria-selected={tab === 'world-cup'}
-      class:active={tab === 'world-cup'}
-      onclick={() => load('world-cup')}>World Cup</button
-    >
-    <button
-      role="tab"
-      aria-selected={tab === 'world-cup-no-overall'}
-      class:active={tab === 'world-cup-no-overall'}
-      onclick={() => load('world-cup-no-overall')}>World Cup · No OVR</button
-    >
-    <button
-      role="tab"
       aria-selected={tab === 'legacy'}
       class:active={tab === 'legacy'}
       onclick={() => load('legacy')}>Legacy Draft</button
@@ -171,7 +150,7 @@
       {#each entries as entry, i (entry.name + entry.createdAt)}
         {@const isOpen = expanded.has(i)}
         {@const hasSquad = entry.squad && entry.squad.length > 0}
-        <li class:top={i < 3} class:treble={entry.trophies === 3 || (mode === 'world-cup' && entry.trophies > 0)}>
+        <li class:top={i < 3} class:treble={entry.trophies === 3}>
           <button
             class="lb-main"
             onclick={() => {
