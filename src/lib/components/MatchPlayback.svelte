@@ -572,11 +572,17 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: 8px;
-    margin-bottom: 0.75rem;
+    padding: 1.1rem 1.25rem;
+    color: var(--card);
+    background:
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 40px, transparent 40px 80px),
+      var(--pitch);
+    border-radius: 12px;
+    box-shadow:
+      inset 0 0 0 5px var(--pitch),
+      inset 0 0 0 7px var(--gold-light),
+      0 14px 30px rgba(28, 24, 18, 0.18);
+    margin-bottom: 0.9rem;
   }
 
   .sim-done-outcome {
@@ -586,14 +592,21 @@
   }
 
   .sim-done-label {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #f8fafc;
+    font-family: var(--display);
+    font-stretch: 66%;
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 0.95;
+    text-transform: uppercase;
+    background: linear-gradient(115deg, #a47400, var(--gold-light) 30%, #fff3c4 45%, var(--gold-light) 60%, #a47400);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .sim-done-pts {
-    font-size: 0.75rem;
-    color: var(--muted);
+    font-size: 0.8rem;
+    color: rgba(255, 252, 243, 0.8);
   }
 
   .sim-achievements {
@@ -610,26 +623,34 @@
     text-transform: uppercase;
     padding: 2px 7px;
     border-radius: 4px;
-    background: rgba(255, 215, 0, 0.15);
-    color: #ffd700;
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: var(--gold-light);
+    color: var(--gold-dark);
+    border: 1px solid var(--card);
   }
 
   .sim-done-cta {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 0.6rem 1.1rem;
-    font-weight: 800;
-    font-size: 0.85rem;
+    background: var(--card);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 0.65rem 1.1rem;
+    font-family: var(--display);
+    font-stretch: 85%;
+    font-weight: 900;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     cursor: pointer;
     white-space: nowrap;
-    transition: opacity 0.15s;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
   }
 
   .sim-done-cta:hover {
-    opacity: 0.88;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--ink);
   }
 
   .standings {
@@ -702,13 +723,13 @@
   }
 
   .st-user {
-    background: rgba(230, 57, 70, 0.08);
+    background: rgba(200, 40, 40, 0.08);
     border-left: 2px solid var(--accent);
     padding-left: 0.15rem;
   }
 
   .st-cl-spot {
-    border-left: 2px solid rgba(69, 123, 157, 0.4);
+    border-left: 2px solid rgba(42, 111, 176, 0.4);
     padding-left: 0.15rem;
   }
 
@@ -790,15 +811,15 @@
   }
 
   .st-form-w {
-    background: rgba(16, 185, 129, 0.25);
-    color: #10b981;
+    background: rgba(29, 107, 58, 0.25);
+    color: var(--pitch);
   }
   .st-form-d {
-    background: rgba(148, 163, 184, 0.18);
-    color: #94a3b8;
+    background: rgba(28, 24, 18, 0.18);
+    color: var(--muted);
   }
   .st-form-l {
-    background: rgba(230, 57, 70, 0.22);
+    background: rgba(200, 40, 40, 0.22);
     color: var(--accent);
   }
 
@@ -820,12 +841,12 @@
   }
 
   .st-bracket-row.won {
-    background: rgba(16, 185, 129, 0.08);
-    border-left: 2px solid #10b981;
+    background: rgba(29, 107, 58, 0.08);
+    border-left: 2px solid var(--pitch);
   }
 
   .st-bracket-row.lost {
-    background: rgba(230, 57, 70, 0.08);
+    background: rgba(200, 40, 40, 0.08);
     border-left: 2px solid var(--accent);
   }
 
@@ -867,15 +888,15 @@
   }
 
   .st-bracket-badge.win {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
+    background: rgba(29, 107, 58, 0.2);
+    color: var(--pitch);
   }
   .st-bracket-badge.draw {
-    background: rgba(148, 163, 184, 0.18);
-    color: #94a3b8;
+    background: rgba(28, 24, 18, 0.18);
+    color: var(--muted);
   }
   .st-bracket-badge.loss {
-    background: rgba(230, 57, 70, 0.18);
+    background: rgba(200, 40, 40, 0.18);
     color: var(--accent);
   }
 
