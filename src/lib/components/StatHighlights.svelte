@@ -111,8 +111,8 @@
     text-transform: uppercase;
     padding: 3px 10px;
     border-radius: 5px;
-    background: rgba(255, 215, 0, 0.12);
-    color: #ffd700;
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: rgba(184, 134, 11, 0.12);
+    color: var(--gold);
+    border: 1px solid rgba(184, 134, 11, 0.3);
   }
 </style>

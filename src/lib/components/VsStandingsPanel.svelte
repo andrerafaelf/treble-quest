@@ -79,8 +79,8 @@
 
 <style>
   .vs-standings {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(28, 24, 18, 0.03);
+    border: 1px solid rgba(28, 24, 18, 0.08);
     border-radius: 14px;
     padding: 1rem 1.1rem;
     margin: 0 0 1.25rem;
@@ -89,7 +89,7 @@
     text-transform: uppercase;
     letter-spacing: 0.2em;
     font-size: 0.7rem;
-    color: var(--accent, #e63946);
+    color: var(--accent, var(--accent));
     display: block;
     margin-bottom: 0.25rem;
   }
@@ -104,13 +104,13 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #777;
+    background: var(--muted);
   }
   .status-dot.on {
-    background: #46d369;
+    background: var(--pitch);
   }
   .winner-line {
-    background: rgba(255, 184, 77, 0.15);
+    background: rgba(184, 134, 11, 0.15);
     padding: 0.5rem 0.75rem;
     border-radius: 8px;
     margin: 0 0 0.75rem;
@@ -130,13 +130,13 @@
     gap: 0.6rem;
     padding: 0.45rem 0.6rem;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(28, 24, 18, 0.03);
   }
   .standings-list li.me {
-    background: rgba(120, 200, 255, 0.12);
+    background: rgba(42, 111, 176, 0.12);
   }
   .standings-list li.done {
-    background: rgba(120, 255, 170, 0.08);
+    background: rgba(29, 107, 58, 0.08);
   }
   .rank {
     font-variant-numeric: tabular-nums;
@@ -152,7 +152,7 @@
     font-size: 0.7rem;
     padding: 0.05rem 0.4rem;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(28, 24, 18, 0.1);
     letter-spacing: 0.05em;
   }
   .pscore {

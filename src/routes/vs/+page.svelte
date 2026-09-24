@@ -585,8 +585,8 @@
   .code-input {
     padding: 0.7rem 0.9rem;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(28, 24, 18, 0.15);
+    background: rgba(28, 24, 18, 0.04);
     color: inherit;
     font-size: 1rem;
   }
@@ -595,7 +595,7 @@
   }
   .code-inline {
     letter-spacing: 0.15em;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(28, 24, 18, 0.08);
     padding: 0.05rem 0.4rem;
     border-radius: 6px;
   }
@@ -623,8 +623,8 @@
     font-size: 0.9rem;
   }
   .conn-warning {
-    background: rgba(255, 184, 77, 0.12);
-    border: 1px solid rgba(255, 184, 77, 0.35);
+    background: rgba(184, 134, 11, 0.12);
+    border: 1px solid rgba(184, 134, 11, 0.35);
     color: #ffd28a;
     padding: 0.6rem 0.9rem;
     border-radius: 8px;
@@ -673,7 +673,7 @@
     margin: 0.2rem 0 0.6rem;
   }
   .copy-btn {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(28, 24, 18, 0.2);
     background: transparent;
     color: inherit;
     padding: 0.4rem 0.9rem;
@@ -722,14 +722,14 @@
     gap: 0.5rem;
     padding: 0.5rem 0.6rem;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(28, 24, 18, 0.03);
   }
   .player-list li.me,
   .standings-list li.me {
-    background: rgba(120, 200, 255, 0.12);
+    background: rgba(42, 111, 176, 0.12);
   }
   .standings-list li.done {
-    background: rgba(120, 255, 170, 0.1);
+    background: rgba(29, 107, 58, 0.1);
   }
   .pname {
     flex: 1;
@@ -749,12 +749,12 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #777;
+    background: var(--muted);
     flex: none;
   }
   .dot.on,
   .status-dot.on {
-    background: #46d369;
+    background: var(--pitch);
   }
   .badge {
     font-size: 0.65rem;
@@ -763,7 +763,7 @@
     font-weight: 700;
   }
   .badge.formation {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(28, 24, 18, 0.12);
     letter-spacing: 0.05em;
   }
   .badge.host {
@@ -771,12 +771,12 @@
     color: #222;
   }
   .badge.you {
-    background: rgba(120, 200, 255, 0.3);
+    background: rgba(42, 111, 176, 0.3);
   }
   .my-formation {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(28, 24, 18, 0.08);
   }
   .my-formation h2 {
     margin: 0 0 0.5rem;
@@ -786,8 +786,8 @@
     align-self: start;
     position: sticky;
     top: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(28, 24, 18, 0.03);
+    border: 1px solid rgba(28, 24, 18, 0.08);
     border-radius: 14px;
     padding: 1rem;
   }
@@ -799,7 +799,7 @@
     font-size: 1.05rem;
   }
   .winner-line {
-    background: rgba(255, 184, 77, 0.15);
+    background: rgba(184, 134, 11, 0.15);
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
     margin: 0 0 0.75rem;
@@ -819,14 +819,14 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: radial-gradient(circle at center, rgba(20, 24, 36, 0.96), rgba(8, 10, 16, 0.98));
+    background: radial-gradient(circle at center, rgba(20, 24, 36, 0.96), rgba(255, 252, 243, 0.98));
     backdrop-filter: blur(4px);
   }
   .countdown-eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.25em;
     font-size: 0.85rem;
-    color: var(--accent, #e63946);
+    color: var(--accent, var(--accent));
     margin: 0;
   }
   .countdown-number {
@@ -837,7 +837,7 @@
     animation: countpop 0.8s ease-out;
   }
   .countdown-number.go {
-    color: #46d369;
+    color: var(--pitch);
   }
   .countdown-mode {
     opacity: 0.7;

@@ -46,7 +46,7 @@
     if (!el) return null;
     try {
       const { default: html2canvas } = await import('html2canvas');
-      const canvas = await html2canvas(el, { backgroundColor: '#100c0c', scale: 2, useCORS: true });
+      const canvas = await html2canvas(el, { backgroundColor: '#f2e9d2', scale: 2, useCORS: true });
       const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
       if (!blob) return null;
       const file = new File([blob], 'treble-quest-result.png', { type: 'image/png' });
@@ -171,7 +171,7 @@
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.025);
+    background: rgba(28, 24, 18, 0.025);
   }
 
   .share-buttons {
@@ -185,7 +185,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface, #1a2634);
-    color: var(--text, #e2e8f0);
+    color: var(--text, var(--ink-2));
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -195,8 +195,8 @@
   }
 
   .share-btn:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(28, 24, 18, 0.06);
+    border-color: rgba(28, 24, 18, 0.15);
   }
 
   .share-btn--whatsapp {
@@ -204,18 +204,18 @@
     border-color: rgba(37, 211, 102, 0.3);
   }
   .share-btn--x {
-    color: #f8fafc;
+    color: var(--ink);
   }
   .share-btn--copy {
-    color: #94a3b8;
+    color: var(--muted);
   }
   .share-btn--image {
     color: #f59e0b;
-    border-color: rgba(245, 158, 11, 0.2);
+    border-color: rgba(184, 134, 11, 0.2);
   }
   .share-btn--native {
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.3);
+    color: var(--pitch);
+    border-color: rgba(29, 107, 58, 0.3);
   }
 
   .share-note {
@@ -225,8 +225,8 @@
   }
 
   .share-note--hint {
-    color: #f8fafc;
-    background: rgba(248, 250, 252, 0.06);
+    color: var(--ink);
+    background: rgba(28, 24, 18, 0.06);
     border-radius: 6px;
     padding: 6px 10px;
   }

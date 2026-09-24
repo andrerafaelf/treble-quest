@@ -61,7 +61,7 @@
     gap: 7px;
     padding: 12px 8px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(28, 24, 18, 0.035);
     border-radius: 8px;
     cursor: pointer;
     color: var(--text);
@@ -69,14 +69,14 @@
   }
 
   .club-btn:hover {
-    border-color: rgba(230, 57, 70, 0.45);
-    background: rgba(230, 57, 70, 0.06);
+    border-color: rgba(200, 40, 40, 0.45);
+    background: rgba(200, 40, 40, 0.06);
   }
 
   .club-btn.active {
     border-color: var(--kit-primary);
     box-shadow: inset 0 -3px 0 var(--kit-primary);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(28, 24, 18, 0.06);
   }
 
   .club-crest {

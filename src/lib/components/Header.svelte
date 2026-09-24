@@ -108,17 +108,17 @@
     align-items: center;
     gap: 3px;
     background: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(28, 24, 18, 0.12);
     border-radius: 6px;
     padding: 4px 7px;
     cursor: pointer;
-    color: var(--text, #e2e8f0);
+    color: var(--text, var(--ink-2));
     transition: border-color 0.15s, background 0.15s;
   }
 
   .lang-current:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(28, 24, 18, 0.25);
+    background: rgba(28, 24, 18, 0.05);
   }
 
   .lang-flag {
@@ -143,7 +143,7 @@
     right: 0;
     min-width: 140px;
     background: #1a2030;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(28, 24, 18, 0.12);
     border-radius: 8px;
     padding: 4px;
     z-index: 100;
@@ -156,7 +156,7 @@
     gap: 8px;
     padding: 7px 10px;
     border-radius: 5px;
-    color: var(--text-muted, #94a3b8);
+    color: var(--text-muted, var(--muted));
     text-decoration: none;
     font-size: 0.82rem;
     font-weight: 500;
@@ -164,13 +164,13 @@
   }
 
   .lang-dropdown a:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: var(--text, #e2e8f0);
+    background: rgba(28, 24, 18, 0.07);
+    color: var(--text, var(--ink-2));
   }
 
   .lang-dropdown a.active {
-    color: var(--accent, #e63946);
-    background: rgba(230, 57, 70, 0.08);
+    color: var(--accent, var(--accent));
+    background: rgba(200, 40, 40, 0.08);
     font-weight: 700;
   }
 

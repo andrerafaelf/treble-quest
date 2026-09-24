@@ -164,9 +164,9 @@
     width: 400px;
     background: #100c0c;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(28, 24, 18, 0.08);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #e2e8f0;
+    color: var(--ink-2);
     position: absolute;
     left: -9999px;
     top: 0;
@@ -179,7 +179,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 14px 18px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(28, 24, 18, 0.06);
   }
 
   .rc-brand {
@@ -191,7 +191,7 @@
   .rc-brand-name {
     font-size: 0.95rem;
     font-weight: 900;
-    color: #e63946;
+    color: var(--accent);
     letter-spacing: -0.01em;
   }
 
@@ -207,8 +207,8 @@
     display: flex;
     align-items: baseline;
     gap: 3px;
-    background: rgba(244, 162, 97, 0.12);
-    border: 1px solid rgba(244, 162, 97, 0.2);
+    background: rgba(184, 134, 11, 0.12);
+    border: 1px solid rgba(184, 134, 11, 0.2);
     border-radius: 6px;
     padding: 3px 8px;
   }
@@ -216,13 +216,13 @@
   .rc-ovr-val {
     font-size: 1.1rem;
     font-weight: 900;
-    color: #f4a261;
+    color: var(--gold);
     line-height: 1;
   }
 
   .rc-ovr-lbl {
     font-size: 0.6rem;
-    color: #f4a261;
+    color: var(--gold);
     opacity: 0.7;
     font-weight: 700;
     text-transform: uppercase;
@@ -233,21 +233,21 @@
   .rc-hero {
     padding: 18px 18px 14px;
     text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(28, 24, 18, 0.06);
   }
 
   .rc-hero-win {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 17, 23, 0) 60%);
+    background: linear-gradient(135deg, rgba(29, 107, 58, 0.1) 0%, rgba(255, 252, 243, 0) 60%);
   }
 
   .rc-hero-loss {
-    background: linear-gradient(135deg, rgba(69, 123, 157, 0.08) 0%, rgba(13, 17, 23, 0) 60%);
+    background: linear-gradient(135deg, rgba(42, 111, 176, 0.08) 0%, rgba(255, 252, 243, 0) 60%);
   }
 
   .rc-outcome {
     font-size: 1.5rem;
     font-weight: 900;
-    color: #f8fafc;
+    color: var(--ink);
     letter-spacing: -0.02em;
     line-height: 1;
     margin-bottom: 8px;
@@ -265,7 +265,7 @@
   .rc-pts {
     font-size: 1.5rem;
     font-weight: 900;
-    color: #f4a261;
+    color: var(--gold);
     line-height: 1;
   }
 
@@ -284,13 +284,13 @@
   .rc-pos {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--muted);
   }
 
   .rc-record {
     font-size: 1.1rem;
     font-weight: 800;
-    color: #f8fafc;
+    color: var(--ink);
     letter-spacing: 0.04em;
     margin-bottom: 2px;
   }
@@ -307,7 +307,7 @@
     display: flex;
     gap: 6px;
     padding: 8px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(28, 24, 18, 0.06);
   }
 
   .rc-cup {
@@ -320,15 +320,15 @@
   }
 
   .rc-cup-ok {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: rgba(29, 107, 58, 0.15);
+    color: var(--pitch);
+    border: 1px solid rgba(29, 107, 58, 0.3);
   }
 
   .rc-cup-out {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(28, 24, 18, 0.04);
     color: #64748b;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(28, 24, 18, 0.08);
   }
 
   /* Squad */
@@ -342,7 +342,7 @@
     align-items: center;
     gap: 0 8px;
     padding: 4px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(28, 24, 18, 0.04);
   }
 
   .rc-player:last-child {
@@ -362,7 +362,7 @@
   .rc-player-name {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--ink-2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -378,7 +378,7 @@
   .rc-player-ovr {
     font-size: 0.78rem;
     font-weight: 800;
-    color: #f4a261;
+    color: var(--gold);
     min-width: 22px;
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -390,14 +390,14 @@
     flex-direction: column;
     gap: 4px;
     padding: 8px 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(28, 24, 18, 0.06);
   }
 
   .rc-award {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(28, 24, 18, 0.03);
     border-radius: 6px;
     padding: 6px 10px;
   }
@@ -417,7 +417,7 @@
 
   .rc-award-lbl {
     font-size: 0.55rem;
-    color: #f4a261;
+    color: var(--gold);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 700;
@@ -426,7 +426,7 @@
   .rc-award-name {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -435,7 +435,7 @@
   .rc-award-stat {
     font-size: 0.75rem;
     font-weight: 800;
-    color: #10b981;
+    color: var(--pitch);
     flex-shrink: 0;
   }
 
@@ -445,12 +445,12 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 18px 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(28, 24, 18, 0.06);
   }
 
   .rc-verified {
     font-size: 0.62rem;
-    color: #10b981;
+    color: var(--pitch);
     font-weight: 600;
   }
 
