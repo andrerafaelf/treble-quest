@@ -1,4 +1,5 @@
 import { generatePrompt, getDraftSlots, selectOption } from '$lib/game/draft';
+import { legacyClubs } from '$lib/game/data/players';
 import { simulateRun } from '$lib/game/simulation';
 import type { ClassicFormation, GameMode, RunState, SimulationResult } from '$lib/game/types';
 
@@ -8,6 +9,7 @@ export type SubmittedRun = {
   mode: GameMode;
   formation?: ClassicFormation;
   hideRatings?: boolean;
+  clubFilter?: string;
   startedAt: number;
   picks: Array<{ slotId: string; optionId: string }>;
 };
@@ -33,9 +35,17 @@ export type VerifyOk = {
 
 export type VerifyErr = { ok: false; reason: string };
 
+const REPLAY_MODES: GameMode[] = ['classic', 'world-cup', 'global', 'legacy'];
+const LEGACY_CLUB_NAMES = new Set(legacyClubs.map((club) => club.name));
+
 export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
-  if (submitted.mode !== 'classic' && submitted.mode !== 'world-cup' && submitted.mode !== 'global') {
+  if (!REPLAY_MODES.includes(submitted.mode)) {
     return { ok: false, reason: 'invalid mode' };
+  }
+  // Legacy drafts only offer players from the chosen club, so the replay needs it
+  const clubFilter = submitted.mode === 'legacy' ? submitted.clubFilter : undefined;
+  if (submitted.mode === 'legacy' && (typeof clubFilter !== 'string' || !LEGACY_CLUB_NAMES.has(clubFilter))) {
+    return { ok: false, reason: 'invalid club' };
   }
   if (!submitted.formation) {
     return { ok: false, reason: 'missing formation' };
@@ -61,6 +71,7 @@ export function verifyRun(submitted: SubmittedRun): VerifyOk | VerifyErr {
     mode: submitted.mode,
     formation: submitted.formation,
     hideRatings: submitted.hideRatings === true,
+    clubFilter,
     startedAt: submitted.startedAt,
     currentPick: 0,
     picks: [],
