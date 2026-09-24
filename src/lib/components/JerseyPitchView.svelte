@@ -108,13 +108,13 @@
               aria-hidden="true"
             >
               <!-- sleeve left -->
-              <polygon points="0,10 14,4 18,22 4,26" fill={filled ? kit.primary : '#2c2020'} />
+              <polygon points="0,10 14,4 18,22 4,26" fill={filled ? kit.primary : 'rgba(255, 255, 255, 0.1)'} stroke={filled ? '#fffcf3' : 'rgba(255, 255, 255, 0.6)'} stroke-width={filled ? 2.5 : 1.2} stroke-dasharray={filled ? undefined : '3 2.5'} stroke-linejoin="round" />
               <!-- sleeve right -->
-              <polygon points="60,10 46,4 42,22 56,26" fill={filled ? kit.primary : '#2c2020'} />
+              <polygon points="60,10 46,4 42,22 56,26" fill={filled ? kit.primary : 'rgba(255, 255, 255, 0.1)'} stroke={filled ? '#fffcf3' : 'rgba(255, 255, 255, 0.6)'} stroke-width={filled ? 2.5 : 1.2} stroke-dasharray={filled ? undefined : '3 2.5'} stroke-linejoin="round" />
               <!-- body -->
-              <path d="M14,4 Q30,0 46,4 L50,56 L10,56 Z" fill={filled ? kit.primary : '#2c2020'} />
+              <path d="M14,4 Q30,0 46,4 L50,56 L10,56 Z" fill={filled ? kit.primary : 'rgba(255, 255, 255, 0.1)'} stroke={filled ? '#fffcf3' : 'rgba(255, 255, 255, 0.6)'} stroke-width={filled ? 2.5 : 1.2} stroke-dasharray={filled ? undefined : '3 2.5'} stroke-linejoin="round" />
               <!-- collar accent -->
-              <path d="M22,4 Q30,8 38,4 Q36,14 30,16 Q24,14 22,4 Z" fill={filled ? kit.secondary : '#3a2828'} />
+              <path d="M22,4 Q30,8 38,4 Q36,14 30,16 Q24,14 22,4 Z" fill={filled ? kit.secondary : 'rgba(255, 255, 255, 0.12)'} />
               <!-- initials -->
               <text
                 x="30"
@@ -124,7 +124,7 @@
                 font-family="system-ui, sans-serif"
                 font-weight="900"
                 font-size={label.length > 2 ? '11' : '14'}
-                fill={filled ? kit.text : '#666'}
+                fill={filled ? kit.text : 'rgba(255, 255, 255, 0.75)'}
                 letter-spacing="0.5"
               >{label}</text>
             </svg>
@@ -144,26 +144,29 @@
 </div>
 
 <style>
+  /* A printed album pitch: mown stripes, white markings, keeper at the bottom */
   .jersey-pitch {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: 6px;
     min-height: 420px;
-    padding: 14px 10px;
-    border: 1px solid rgba(230, 57, 70, 0.18);
+    padding: 16px 10px 14px;
     border-radius: 8px;
+    border: 3px solid #fffcf3;
+    box-shadow:
+      0 0 0 1px rgba(28, 24, 18, 0.18),
+      inset 0 0 0 2px rgba(255, 255, 255, 0.35);
     background:
-      linear-gradient(
-        90deg,
-        transparent 49.5%,
-        rgba(255, 255, 255, 0.08) 49.5%,
-        rgba(255, 255, 255, 0.08) 50.5%,
-        transparent 50.5%
-      ),
-      radial-gradient(ellipse at center, transparent 0 16%, rgba(255, 255, 255, 0.08) 16.5% 17.5%, transparent 18%),
-      repeating-linear-gradient(90deg, rgba(34, 120, 60, 0.14) 0 20%, rgba(28, 100, 50, 0.07) 20% 40%),
-      rgba(10, 24, 14, 0.88);
+      /* halfway line */
+      linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)) center / 100% 2px no-repeat,
+      /* centre circle */
+      radial-gradient(circle at center, transparent 0 52px, rgba(255, 255, 255, 0.45) 53px 54.5px, transparent 55.5px),
+      /* penalty boxes */
+      linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)) 50% 100% / 56% 2px no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)) 50% 0 / 56% 2px no-repeat,
+      /* mown stripes */
+      repeating-linear-gradient(180deg, #226f3d 0 38px, #1c6436 38px 76px);
   }
 
   .jersey-row {
@@ -177,53 +180,77 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     position: relative;
   }
 
   .jersey-svg {
     width: 100%;
-    max-width: 58px;
+    max-width: 56px;
     height: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    overflow: visible;
   }
 
+  /* A filled spot is a stuck-on sticker: white rim, a shadow and a slight tilt */
   .filled .jersey-svg {
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.35));
+    animation: stick 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+  }
+
+  .jersey-row .jersey-spot.filled:nth-child(odd) .jersey-svg {
+    rotate: -3deg;
+  }
+  .jersey-row .jersey-spot.filled:nth-child(even) .jersey-svg {
+    rotate: 2deg;
+  }
+
+  @keyframes stick {
+    from {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   .jersey-overall {
     position: absolute;
-    top: -6px;
-    right: calc(50% - 28px);
-    min-width: 20px;
-    height: 20px;
+    top: -7px;
+    right: calc(50% - 30px);
+    min-width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: #e63946;
-    color: #f1f0ee;
-    font-size: 0.6rem;
+    background: #fffcf3;
+    color: #1c1812;
+    border: 2px solid #1c1812;
+    font-family: var(--display);
+    font-stretch: 75%;
+    font-size: 0.66rem;
     font-weight: 900;
     display: grid;
     place-items: center;
     padding: 0 3px;
     line-height: 1;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
   }
 
   .jersey-name {
-    font-size: 0.58rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
+    font-family: var(--display);
+    font-stretch: 82%;
+    font-size: 0.64rem;
+    font-weight: 800;
+    color: #fffcf3;
     text-align: center;
     line-height: 1.2;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   }
 
   .jersey-spot:not(.filled) .jersey-name {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
   }
 </style>
