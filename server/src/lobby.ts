@@ -149,7 +149,7 @@ export type StartConfig = {
   hideRatings?: boolean;
 };
 
-const VALID_MODES: GameMode[] = ['classic', 'world-cup', 'global', 'legacy'];
+const VALID_MODES: GameMode[] = ['classic', 'global', 'legacy'];
 const VALID_FORMATIONS: ClassicFormation[] = ['4-3-3', '4-4-2', '4-2-3-1', '3-4-3'];
 
 export function startRoom(code: string, token: string, config: StartConfig): Room | LobbyError {

@@ -70,13 +70,20 @@ await app.register(rateLimit, {
 
 app.get('/health', async () => ({ ok: true }));
 
+// Boards that are still live. Missing mode falls back to Classic like before.
+function boardMode(mode: string | undefined): 'classic' | 'global' | 'legacy' | null {
+  if (mode === undefined || mode === 'classic') return 'classic';
+  if (mode === 'global' || mode === 'legacy') return mode;
+  return null;
+}
+
 app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }>(
   '/leaderboard',
   async (req, reply) => {
-    const mode =
-      req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global'
-        ? req.query.mode
-        : 'classic';
+    const mode = boardMode(req.query.mode);
+    if (!mode) {
+      return reply.code(400).send({ error: 'invalid_mode' });
+    }
     const hideRatings = req.query.hideRatings === '1';
     const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
     const rows = topScores.all({ mode, hide_ratings: hideRatings ? 1 : 0, limit }) as ScoreRow[];
@@ -99,10 +106,10 @@ app.get<{ Querystring: { mode?: string; limit?: string; hideRatings?: string } }
 app.get<{ Querystring: { mode?: string; hideRatings?: string; score?: string } }>(
   '/leaderboard/spot',
   async (req, reply) => {
-    const mode =
-      req.query.mode === 'classic' || req.query.mode === 'world-cup' || req.query.mode === 'global'
-        ? req.query.mode
-        : 'classic';
+    const mode = boardMode(req.query.mode);
+    if (!mode) {
+      return reply.code(400).send({ error: 'invalid_mode' });
+    }
     const hideRatings = req.query.hideRatings === '1';
     const score = Number(req.query.score ?? NaN);
     if (!Number.isFinite(score)) {
@@ -147,6 +154,10 @@ app.post<{ Body: SubmitBody }>(
     if (!verified.ok) {
       req.log.warn({ reason: verified.reason }, 'rejected submission');
       return reply.code(400).send({ error: 'invalid_run', reason: verified.reason });
+    }
+    // The World Cup board is closed. Old runs can still be shared, just not ranked
+    if (verified.mode === 'world-cup') {
+      return reply.code(400).send({ error: 'mode_closed' });
     }
 
     const existing = findByRunId.get(verified.runId);
