@@ -5,6 +5,7 @@
   import favicon16 from '$lib/icons/favicon-16x16.png';
   import favicon32 from '$lib/icons/favicon-32x32.png';
   import faviconIco from '$lib/icons/favicon.ico';
+  import '@fontsource-variable/archivo/wdth.css';
   import '../lib/styles/app.css';
 
   let { children } = $props();
